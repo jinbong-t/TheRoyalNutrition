@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>수라간의 비밀 - 교사 대시보드</title>
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+    <header>
+        <h1>수라간의 비밀 실시간 현황판</h1>
+        <div class="header-stats">
+            <span>참여 모둠: <strong id="total-teams">0</strong>팀</span>
+            <button onclick="resetData()" class="btn-danger">초기화</button>
+        </div>
+    </header>
+
+    <main>
+        <table class="dashboard-table">
+            <thead>
+                <tr>
+                    <th>모둠 이름</th>
+                    <th>진행 방식</th>
+                    <th>현재 상태</th>
+                    <th>시작 시간</th>
+                    <th>종료(소요 시간)</th>
+                </tr>
+            </thead>
+            <tbody id="team-list-body">
+                <!-- 동적으로 데이터 추가됨 -->
+                <tr>
+                    <td colspan="5" class="empty-state">아직 접속한 모둠이 없습니다.</td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+
+    <script type="module" src="../app/firebase-config.js"></script>
+    <script type="module" src="dashboard.js"></script>
+</body>
+</html>

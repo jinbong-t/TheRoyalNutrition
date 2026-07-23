@@ -1,0 +1,68 @@
+:root {
+    --color-bg: #1a1a1a;
+    --color-panel: #2d2d2d;
+    --color-text: #f0f0f0;
+    --color-accent: #d4af37;
+    --color-border: #444;
+}
+
+body {
+    font-family: 'Gowun Dodum', sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    margin: 0;
+    padding: 20px;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--color-accent);
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+}
+
+h1 {
+    font-family: 'Noto Serif KR', serif;
+    color: var(--color-accent);
+    margin: 0;
+}
+
+.dashboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--color-panel);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+.dashboard-table th, .dashboard-table td {
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.dashboard-table th {
+    background: rgba(0,0,0,0.5);
+    color: var(--color-accent);
+    font-weight: bold;
+}
+
+.btn-danger {
+    background: #8b0000;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.btn-danger:hover {
+    background: #a00000;
+}
+
+.empty-state {
+    color: #888;
+    padding: 40px !important;
+}
