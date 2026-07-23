@@ -59,12 +59,17 @@ window.startGame = async function() {
         
         // 화면 전환
         document.getElementById('sec-login').classList.remove('active');
-        document.getElementById('sec-gate1').classList.add('active');
-        document.getElementById('sec-gate1').classList.remove('hidden');
+        document.getElementById('sec-login').classList.remove('active');
+        document.getElementById('sec-login').classList.add('hidden');
         
+        // 프롤로그(인트로) 화면으로 이동
+        const nextSec = document.getElementById('sec-intro');
+        nextSec.classList.remove('hidden');
+        nextSec.classList.add('active');
+
     } catch (error) {
-        console.error("Error starting game: ", error);
-        showAlert('입궐에 실패하였습니다. (네트워크 상태를 확인하시오)');
+        console.error("로그인 실패:", error);
+        showAlert('오류가 발생했소. 다시 시도하시오.');
     }
 }
 
