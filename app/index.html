@@ -26,17 +26,10 @@
             <p class="subtitle">세자 저하의 괴질을 고쳐라</p>
             
             <div class="login-box">
-                <input type="text" id="team-name" placeholder="모둠 이름을 입력하시오" autocomplete="off">
-                
-                <div class="version-select">
-                    <p>어느 방식으로 진행하겠는가?</p>
-                    <div class="btn-group">
-                        <button class="btn-version" onclick="selectVersion('A')">물리 조작 (버전 A)</button>
-                        <button class="btn-version" onclick="selectVersion('B')">디지털 전용 (버전 B)</button>
-                    </div>
-                </div>
-
-                <button id="btn-start" class="btn-primary" onclick="startGame()">입궐하기</button>
+             <p class="mt-20">입궐하기 전, 모둠 이름을 밝히시오.</p>
+            <input type="text" id="team-name" class="input-team" placeholder="예: 1모둠" />
+            
+            <button class="btn-primary mt-20" onclick="startGame()">입궐하기</button>
             </div>
         </section>
 

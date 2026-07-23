@@ -1,9 +1,21 @@
-import { db, auth, collection, addDoc, signInAnonymously, updateDoc, doc } from './firebase-config.js';
+import { db, auth, collection, addDoc, doc, updateDoc, signInAnonymously, onSnapshot } from './firebase-config.js';
 
-let currentVersion = '';
+let currentVersion = 'A'; // 기본값
 let teamName = '';
 let teamDocId = ''; 
 let currentGate = 0;
+
+// 서버에서 전역 버전 설정 가져오기
+const settingsRef = doc(db, 'settings', 'global');
+onSnapshot(settingsRef, (docSnap) => {
+    if (docSnap.exists()) {
+        const data = docSnap.data();
+        if(data.version) {
+            currentVersion = data.version;
+            console.log("전역 버전 업데이트됨:", currentVersion);
+        }
+    }
+});
 
 // 알림창 제어
 function showAlert(message) {
@@ -15,17 +27,6 @@ window.closeAlert = function() {
     document.getElementById('alert-modal').classList.add('hidden');
 }
 
-// 버전 선택
-window.selectVersion = function(version) {
-    currentVersion = version;
-    document.querySelectorAll('.btn-version').forEach(btn => {
-        btn.classList.remove('selected');
-        if (btn.innerText.includes(version)) {
-            btn.classList.add('selected');
-        }
-    });
-}
-
 // 게임 시작 (입궐하기)
 window.startGame = async function() {
     teamName = document.getElementById('team-name').value.trim();
@@ -35,11 +36,6 @@ window.startGame = async function() {
         return;
     }
     
-    if (!currentVersion) {
-        showAlert('진행 방식을 선택해주시오.');
-        return;
-    }
-
     try {
         // 1. Firebase 익명 로그인
         const userCredential = await signInAnonymously(auth);

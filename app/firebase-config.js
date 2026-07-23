@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // TODO: Replace with your app's Firebase project configuration
@@ -23,4 +23,4 @@ const auth = getAuth(app);
 window.firebaseDB = db;
 window.firebaseAuth = auth;
 
-export { db, auth, collection, addDoc, updateDoc, doc, onSnapshot, signInAnonymously };
+export { db, auth, collection, addDoc, updateDoc, doc, onSnapshot, signInAnonymously, setDoc };

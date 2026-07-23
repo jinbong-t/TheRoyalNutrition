@@ -11,6 +11,11 @@
     <header>
         <h1>수라간의 비밀 실시간 현황판</h1>
         <div class="header-stats">
+            <div style="background: rgba(0,0,0,0.5); padding: 5px 15px; border-radius: 5px; margin-right: 15px;">
+                <strong style="color:var(--color-accent-gold);">전역 게임 버전:</strong>
+                <label style="margin-left:10px;"><input type="radio" name="globalVersion" value="A" onchange="changeGlobalVersion('A')"> 물리(A)</label>
+                <label style="margin-left:10px;"><input type="radio" name="globalVersion" value="B" onchange="changeGlobalVersion('B')"> 디지털(B)</label>
+            </div>
             <span>참여 모둠: <strong id="total-teams">0</strong>팀</span>
             <button onclick="resetData()" class="btn-danger">초기화</button>
         </div>

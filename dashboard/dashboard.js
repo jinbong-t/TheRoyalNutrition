@@ -1,6 +1,28 @@
-import { db, collection, onSnapshot, doc, updateDoc } from '../app/firebase-config.js';
+import { db, collection, onSnapshot, doc, updateDoc, setDoc } from '../app/firebase-config.js';
 
 const teamsRef = collection(db, 'teams');
+const settingsRef = doc(db, 'settings', 'global');
+
+// 전역 설정 불러오기
+onSnapshot(settingsRef, (docSnap) => {
+    if (docSnap.exists()) {
+        const data = docSnap.data();
+        if(data.version === 'A') {
+            document.querySelector('input[name="globalVersion"][value="A"]').checked = true;
+        } else if(data.version === 'B') {
+            document.querySelector('input[name="globalVersion"][value="B"]').checked = true;
+        }
+    }
+});
+
+window.changeGlobalVersion = async function(ver) {
+    try {
+        await setDoc(settingsRef, { version: ver }, { merge: true });
+        // alert(`모든 학생용 앱이 버전 ${ver}(으)로 고정되었습니다.`); // 알림 생략
+    } catch(e) {
+        console.error("전역 버전 설정 실패", e);
+    }
+}
 
 onSnapshot(teamsRef, (snapshot) => {
     const tbody = document.getElementById('team-list-body');
