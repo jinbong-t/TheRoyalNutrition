@@ -59,13 +59,19 @@ window.startGame = async function() {
         
         // 화면 전환
         document.getElementById('sec-login').classList.remove('active');
-        document.getElementById('sec-login').classList.remove('active');
         document.getElementById('sec-login').classList.add('hidden');
         
-        // 프롤로그(인트로) 화면으로 이동
-        const nextSec = document.getElementById('sec-intro');
-        nextSec.classList.remove('hidden');
-        nextSec.classList.add('active');
+        // 영상 화면(스토리)으로 이동
+        const nextSec = document.getElementById('sec-story');
+        if(nextSec) {
+            nextSec.classList.remove('hidden');
+            nextSec.classList.add('active');
+        }
+        
+        const video = document.getElementById('intro-video');
+        if (video) {
+            video.play().catch(e => console.log('Autoplay prevented by browser'));
+        }
 
     } catch (error) {
         console.error("로그인 실패:", error);
@@ -260,3 +266,141 @@ window.nextGate = function(gateNum) {
 
 // 초기화
 console.log("수라간의 비밀 앱 로드 완료");
+
+const introVideo = document.getElementById('intro-video');
+const storyLines = [
+    { text: "평화롭던 조선의 궁궐, 차기 왕위를 이을 세자 저하께서 원인을 알 수 없는 괴질로 쓰러지셨다." },
+    { text: "어의가 백방으로 원인을 찾으려 애썼으나, 병세는 호전되기는커녕 날이 갈수록 악화될 뿐이었다." },
+    { text: "궁궐 내에는 누군가 세자 저하를 해하려 한다는 흉흉한 소문이 돌기 시작했고..." },
+    { text: "그러던 중, 내의원 한구석에서 어의가 남긴 찢어진 서책과 수상한 약병이 발견된다." },
+    { text: "\"세자 저하의 병은 단순한 병이 아니다. 누군가 수라상에 교묘하게 손을 대어 영양을 소실시킨 것이다!\"", style: "color:var(--color-accent-gold);" },
+    { text: "이제 당신은 궁중 내의원이 되어, 어의가 남긴 서책의 암호를 풀고 수라간 식단의 비밀을 파헤쳐야 한다." },
+    { text: "수라간 최상궁부터 장내시, 의녀 장덕, 심지어 세자빈까지... 모두가 용의선상에 올랐다." },
+    { text: "사라진 영양소의 진실을 밝혀내고, 세자 저하를 위기에서 구하라!", style: "color:var(--color-accent-red); font-size: 1.1rem; font-weight: bold; text-align: center;" }
+];
+
+function typeWriterEffect(lines, containerId, callback) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    let lineIndex = 0;
+    let charIndex = 0;
+    let currentP = null;
+
+    function typeChar() {
+        if (lineIndex < lines.length) {
+            if (charIndex === 0) {
+                currentP = document.createElement('p');
+                currentP.className = "mt-10";
+                if (lines[lineIndex].style) {
+                    currentP.style.cssText = lines[lineIndex].style;
+                }
+                container.appendChild(currentP);
+            }
+            
+            currentP.innerHTML += lines[lineIndex].text.charAt(charIndex);
+            charIndex++;
+
+            if (charIndex >= lines[lineIndex].text.length) {
+                lineIndex++;
+                charIndex = 0;
+                if (lineIndex < lines.length) {
+                    setTimeout(typeChar, 800); // 문장 끝나고 0.8초 대기
+                } else {
+                    if (callback) callback();
+                }
+            } else {
+                setTimeout(typeChar, 40); // 글자당 0.04초
+            }
+        }
+    }
+    typeChar();
+}
+
+if (introVideo) {
+    introVideo.addEventListener('ended', () => {
+        // 영상 컨테이너 숨기기
+        const videoContainer = document.querySelector('.video-container');
+        if (videoContainer) videoContainer.style.display = 'none';
+
+        const narration = document.getElementById('story-narration');
+        if (narration) {
+            narration.style.display = 'block';
+            narration.scrollIntoView({ behavior: 'smooth' });
+            
+            // 타이핑 효과 시작
+            typeWriterEffect(storyLines, 'typewriter-text', () => {
+                // 타이핑이 모두 끝나면 시작 버튼 등장
+                const btn = document.getElementById('btn-start-mission');
+                if (btn) btn.style.display = 'block';
+            });
+        }
+    });
+}
+
+// 모달 및 스토리 제어
+window.closePosterAndGoToLogin = function() {
+    document.getElementById('poster-modal').classList.remove('active');
+    document.getElementById('poster-modal').classList.add('hidden');
+    
+    document.getElementById('sec-login').classList.remove('hidden');
+    document.getElementById('sec-login').classList.add('active');
+}
+
+// 비밀 스킵 버튼 로직 (선생님용)
+window.secretSkip = function() {
+    console.log("Secret skip activated!");
+    const posterModal = document.getElementById('poster-modal');
+    if (posterModal && posterModal.classList.contains('active')) {
+        closePosterAndGoToLogin();
+        return;
+    }
+    
+    const activeSec = document.querySelector('section.active') || document.getElementById('sec-story');
+    
+    if (activeSec) {
+        let currentId = activeSec.id;
+        
+        if (currentId === 'sec-login') {
+            document.getElementById('team-name').value = "테스트(스킵)";
+            startGame();
+        } else if (currentId === 'sec-story') {
+            const narration = document.getElementById('story-narration');
+            if (narration && narration.style.display === 'block') {
+                // 나레이션이 이미 나와있는 상태면 관문 1로 스킵
+                nextGate(1);
+            } else {
+                // 영상 재생 중 스킵하면 영상을 멈추고 나레이션 시작
+                const video = document.getElementById('intro-video');
+                if(video) video.pause();
+                
+                const videoContainer = document.querySelector('.video-container');
+                if (videoContainer) videoContainer.style.display = 'none';
+                
+                if (narration) {
+                    narration.style.display = 'block';
+                    narration.scrollIntoView({ behavior: 'smooth' });
+                    
+                    // 타이핑 효과 시작
+                    typeWriterEffect(storyLines, 'typewriter-text', () => {
+                        const btn = document.getElementById('btn-start-mission');
+                        if (btn) btn.style.display = 'block';
+                    });
+                }
+            }
+        } else if (currentId.startsWith('sec-gate')) {
+            let gateNum = parseInt(currentId.replace('sec-gate', ''));
+            if (gateNum < 6) {
+                nextGate(gateNum + 1);
+            } else if (gateNum === 6) {
+                activeSec.classList.remove('active');
+                activeSec.classList.add('hidden');
+                document.getElementById('sec-ending').classList.remove('hidden');
+                document.getElementById('sec-ending').classList.add('active');
+            }
+        } else if (currentId === 'sec-ending') {
+            document.getElementById('final-culprit').value = "최상궁";
+            declareEnding();
+        }
+    }
+}
+

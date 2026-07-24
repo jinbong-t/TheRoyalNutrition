@@ -12,6 +12,20 @@
         <!-- 배경 효과용 레이어 -->
         <div class="bg-overlay"></div>
 
+        <!-- 비밀 스킵 버튼 (선생님용, 우측 상단 투명 영역) -->
+        <div onclick="secretSkip()" style="position: fixed; top: 0; right: 0; width: 50px; height: 50px; z-index: 9999; cursor: pointer;"></div>
+
+        <!-- 포스터 모달 (입장 시 자동 표시) -->
+        <div id="poster-modal" class="modal-overlay active">
+            <div class="scroll-wrapper">
+                <div class="scroll-content">
+                    <img src="../궁중 영양 추리극 수라간의 비밀1.png" alt="포스터" style="width:100%; border-radius:10px; border: 2px solid var(--color-accent-gold);">
+                    <button class="btn-primary mt-20" onclick="closePosterAndGoToLogin()">어명 받들기 (확인)</button>
+                </div>
+                <div class="scroll-cylinder"></div>
+            </div>
+        </div>
+
         <!-- 알림 모달 (공통) -->
         <div id="alert-modal" class="hidden">
             <div class="modal-content">
@@ -20,8 +34,28 @@
             </div>
         </div>
 
+        <!-- 섹션: 스토리 (영상) -->
+        <section id="sec-story" class="hidden text-center">
+            <h1 class="title-main mb-20" style="font-size: 2.2rem; margin-top: 20px;">수라간의 비밀</h1>
+            
+            <div class="video-container" style="max-width: 600px; width: 100%; border-radius: 10px; overflow: hidden; border: 2px solid var(--color-accent-gold); margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.5);">
+                <video id="intro-video" controls width="100%" style="display: block;">
+                    <source src="../인트로영상.mp4" type="video/mp4">
+                    브라우저가 영상을 지원하지 않습니다.
+                </video>
+            </div>
+
+            <!-- 영상 끝난 후 나타날 나레이션 영역 -->
+            <div id="story-narration" style="display: none; animation: fadeIn 1s ease;">
+                <div id="typewriter-text" style="text-align: left; max-width: 600px; margin: 0 auto; line-height: 1.8; font-size: 1.05rem; padding: 20px; background: rgba(0,0,0,0.6); border-radius: 8px; border-left: 4px solid var(--color-accent-gold); min-height: 200px;">
+                    <!-- 타이핑 효과가 여기에 들어갑니다 -->
+                </div>
+                <button id="btn-start-mission" class="btn-primary mt-20" style="display: none;" onclick="nextGate(1)">사건 조사 시작 (관문 1로)</button>
+            </div>
+        </section>
+
         <!-- 섹션: 로그인 (도입부) -->
-        <section id="sec-login" class="active">
+        <section id="sec-login" class="hidden">
             <h1 class="title-main">수라간의 비밀</h1>
             <p class="subtitle">세자 저하의 괴질을 고쳐라</p>
             
@@ -31,23 +65,6 @@
             
             <button class="btn-primary mt-20" onclick="startGame()">입궐하기</button>
             </div>
-        </section>
-
-        <!-- 인트로: 상황 제시 -->
-        <section id="sec-intro" class="hidden text-center">
-            <h2 class="title-gate mb-20">프롤로그. 오늘의 임무</h2>
-            
-            <div class="story-box" style="margin-bottom: 20px;">
-                <img src="../궁중 영양 추리극 수라간의 비밀1.png" alt="수라간의 비밀 메인 포스터" style="width: 100%; max-width: 600px; border-radius: 10px; margin-bottom: 15px; border: 2px solid var(--color-accent-gold);">
-                <p style="font-size: 1.2rem; margin-bottom:10px;"><strong>영양 소실의 진실을 밝혀 세자 저하를 구하고, 궁궐의 평화를 되찾아라!</strong></p>
-            </div>
-            
-            <div class="story-box" style="margin-bottom: 20px; background-color: rgba(255, 0, 0, 0.1); border-color: var(--color-accent-red);">
-                <p class="mt-10" style="color:var(--color-accent-red); font-size: 1.1rem;"><strong>[ 오늘의 임무 ]</strong></p>
-                <p style="font-size: 1.1rem; line-height: 1.6;">세자 저하가 앓고 있는 괴질의 원인을 밝혀내고,<br>범인을 찾아내어 다시 건강을 회복하게 하라!</p>
-            </div>
-            
-            <button class="btn-primary mt-20" onclick="nextGate(1)">임무 시작 (관문 1로)</button>
         </section>
 
         <!-- 관문 1: 봉인된 약궤 -->
