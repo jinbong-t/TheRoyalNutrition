@@ -84,30 +84,34 @@ window.checkGate1 = async function() {
     const q1 = document.getElementById('g1-q1').value.trim();
     const q2 = document.getElementById('g1-q2').value.trim();
     const q3 = document.getElementById('g1-q3').value.trim();
+    const code = document.getElementById('g1-code').value.trim();
     
-    if(!q1 || !q2 || !q3) {
-        showAlert('모든 빈칸을 채우시오.');
+    if(!q1 || !q2 || !q3 || !code) {
+        showAlert('모든 빈칸과 추리한 암호를 채우시오.');
         return;
     }
     
     // 정답 체크 (탄수화물, 단백질, 지방)
     if(q1 === '탄수화물' && q2 === '단백질' && q3 === '지방') {
-        const code = "231";
-        document.getElementById('g1-result').innerHTML = `
-            <div class="success-box">
-                <p>정답이오! 반절표에 따른 1차 봉인 번호는 <strong>[ ${code} ]</strong> 이다.</p>
-                <p class="guide-text">${currentVersion === 'A' ? '이 번호로 3자리 자물쇠 상자를 열어 인장 조각을 맞추시오.' : '다음 관문으로 넘어가시오.'}</p>
-                <button class="btn-primary mt-10" onclick="nextGate(2)">다음 관문으로</button>
-            </div>
-        `;
-        document.getElementById('btn-g1-submit').style.display = 'none';
-        
-        // Firestore 진행 상황 업데이트
-        if(teamDocId) {
-            await updateDoc(doc(db, "teams", teamDocId), { currentGate: 2 });
+        if(code === '231') {
+            document.getElementById('g1-result').innerHTML = `
+                <div class="success-box">
+                    <p>정답이오! 반절표에 따른 1차 봉인 번호 <strong>[ ${code} ]</strong>을 정확히 추리하였소.</p>
+                    <p class="guide-text">${currentVersion === 'A' ? '이 번호로 3자리 자물쇠 상자를 열어 인장 조각을 맞추시오.' : '다음 관문으로 넘어가시오.'}</p>
+                    <button class="btn-primary mt-10" onclick="nextGate(2)">다음 관문으로</button>
+                </div>
+            `;
+            document.getElementById('btn-g1-submit').style.display = 'none';
+            
+            // Firestore 진행 상황 업데이트
+            if(teamDocId) {
+                await updateDoc(doc(db, "teams", teamDocId), { currentGate: 2 });
+            }
+        } else {
+            showAlert('영양소 이름은 맞았으나, 암호가 틀렸소. 힌트를 잘 보고 각 단어의 특징(받침)을 찾아보시오.');
         }
     } else {
-        showAlert('오답이오. 다시 잘 생각해보시오.');
+        showAlert('오답이오. 영양소 이름부터 다시 잘 생각해보시오.');
     }
 }
 
@@ -117,43 +121,32 @@ window.checkGate2 = async function() {
     const q2 = document.getElementById('g2-q2').value.trim().toLowerCase();
     const q3 = document.getElementById('g2-q3').value.trim().toLowerCase();
     const q4 = document.getElementById('g2-q4').value.trim().toLowerCase();
-    const sentenceRaw = document.getElementById('g2-sentence').value.trim();
+    const code = document.getElementById('g2-code').value.trim();
     
-    if(!q1 || !q2 || !q3 || !q4) {
-        showAlert('모든 원소기호를 채우시오.');
+    if(!q1 || !q2 || !q3 || !q4 || !code) {
+        showAlert('모든 원소기호와 추리한 암호를 채우시오.');
         return;
     }
-    
-    if(!sentenceRaw) {
-        showAlert('복원한 밀지 문장을 입력하시오.');
-        return;
-    }
-
-    const sentence = sentenceRaw.replace(/\s+/g, '');
-    const correctSentence = "다이철연아슘칼인는서순짜진의인봉";
     
     // 정답 체크: 칼슘(ca), 인(p), 철(fe), 아연(zn)
     if(q1 === 'ca' && q2 === 'p' && q3 === 'fe' && q4 === 'zn') {
-        if(sentence !== correctSentence) {
-            showAlert('원소기호는 맞았으나 밀지 문장이 틀렸소. 띄어쓰기를 무시하더라도 글자가 정확해야 하오.');
-            return;
-        }
-
-        // 거꾸로 읽기 논리: 인(2) 칼슘(1) 아연(4) 철(3) -> 2143
-        const code = "2143";
-        document.getElementById('g2-result').innerHTML = `
-            <div class="success-box">
-                <p>암호를 해독하였소!</p>
-                <p>거꾸로 쓴 밀지에 따른 2차 봉인 번호는 <strong>[ ${code} ]</strong> 이다.</p>
-                <p class="guide-text">이 번호(2143)는 종막 어전에 입장할 때 쓰이니 반드시 기억해두시오.</p>
-                <button class="btn-primary mt-10" onclick="nextGate(3)">다음 관문으로</button>
-            </div>
-        `;
-        document.getElementById('btn-g2-submit').style.display = 'none';
-        
-        // Firestore 진행 상황 업데이트
-        if(teamDocId) {
-            await updateDoc(doc(db, "teams", teamDocId), { currentGate: 3 });
+        if(code === '2143') {
+            document.getElementById('g2-result').innerHTML = `
+                <div class="success-box">
+                    <p>암호를 해독하였소!</p>
+                    <p>밀지를 거꾸로 읽어 2차 봉인 번호 <strong>[ ${code} ]</strong>를 정확히 추리했소.</p>
+                    <p class="guide-text">이 번호(2143)는 종막 어전에 입장할 때 쓰이니 반드시 기억해두시오.</p>
+                    <button class="btn-primary mt-10" onclick="nextGate(3)">다음 관문으로</button>
+                </div>
+            `;
+            document.getElementById('btn-g2-submit').style.display = 'none';
+            
+            // Firestore 진행 상황 업데이트
+            if(teamDocId) {
+                await updateDoc(doc(db, "teams", teamDocId), { currentGate: 3 });
+            }
+        } else {
+            showAlert('원소기호는 맞았으나, 암호가 틀렸소. 거꾸로 된 밀지가 가리키는 순서를 다시 조합해 보시오.');
         }
     } else {
         showAlert('해독 실패. 원소기호가 틀렸거나 오타가 있소.');
@@ -294,6 +287,27 @@ window.declareEnding = async function() {
     } else {
         showAlert('그자는 진범이 아니오! 소거표를 다시 확인해보시오.');
     }
+}
+
+window.submitDietDiagnosis = async function() {
+    const resolution = document.getElementById('diet-resolution').value.trim();
+    if(!resolution) {
+        showAlert('부족한 영양소를 채울 다짐을 한 줄 적어주시오.');
+        return;
+    }
+
+    const chks = document.querySelectorAll('.diet-chk:checked');
+    const checkedItems = Array.from(chks).map(c => c.value);
+
+    if(teamDocId) {
+        await updateDoc(doc(db, "teams", teamDocId), { 
+            dietChecked: checkedItems,
+            dietResolution: resolution
+        });
+    }
+
+    document.getElementById('diet-diagnosis-area').classList.add('hidden');
+    document.getElementById('final-farewell').classList.remove('hidden');
 }
 
 // 다음 관문 이동 유틸리티

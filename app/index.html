@@ -89,6 +89,11 @@
                     <span class="q-hint">③ ㅈ ㅂ (1g당 9kcal, 체온 유지와 장기 보호)</span>
                     <input type="text" id="g1-q3" placeholder="정답 입력" autocomplete="off">
                 </div>
+                
+                <hr style="border:0; border-top:1px dashed var(--color-border); margin: 20px 0;">
+                <p class="text-center mb-10" style="color:var(--color-accent-gold);"><strong>조원들과 상의하여 1차 봉인 번호(3자리)를 추리하시오.</strong></p>
+                <p class="text-center mb-10" style="font-size: 0.9rem; color:#aaa;">힌트: 소리마다 받쳐 적은 자...</p>
+                <input type="text" id="g1-code" class="input-team" placeholder="3자리 숫자" maxlength="3" style="letter-spacing: 5px; font-size: 1.2rem; text-align: center;">
             </div>
             
             <div id="g1-result" class="result-area"></div>
@@ -118,8 +123,10 @@
                     <span>④ 아연</span> <input type="text" id="g2-q4" maxlength="2" autocomplete="off">
                 </div>
                 
-                <p class="text-center mt-20 mb-10"><strong>복원한 밀지 문장을 띄어쓰기 포함하여 정확히 적으시오.</strong></p>
-                <input type="text" id="g2-sentence" class="input-team" placeholder="예: 다이철 연아 슘칼 인 는서순 짜진 의인봉" style="width: 100%; box-sizing: border-box;">
+                <hr style="border:0; border-top:1px dashed var(--color-border); margin: 20px 0;">
+                <p class="text-center mb-10" style="color:var(--color-accent-gold);"><strong>뒤집힌 밀지를 거꾸로 읽고 원소기호 번호를 조합하여<br>2차 봉인 번호(4자리)를 추리해 입력하시오.</strong></p>
+                <p class="text-center mb-10" style="font-size: 0.9rem; color:#aaa;">밀지: 다이철 연아 슘칼 인 는서순 짜진 의인봉</p>
+                <input type="text" id="g2-code" class="input-team" placeholder="4자리 숫자" maxlength="4" style="letter-spacing: 5px; font-size: 1.2rem; text-align: center;">
             </div>
             
             <div id="g2-result" class="result-area"></div>
@@ -316,8 +323,29 @@
                 <p style="font-size: 1.2rem; color: var(--color-accent-gold); font-weight: bold;">오늘의 교훈</p>
                 <p class="mt-10" style="line-height: 1.8;">아무리 좋은 의도와 정성(좋아하는 음식)이라도, <strong>영양 지식 없이 한쪽으로 치우쳐 먹으면</strong> 병을 키울 수 있습니다.<br>오늘 배운 6대 영양소 지식으로 <strong>스스로 균형 잡힌 식단을 챙기는 것</strong>이 진정한 건강의 비결입니다!</p>
             </div>
-
-            <p class="mt-20" style="color:var(--color-text-muted);">이 기록은 어전(선생님 대시보드)에 무사히 전달되었소. 참으로 수고 많았소!</p>
+            
+            <div id="diet-diagnosis-area" class="question-box mt-20" style="text-align: left;">
+                <h3 class="text-center mb-10" style="color: var(--color-accent-gold);">[ 실천 어명: 나의 식단 진단하기 ]</h3>
+                <p class="mb-20 text-center">최 상궁의 실수를 거울삼아, 어제(또는 최근) 그대들의 식단은 어떠했는지 조원들과 함께 진단해 보시오.</p>
+                
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                    <label><input type="checkbox" class="diet-chk" value="탄수화물"> 탄수화물 (밥, 빵 등)</label>
+                    <label><input type="checkbox" class="diet-chk" value="단백질"> 단백질 (고기, 생선 등)</label>
+                    <label><input type="checkbox" class="diet-chk" value="지방"> 지방 (기름, 견과류 등)</label>
+                    <label><input type="checkbox" class="diet-chk" value="무기질"> 무기질 (우유, 멸치 등)</label>
+                    <label><input type="checkbox" class="diet-chk" value="비타민"> 비타민 (과일, 채소 등)</label>
+                    <label><input type="checkbox" class="diet-chk" value="물"> 물 (충분한 수분)</label>
+                </div>
+                
+                <p class="mb-10" style="color: var(--color-accent-gold);">부족했던 영양소를 채우기 위해 오늘부터 무엇을 더 먹을지 한 줄 다짐을 적어보시오.</p>
+                <input type="text" id="diet-resolution" class="input-team" placeholder="예: 뼈를 위해 매일 우유를 마시겠습니다!" style="width: 100%; box-sizing: border-box; text-align: left; padding: 10px; font-size:1rem;">
+                
+                <button class="btn-primary mt-20" onclick="submitDietDiagnosis()">다짐 제출하고 퇴궐하기</button>
+            </div>
+            
+            <div id="final-farewell" class="hidden">
+                <p class="mt-20" style="color:var(--color-text-muted);">그대들의 훌륭한 추리와 굳은 다짐이 어전(선생님 대시보드)에 무사히 전달되었소.<br>참으로 수고 많았소!</p>
+            </div>
         </section>
 
     </div>

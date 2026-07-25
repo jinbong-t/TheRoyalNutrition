@@ -38,6 +38,8 @@ onSnapshot(teamsRef, (snapshot) => {
         if(statusText === '종막') statusText = '최종 판결 중';
         if(statusText === '완료') statusText = '탈출 성공! 🎉';
 
+        let resolutionText = data.dietResolution || '-';
+
         html += `
             <tr>
                 <td><strong>${data.name || '알 수 없음'}</strong></td>
@@ -45,6 +47,7 @@ onSnapshot(teamsRef, (snapshot) => {
                 <td style="color:var(--color-accent); font-weight:bold;">${statusText}</td>
                 <td>${data.startTime ? new Date(data.startTime).toLocaleTimeString() : '-'}</td>
                 <td>${data.endTime ? new Date(data.endTime).toLocaleTimeString() : '진행 중'}</td>
+                <td style="font-size: 0.9em; max-width: 200px; white-space: normal; word-break: keep-all;">${resolutionText}</td>
             </tr>
         `;
     });
@@ -54,7 +57,7 @@ onSnapshot(teamsRef, (snapshot) => {
     if (count > 0) {
         tbody.innerHTML = html;
     } else {
-        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">아직 접속한 모둠이 없습니다.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">아직 접속한 모둠이 없습니다.</td></tr>';
     }
 });
 
