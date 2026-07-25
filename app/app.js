@@ -117,21 +117,35 @@ window.checkGate2 = async function() {
     const q2 = document.getElementById('g2-q2').value.trim().toLowerCase();
     const q3 = document.getElementById('g2-q3').value.trim().toLowerCase();
     const q4 = document.getElementById('g2-q4').value.trim().toLowerCase();
+    const sentenceRaw = document.getElementById('g2-sentence').value.trim();
     
     if(!q1 || !q2 || !q3 || !q4) {
         showAlert('모든 원소기호를 채우시오.');
         return;
     }
     
+    if(!sentenceRaw) {
+        showAlert('복원한 밀지 문장을 입력하시오.');
+        return;
+    }
+
+    const sentence = sentenceRaw.replace(/\s+/g, '');
+    const correctSentence = "다이철연아슘칼인는서순짜진의인봉";
+    
     // 정답 체크: 칼슘(ca), 인(p), 철(fe), 아연(zn)
     if(q1 === 'ca' && q2 === 'p' && q3 === 'fe' && q4 === 'zn') {
+        if(sentence !== correctSentence) {
+            showAlert('원소기호는 맞았으나 밀지 문장이 틀렸소. 띄어쓰기를 무시하더라도 글자가 정확해야 하오.');
+            return;
+        }
+
         // 거꾸로 읽기 논리: 인(2) 칼슘(1) 아연(4) 철(3) -> 2143
         const code = "2143";
         document.getElementById('g2-result').innerHTML = `
             <div class="success-box">
                 <p>암호를 해독하였소!</p>
                 <p>거꾸로 쓴 밀지에 따른 2차 봉인 번호는 <strong>[ ${code} ]</strong> 이다.</p>
-                <p class="guide-text">${currentVersion === 'A' ? '이 번호로 4자리 자물쇠 상자를 열어 호패 조각을 확인하시오.' : '다음 관문으로 넘어가시오.'}</p>
+                <p class="guide-text">이 번호(2143)는 종막 어전에 입장할 때 쓰이니 반드시 기억해두시오.</p>
                 <button class="btn-primary mt-10" onclick="nextGate(3)">다음 관문으로</button>
             </div>
         `;
@@ -205,10 +219,33 @@ window.updateSuspects = function() {
     document.getElementById('suspect-names').innerText = filtered.map(s => s.name).join(', ');
 
     if(filtered.length === 1 && filtered[0].name === '최상궁') {
-        document.getElementById('btn-g6-arrest').style.display = 'inline-block';
+        if (currentVersion === 'B') {
+            document.getElementById('btn-g6-compare').style.display = 'inline-block';
+            document.getElementById('btn-g6-arrest').style.display = 'none';
+        } else {
+            document.getElementById('btn-g6-arrest').style.display = 'inline-block';
+            document.getElementById('btn-g6-compare').style.display = 'none';
+        }
     } else {
         document.getElementById('btn-g6-arrest').style.display = 'none';
+        document.getElementById('btn-g6-compare').style.display = 'none';
     }
+}
+
+window.showDigitalCompare = function() {
+    document.getElementById('compare-modal').classList.remove('hidden');
+    document.getElementById('compare-modal').classList.add('active');
+}
+
+window.closeCompareModal = function() {
+    document.getElementById('compare-modal').classList.remove('active');
+    document.getElementById('compare-modal').classList.add('hidden');
+}
+
+window.confirmArrest = async function() {
+    closeCompareModal();
+    if(teamDocId) await updateDoc(doc(db, "teams", teamDocId), { currentGate: '종막' });
+    nextGate('ending');
 }
 
 window.arrestSuspect = async function() {
@@ -217,6 +254,16 @@ window.arrestSuspect = async function() {
 }
 
 // ================== 종막 로직 ==================
+window.unlockEnding = function() {
+    const code = document.getElementById('final-code').value.trim();
+    if (code === '2143') {
+        document.getElementById('ending-code-area').classList.add('hidden');
+        document.getElementById('ending-report-area').classList.remove('hidden');
+    } else {
+        showAlert('암호가 틀렸소. 2차 봉인 번호를 다시 확인하시오.');
+    }
+}
+
 window.declareEnding = async function() {
     const culprit = document.getElementById('final-culprit').value;
     const reason = document.getElementById('final-reason').value.trim();
@@ -398,8 +445,14 @@ window.secretSkip = function() {
                 document.getElementById('sec-ending').classList.add('active');
             }
         } else if (currentId === 'sec-ending') {
-            document.getElementById('final-culprit').value = "최상궁";
-            declareEnding();
+            const reportArea = document.getElementById('ending-report-area');
+            if (reportArea && reportArea.classList.contains('hidden')) {
+                document.getElementById('final-code').value = '2143';
+                unlockEnding();
+            } else {
+                document.getElementById('final-culprit').value = "최상궁";
+                declareEnding();
+            }
         }
     }
 }

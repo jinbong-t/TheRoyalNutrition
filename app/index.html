@@ -100,15 +100,9 @@
             <h2 class="title-gate">제2막. 찢어진 어의의 인장</h2>
             <div class="story-box">
                 <p>종이 뒷면에는 누군가 급히 휘갈겨 쓴 듯한 밀지가 거꾸로 붙어 있다.</p>
-                <p>복원한 문장의 지시에 따라 아래 빈칸에 원소기호를 채우시오.</p>
+                <p>복원한 문장의 지시에 따라 아래 빈칸에 원소기호를 채우고 문장을 입력하시오.</p>
             </div>
             
-            <!-- 버전 B일 경우 퍼즐 UI가 여기에 표시될 수 있음 -->
-            <div id="g2-puzzle-area" style="display: none;">
-                <p class="guide-text text-center">[디지털 버전] 4조각 퍼즐을 끌어다 맞추시오. (구현 예정)</p>
-                <!-- 퍼즐 컨테이너 생략 -->
-            </div>
-
             <div class="question-box mt-20">
                 <p class="text-center mb-10"><strong>원소기호를 적으시오. (대소문자 구분 없음)</strong></p>
                 <div class="q-item-inline">
@@ -123,6 +117,9 @@
                 <div class="q-item-inline">
                     <span>④ 아연</span> <input type="text" id="g2-q4" maxlength="2" autocomplete="off">
                 </div>
+                
+                <p class="text-center mt-20 mb-10"><strong>복원한 밀지 문장을 띄어쓰기 포함하여 정확히 적으시오.</strong></p>
+                <input type="text" id="g2-sentence" class="input-team" placeholder="예: 다이철 연아 슘칼 인 는서순 짜진 의인봉" style="width: 100%; box-sizing: border-box;">
             </div>
             
             <div id="g2-result" class="result-area"></div>
@@ -245,7 +242,29 @@
                 <p id="suspect-names" class="mt-10" style="color:var(--color-accent-gold);">최상궁, 장내시, 세자빈, 의녀 장덕</p>
             </div>
             
+            <button id="btn-g6-compare" class="btn-primary mt-10" onclick="showDigitalCompare()" style="display:none; margin-bottom: 10px;">디지털 호패 대조하기</button>
             <button id="btn-g6-arrest" class="btn-primary" onclick="arrestSuspect()" style="display:none; background-color:maroon;">진범 검거 (종막으로)</button>
+
+            <!-- 디지털 호패 대조 모달 (버전 B 전용) -->
+            <div id="compare-modal" class="modal-overlay hidden">
+                <div class="modal-content" style="background-color: #1a1a1a; border: 2px solid var(--color-accent-gold); border-radius: 10px; padding: 20px; width: 90%; max-width: 400px;">
+                    <h3 style="color: var(--color-accent-gold); margin-bottom: 20px;">호패 대조 확인</h3>
+                    <div style="display: flex; justify-content: space-around; align-items: center; gap: 15px;">
+                        <div style="border: 1px solid #666; padding: 15px; border-radius: 5px; flex: 1; text-align: center; background: rgba(0,0,0,0.5);">
+                            <p style="color: #ccc; font-size: 0.9rem; margin-bottom: 10px;">(학생용 반쪽)</p>
+                            <h4 style="font-size: 1.5rem; letter-spacing: 2px;">최 상 궁</h4>
+                        </div>
+                        <div style="font-size: 2rem; color: #666;">+</div>
+                        <div style="border: 1px solid #666; padding: 15px; border-radius: 5px; flex: 1; text-align: center; background: rgba(0,0,0,0.5);">
+                            <p style="color: #ccc; font-size: 0.9rem; margin-bottom: 10px;">(교사용 반쪽)</p>
+                            <h4 style="font-size: 1.5rem; color: var(--color-accent-red); letter-spacing: 2px;">유시(酉時)</h4>
+                        </div>
+                    </div>
+                    <p class="mt-20">입궁 시각이 <strong>관문 4에서 확인한 사건 시각(유시)</strong>과 일치합니까?</p>
+                    <button class="btn-primary mt-20" onclick="confirmArrest()" style="background-color: maroon;">일치 확인! (검거 확정)</button>
+                    <button class="btn-version mt-10" onclick="closeCompareModal()">닫기</button>
+                </div>
+            </div>
         </section>
 
         <!-- 종막: 어명 선포 -->
@@ -255,7 +274,14 @@
                 <p>모든 봉인이 풀렸다.</p>
                 <p>그대가 밝혀낸 진실을 어명으로 선포하라!</p>
             </div>
-            <div class="question-box text-center">
+
+            <div id="ending-code-area" class="question-box text-center">
+                <p class="mb-10">어전으로 나아가려면 <strong>2차 봉인 번호(4자리)</strong>를 입력하시오.</p>
+                <input type="text" id="final-code" class="input-team" placeholder="4자리 숫자" maxlength="4" style="text-align:center; letter-spacing: 10px; font-size: 1.5rem; width: 80%; padding: 15px;">
+                <button class="btn-primary mt-10" onclick="unlockEnding()">어전 입장</button>
+            </div>
+
+            <div id="ending-report-area" class="question-box text-center hidden">
                 <p class="mb-10">진범은 누구인가?</p>
                 <select id="final-culprit" style="padding:10px; width:80%; margin-bottom:15px; font-size:1rem;">
                     <option value="">선택</option>
@@ -267,15 +293,31 @@
                 
                 <p class="mb-10 mt-10">범행 근거를 서술하라.</p>
                 <textarea id="final-reason" rows="3" style="width:100%;" placeholder="예: 영양소 결핍 유발 등"></textarea>
+                <button class="btn-primary mt-10" onclick="declareEnding()" style="background-color: var(--color-accent-gold); color: black;">어명 선포</button>
             </div>
-            <button class="btn-primary" onclick="declareEnding()" style="background-color: var(--color-accent-gold); color: black;">어명 선포</button>
         </section>
         
-        <section id="sec-final-result" class="hidden text-center">
+        <section id="sec-final-result" class="hidden text-center" style="padding-bottom: 50px;">
             <h1 style="color: var(--color-accent-gold); font-size:3rem; margin-bottom:20px;">사건 해결!</h1>
-            <p>수고하셨소. 진범은 <strong>수라간 최상궁</strong>이었소.</p>
-            <p class="mt-20">최상궁은 매운 음식과 쌀밥, 식혜만 올려 저하에게 필요한 비타민 A, C, D와 칼슘을 극도로 결핍시켰소.</p>
-            <p class="mt-20" style="color:var(--color-text-muted);">이 기록은 어전(선생님 대시보드)에 무사히 전달되었소.</p>
+            
+            <div class="story-box" style="text-align: left;">
+                <p style="color: var(--color-accent-gold); font-weight: bold; font-size: 1.2rem; margin-bottom: 10px;">[ 에필로그 - 최 상궁의 고백 ]</p>
+                <p>최 상궁은 무릎을 꿇고 고했다.</p>
+                <p class="mt-10">"소인, 그저 저하께서 기운을 차리시길 바라는 마음뿐이었사옵니다. 어릴 적부터 기름진 고기와 매운 음식을 배불리 드시면 없던 기운도 솟는다고 들어, 사흘 내내 매운 제육과 흰 쌀밥, 단 식혜만을 올렸사옵니다. 그것이 오히려 저하를 병들게 할 줄은... 진정 몰랐사옵니다."</p>
+                
+                <p class="mt-20" style="color: var(--color-accent-gold); font-weight: bold;">[ 어의의 일침 ]</p>
+                <p class="mt-10">"기름진 고기와 매운맛은 잠시 입맛을 돋울 뿐이다. 허나 저하의 눈을 밝히고, 잇몸을 지키고, 뼈를 곧게 세우는 힘은 채소와 과일, 우유와 같은 다른 음식에서 나온다. 그대가 사흘 내내 올린 수라에는 그 힘이 단 하나도 없었느니라."</p>
+
+                <p class="mt-20" style="color: var(--color-accent-red); font-weight: bold; font-size: 1.2rem;">[ 어명 선포 ]</p>
+                <p class="mt-10">전하께서는 최 상궁을 벌하지 않으시고 이르시길,<br><strong>"한 가지 음식에 치우치면, 아무리 정성이 지극해도 몸을 상하게 할 수 있다. 백성들도 이를 알아야 할 것이다."</strong> 라며 온 궁궐에 균형 잡힌 수라의 법도를 세우라 명하셨다.</p>
+            </div>
+
+            <div class="question-box" style="background: rgba(212, 175, 55, 0.1); border-color: var(--color-accent-gold);">
+                <p style="font-size: 1.2rem; color: var(--color-accent-gold); font-weight: bold;">오늘의 교훈</p>
+                <p class="mt-10" style="line-height: 1.8;">아무리 좋은 의도와 정성(좋아하는 음식)이라도, <strong>영양 지식 없이 한쪽으로 치우쳐 먹으면</strong> 병을 키울 수 있습니다.<br>오늘 배운 6대 영양소 지식으로 <strong>스스로 균형 잡힌 식단을 챙기는 것</strong>이 진정한 건강의 비결입니다!</p>
+            </div>
+
+            <p class="mt-20" style="color:var(--color-text-muted);">이 기록은 어전(선생님 대시보드)에 무사히 전달되었소. 참으로 수고 많았소!</p>
         </section>
 
     </div>
