@@ -12,8 +12,35 @@ onSnapshot(settingsRef, (docSnap) => {
         } else if(data.version === 'B') {
             document.querySelector('input[name="globalVersion"][value="B"]').checked = true;
         }
+        
+        if(data.aiConfig) {
+            document.getElementById('ai-provider').value = data.aiConfig.provider || 'gemini';
+            document.getElementById('ai-api-key').value = data.aiConfig.apiKey || '';
+            document.getElementById('ai-config-status').innerText = '저장됨 (API 키 적용중)';
+            document.getElementById('ai-config-status').style.color = '#4CAF50';
+        }
     }
 });
+
+window.saveAiConfig = async function() {
+    const provider = document.getElementById('ai-provider').value;
+    const apiKey = document.getElementById('ai-api-key').value.trim();
+    
+    if(!apiKey) {
+        alert('API 키를 입력해주세요.');
+        return;
+    }
+    
+    try {
+        await setDoc(settingsRef, { 
+            aiConfig: { provider: provider, apiKey: apiKey } 
+        }, { merge: true });
+        alert('AI 설정이 저장되었습니다.');
+    } catch(e) {
+        console.error("AI 설정 저장 실패", e);
+        alert('저장 실패!');
+    }
+}
 
 window.changeGlobalVersion = async function(ver) {
     try {
@@ -38,16 +65,21 @@ onSnapshot(teamsRef, (snapshot) => {
         if(statusText === '종막') statusText = '최종 판결 중';
         if(statusText === '완료') statusText = '탈출 성공! 🎉';
 
-        let resolutionText = data.dietResolution || '-';
+        let resolutionContent = '-';
+        if (data.originalDiet && data.finalDiet) {
+            resolutionContent = `<button onclick="openCounselingModal('${doc.id}')" class="btn-primary" style="padding:5px 10px; font-size:0.8rem; border-radius:4px;">상담 결과 보기</button>`;
+        } else if (data.dietResolution) {
+            resolutionContent = data.dietResolution; // 기존 로직 대비
+        }
 
         html += `
-            <tr>
+            <tr id="team-row-${doc.id}">
                 <td><strong>${data.name || '알 수 없음'}</strong></td>
                 <td>${data.version === 'A' ? '물리 조작(A)' : '디지털 전용(B)'}</td>
                 <td style="color:var(--color-accent); font-weight:bold;">${statusText}</td>
                 <td>${data.startTime ? new Date(data.startTime).toLocaleTimeString() : '-'}</td>
                 <td>${data.endTime ? new Date(data.endTime).toLocaleTimeString() : '진행 중'}</td>
-                <td style="font-size: 0.9em; max-width: 200px; white-space: normal; word-break: keep-all;">${resolutionText}</td>
+                <td style="font-size: 0.9em; max-width: 200px; white-space: normal; word-break: keep-all;">${resolutionContent}</td>
             </tr>
         `;
     });
@@ -67,5 +99,39 @@ window.resetData = function() {
         // TODO: 일괄 삭제 로직
     }
 };
+
+window.openCounselingModal = async function(teamId) {
+    const docSnap = await import('../app/firebase-config.js').then(module => {
+        return module.getDoc(doc(db, 'teams', teamId));
+    });
+    
+    if (docSnap.exists()) {
+        const data = docSnap.data();
+        document.getElementById('modal-team-name').innerText = `${data.name} 식단 상담 결과`;
+        document.getElementById('modal-original-diet').innerText = data.originalDiet || '기록 없음';
+        
+        let chatHtml = '';
+        if (data.chatHistory && data.chatHistory.length > 0) {
+            data.chatHistory.forEach(msg => {
+                if (msg.role === 'user') {
+                    chatHtml += `<div style="text-align:right; margin-bottom:10px;"><span style="background:#4CAF50; color:white; padding:5px 10px; border-radius:10px; display:inline-block; max-width:80%; text-align:left;">${msg.content}</span></div>`;
+                } else if (msg.role === 'assistant') {
+                    chatHtml += `<div style="text-align:left; margin-bottom:10px;"><span style="background:#555; color:white; padding:5px 10px; border-radius:10px; display:inline-block; max-width:80%;">${msg.content}</span></div>`;
+                }
+            });
+        } else {
+            chatHtml = '<p style="color:#888;">대화 기록이 없습니다.</p>';
+        }
+        document.getElementById('modal-chat-log').innerHTML = chatHtml;
+        
+        document.getElementById('modal-final-diet').innerText = data.finalDiet || '기록 없음';
+        
+        document.getElementById('counseling-modal').style.display = 'flex';
+    }
+}
+
+window.closeCounselingModal = function() {
+    document.getElementById('counseling-modal').style.display = 'none';
+}
 
 console.log("대시보드 로드 완료");

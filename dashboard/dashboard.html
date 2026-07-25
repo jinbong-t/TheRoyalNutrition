@@ -19,6 +19,18 @@
             <span>참여 모둠: <strong id="total-teams">0</strong>팀</span>
             <button onclick="resetData()" class="btn-danger">초기화</button>
         </div>
+        
+        <div class="ai-config-panel mt-10" style="background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; border: 1px solid var(--color-border); display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+            <strong style="color:var(--color-accent-gold);">어의 챗봇(AI) 설정:</strong>
+            <select id="ai-provider" style="padding: 5px; border-radius: 4px; background: #333; color: white; border: 1px solid var(--color-border);">
+                <option value="gemini">Google Gemini</option>
+                <option value="openai">OpenAI (ChatGPT)</option>
+            </select>
+            <input type="password" id="ai-api-key" placeholder="API 키를 입력하세요" style="padding: 5px; border-radius: 4px; background: #333; color: white; border: 1px solid var(--color-border); width: 250px;">
+            <button onclick="saveAiConfig()" class="btn-primary" style="padding: 5px 15px; font-size: 0.9rem; width: auto; letter-spacing: 0;">저장</button>
+            <span id="ai-config-status" style="font-size: 0.85rem; color: #aaa;">저장 안 됨</span>
+            <p style="width: 100%; font-size: 0.85rem; color: #888; margin-top: 5px;">⚠️ 키는 학생 앱의 챗봇 통신에 사용됩니다. 브라우저/DB에 저장되므로 수업 후에는 키를 삭제하거나 폐기하세요.</p>
+        </div>
     </header>
 
     <main>
@@ -36,11 +48,31 @@
             <tbody id="team-list-body">
                 <!-- 동적으로 데이터 추가됨 -->
                 <tr>
-                    <td colspan="5" class="empty-state">아직 접속한 모둠이 없습니다.</td>
+                    <td colspan="6" class="text-center">데이터를 불러오는 중입니다...</td>
                 </tr>
             </tbody>
         </table>
     </main>
+
+    <!-- 식단 상담 결과 모달 -->
+    <div id="counseling-modal" class="modal-overlay hidden" style="position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; display: none; align-items:center; justify-content:center;">
+        <div class="modal-content" style="background:#1e1e1e; border: 2px solid var(--color-accent-gold); border-radius:10px; width:90%; max-width:800px; max-height:90vh; display:flex; flex-direction:column; padding:0;">
+            <div style="padding:15px 20px; border-bottom:1px solid #444; display:flex; justify-content:space-between; align-items:center;">
+                <h2 style="color:var(--color-accent-gold); margin:0;" id="modal-team-name">모둠명</h2>
+                <button onclick="closeCounselingModal()" style="background:transparent; border:none; color:white; font-size:1.5rem; cursor:pointer;">&times;</button>
+            </div>
+            <div style="padding:20px; overflow-y:auto; flex:1;">
+                <h3 style="color:#d4af37; border-bottom:1px dashed #666; padding-bottom:5px; margin-bottom:10px;">🍎 기존 식단 (전 식단)</h3>
+                <div id="modal-original-diet" style="background:#222; padding:15px; border-radius:5px; margin-bottom:20px; white-space:pre-wrap;"></div>
+
+                <h3 style="color:#d4af37; border-bottom:1px dashed #666; padding-bottom:5px; margin-bottom:10px;">💬 상담 기록 (티키타카)</h3>
+                <div id="modal-chat-log" style="background:#222; padding:15px; border-radius:5px; margin-bottom:20px; max-height:300px; overflow-y:auto;"></div>
+
+                <h3 style="color:#d4af37; border-bottom:1px dashed #666; padding-bottom:5px; margin-bottom:10px;">🥗 최종 추천 식단</h3>
+                <div id="modal-final-diet" style="background:rgba(212, 175, 55, 0.1); padding:15px; border-radius:5px; border:1px solid #d4af37; white-space:pre-wrap; font-weight:bold;"></div>
+            </div>
+        </div>
+    </div>
 
     <script type="module" src="../app/firebase-config.js"></script>
     <script type="module" src="dashboard.js"></script>

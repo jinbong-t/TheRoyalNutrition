@@ -4,8 +4,9 @@ let currentVersion = 'A'; // 기본값
 let teamName = '';
 let teamDocId = ''; 
 let currentGate = 0;
+let globalAiConfig = null;
 
-// 서버에서 전역 버전 설정 가져오기
+// 서버에서 전역 설정 가져오기
 const settingsRef = doc(db, 'settings', 'global');
 onSnapshot(settingsRef, (docSnap) => {
     if (docSnap.exists()) {
@@ -13,6 +14,10 @@ onSnapshot(settingsRef, (docSnap) => {
         if(data.version) {
             currentVersion = data.version;
             console.log("전역 버전 업데이트됨:", currentVersion);
+        }
+        if(data.aiConfig) {
+            globalAiConfig = data.aiConfig;
+            console.log("AI 설정 업데이트됨");
         }
     }
 });
@@ -289,20 +294,155 @@ window.declareEnding = async function() {
     }
 }
 
-window.submitDietDiagnosis = async function() {
-    const resolution = document.getElementById('diet-resolution').value.trim();
-    if(!resolution) {
-        showAlert('부족한 영양소를 채울 다짐을 한 줄 적어주시오.');
+let chatHistory = [];
+let originalDiet = '';
+
+const systemPrompt = "당신은 조선시대 내의원 최고 어의입니다. 학생이 어제 먹은 식단(아침, 점심, 저녁, 간식)을 보고, 6대 영양소(탄수화물, 단백질, 지방, 무기질, 비타민, 물) 관점에서 어떤 점이 부족하거나 과한지 사극 말투(예: ~하옵니다, 저하, 통촉하시옵소서 등)로 재미있고 친절하게 분석해주세요. 학생의 질문에 대답하며 함께 더 나은 '추천 식단'을 만들어가는 것이 목표입니다.";
+
+window.startAiCounseling = function() {
+    originalDiet = document.getElementById('original-diet-input').value.trim();
+    if(!originalDiet) {
+        showAlert('어제 먹은 식단을 먼저 상세히 적어주시옵소서.');
+        return;
+    }
+    
+    if(!globalAiConfig || !globalAiConfig.apiKey) {
+        showAlert('어의(AI)가 아직 출근하지 않았습니다. 선생님께 대시보드에서 AI 설정을 부탁드리세요.');
         return;
     }
 
-    const chks = document.querySelectorAll('.diet-chk:checked');
-    const checkedItems = Array.from(chks).map(c => c.value);
+    document.getElementById('btn-start-counseling').style.display = 'none';
+    document.getElementById('original-diet-input').disabled = true;
+    document.getElementById('ai-chat-area').classList.remove('hidden');
+    
+    appendMessage('assistant', '오셨사옵니까! 어제 드신 식단을 꼼꼼히 진맥해 보겠습니다. 잠시만 기다려 주시옵소서...');
+    
+    // 첫 프롬프트 전송
+    chatHistory = [];
+    callAiApi(`이것이 내가 어제 먹은 식단이야:\n${originalDiet}\n\n이 식단을 분석해주고, 어떻게 개선하면 좋을지 조선시대 어의 말투로 친근하게 상담을 시작해줘.`);
+}
+
+window.sendChatMessage = function() {
+    const input = document.getElementById('chat-input');
+    const msg = input.value.trim();
+    if(!msg) return;
+    
+    input.value = '';
+    appendMessage('user', msg);
+    callAiApi(msg);
+}
+
+// 엔터 키로 채팅 전송
+document.getElementById('chat-input')?.addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        window.sendChatMessage();
+    }
+});
+
+function appendMessage(role, text) {
+    const chatBox = document.getElementById('chat-messages');
+    const div = document.createElement('div');
+    if(role === 'user') {
+        div.style.textAlign = 'right';
+        div.innerHTML = `<span style="background:var(--color-primary); color:white; padding:10px 14px; border-radius:15px 15px 0 15px; display:inline-block; max-width:85%; text-align:left;">${text}</span>`;
+    } else {
+        div.style.textAlign = 'left';
+        // 간단한 마크다운 볼드 처리
+        const formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        div.innerHTML = `<span style="background:rgba(212,175,55,0.2); border: 1px solid var(--color-accent-gold); color:#eee; padding:10px 14px; border-radius:15px 15px 15px 0; display:inline-block; max-width:85%;">${formattedText}</span>`;
+    }
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+async function callAiApi(userMessage) {
+    chatHistory.push({ role: 'user', content: userMessage });
+    
+    try {
+        let aiResponseText = "";
+        
+        if (globalAiConfig.provider === 'gemini') {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${globalAiConfig.apiKey}`;
+            
+            let contents = [
+                { role: 'user', parts: [{ text: systemPrompt }] },
+                { role: 'model', parts: [{ text: '명을 받들겠사옵니다. 식단을 낱낱이 살펴 건강을 지켜드리겠나이다.' }] }
+            ];
+            chatHistory.forEach(msg => {
+                contents.push({
+                    role: msg.role === 'user' ? 'user' : 'model',
+                    parts: [{ text: msg.content }]
+                });
+            });
+            
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: contents })
+            });
+            
+            const data = await res.json();
+            if(data.error) throw new Error(data.error.message);
+            aiResponseText = data.candidates[0].content.parts[0].text;
+            
+        } else if (globalAiConfig.provider === 'openai') {
+            const url = `https://api.openai.com/v1/chat/completions`;
+            
+            let messages = [
+                { role: 'system', content: systemPrompt }
+            ];
+            chatHistory.forEach(msg => messages.push(msg));
+            
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${globalAiConfig.apiKey}`
+                },
+                body: JSON.stringify({ 
+                    model: 'gpt-4o-mini', 
+                    messages: messages 
+                })
+            });
+            
+            const data = await res.json();
+            if(data.error) throw new Error(data.error.message);
+            aiResponseText = data.choices[0].message.content;
+        }
+        
+        chatHistory.push({ role: 'assistant', content: aiResponseText });
+        
+        // "잠시만..." 첫 메시지 제거 (임시 방편)
+        const chatBox = document.getElementById('chat-messages');
+        const children = chatBox.children;
+        for(let i=0; i<children.length; i++) {
+            if(children[i].innerText.includes('잠시만 기다려 주시옵소서')) {
+                chatBox.removeChild(children[i]);
+                break;
+            }
+        }
+        
+        appendMessage('assistant', aiResponseText);
+        
+    } catch(e) {
+        console.error("AI API Error:", e);
+        appendMessage('assistant', '통촉하시옵소서... 의술서(서버 통신)에 문제가 생겨 진맥을 이어갈 수 없사옵니다. (API 오류가 발생했습니다. 키를 확인해주세요)');
+        chatHistory.pop(); // 에러 난 유저 메시지 삭제
+    }
+}
+
+window.submitFinalDiet = async function() {
+    const finalDiet = document.getElementById('final-diet-input').value.trim();
+    if(!finalDiet) {
+        showAlert('어의와 상담하여 결정한 최종 추천 식단을 적어주시오.');
+        return;
+    }
 
     if(teamDocId) {
         await updateDoc(doc(db, "teams", teamDocId), { 
-            dietChecked: checkedItems,
-            dietResolution: resolution
+            originalDiet: originalDiet,
+            chatHistory: chatHistory,
+            finalDiet: finalDiet
         });
     }
 
