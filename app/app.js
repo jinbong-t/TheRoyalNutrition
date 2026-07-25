@@ -193,6 +193,62 @@ window.showGate5Answer = function() {
     document.getElementById('btn-g5-answer').style.display = 'none';
 }
 
+// ================== 관문 5.5 로직 ==================
+const clueData = [
+    { title: "단서 카드 A", subtitle: "(영양학적 증상)", content: "“세자 저하의 증상(야맹증, 괴혈병, 구루병)은 비타민 A, 비타민 C, 비타민 D, 그리고 칼슘이 장기간 결핍되었을 때 나타나는 현상이다.”" },
+    { title: "단서 카드 B", subtitle: "(환경적 요인)", content: "“세자 저하의 안질(눈병) 때문에 저하의 처소는 낮에도 모든 창을 가려 햇빛이 전혀 들지 않는 어두운 상태를 유지했다.”<br><span style='font-size:0.85rem; color:#aaa; display:block; margin-top:5px;'>(힌트: 햇빛을 받지 못하면 몸 안에서 비타민 D가 합성되지 않아 결핍됨)</span>" },
+    { title: "단서 카드 C", subtitle: "(피해자의 체질)", content: "“세자 저하는 최근 심한 위장 질환을 앓고 계셔서 매콤한 초피나 고추 같은 매운 음식을 먹으면 위장에 심한 쇼크를 일으키신다.”" },
+    { title: "단서 카드 D", subtitle: "(의료 기록)", content: "“저하가 드신 음식물의 위 속 잔여물을 분석한 결과, 영양소가 최종 소화된 산물인 '포도당' 성분이 아주 다량으로 검출되었다.”<br><span style='font-size:0.85rem; color:#aaa; display:block; margin-top:5px;'>(힌트: 다당류 음료인 식혜와 쌀밥의 소화 결과)</span>" },
+    { title: "단서 카드 E", subtitle: "(결정적 목격담)", content: "“사건 당일, 세자 저하의 옷자락에서 붉은 고추 양념이 묻은 돼지고기 기름 자국이 발견되었다.”" }
+];
+
+window.getClueCards = function() {
+    const scoreStr = document.getElementById('quiz-score').value.trim();
+    if (scoreStr === '') {
+        showAlert('의학 서책 퀴즈 점수를 입력하시오.');
+        return;
+    }
+    const score = parseInt(scoreStr, 10);
+    if (score < 0 || score > 10) {
+        showAlert('0에서 10 사이의 점수를 정확히 입력하시오.');
+        return;
+    }
+
+    let clueCount = 0;
+    if (score === 10) clueCount = 5;
+    else if (score >= 7) clueCount = 3;
+    else if (score >= 4) clueCount = 2;
+    else clueCount = 0;
+
+    const clueArea = document.getElementById('clue-cards-area');
+    clueArea.innerHTML = '';
+
+    if (clueCount === 0) {
+        clueArea.innerHTML = '<div style="text-align:center; padding: 20px;"><p style="color:var(--color-accent-red); font-size:1.2rem; font-weight:bold;">단서 획득 실패 (세자 저하를 구하지 못함)</p><p class="mt-10">오직 직감으로만 범인을 찾아내야 한다!</p></div>';
+    } else {
+        const shuffled = [...clueData].sort(() => 0.5 - Math.random());
+        const selectedClues = shuffled.slice(0, clueCount);
+        selectedClues.sort((a, b) => a.title.localeCompare(b.title));
+
+        selectedClues.forEach(clue => {
+            const card = document.createElement('div');
+            card.style.cssText = 'border: 2px solid var(--color-accent-gold); border-radius: 8px; padding: 15px; background: rgba(0,0,0,0.6); width: 220px; text-align: left; box-shadow: 0 4px 6px rgba(0,0,0,0.3);';
+            card.innerHTML = `
+                <div style="border-bottom:1px solid #555; padding-bottom:5px; margin-bottom:10px; text-align:center;">
+                    <h4 style="color:var(--color-accent-gold); margin:0; font-size:1.1rem;">${clue.title}</h4>
+                    <span style="font-size:0.85rem; color:#ccc;">${clue.subtitle}</span>
+                </div>
+                <p style="font-size:0.95rem; line-height:1.5;">${clue.content}</p>
+            `;
+            clueArea.appendChild(card);
+        });
+    }
+
+    document.getElementById('btn-get-clues').style.display = 'none';
+    document.getElementById('quiz-score').disabled = true;
+    document.getElementById('btn-to-gate6-wrap').classList.remove('hidden');
+}
+
 // ================== 관문 6 로직 ==================
 const suspectsData = [
     { name: '최상궁', c: true, d: true, e: true },

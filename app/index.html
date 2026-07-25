@@ -215,11 +215,33 @@
                 <p>2. 카페인, 짠 음식, 탄산음료, 운동 부족 등</p>
                 <p>3. 오메가-3</p>
                 
-                <p class="mt-20 text-center"><strong>스스로 채점해 보시오. 통과하였는가?</strong></p>
+                <p class="mt-20 text-center"><strong>스스로 채점해 보시오. 10문제 중 맞힌 개수를 기억해 두어라.</strong></p>
                 <div class="btn-group">
-                    <button class="btn-version" onclick="nextGate(6)" style="border-color:green; color:green;">통과 (O)</button>
-                    <button class="btn-version" onclick="showAlert('답안을 다시 수정해 보시오!')" style="border-color:red; color:red;">재도전 (X)</button>
+                    <button class="btn-version" onclick="nextGate('5_5')" style="border-color:var(--color-accent-gold); color:var(--color-accent-gold);">단서 획득소로 이동</button>
                 </div>
+            </div>
+        </section>
+
+        <!-- 관문 5.5: 단서 획득소 -->
+        <section id="sec-gate5_5" class="hidden">
+            <h2 class="title-gate">제5.5막. 비밀의 단서 카드</h2>
+            <div class="story-box">
+                <p>오프라인 '찢어진 내의원 의학 서책' 퀴즈를 모두 풀었는가?</p>
+                <p>맞힌 개수에 따라 진범을 밝힐 단서 카드가 지급될 것이다.</p>
+            </div>
+            
+            <div class="question-box">
+                <p class="text-center mb-10"><strong>10문제 중 맞힌 개수를 정직하게 입력하시오. (0~10)</strong></p>
+                <input type="number" id="quiz-score" class="input-team" placeholder="개수" min="0" max="10" style="text-align: center; width: 100px; display: block; margin: 0 auto; font-size: 1.5rem;">
+                <button id="btn-get-clues" class="btn-primary mt-10" onclick="getClueCards()">단서 획득하기</button>
+            </div>
+            
+            <div id="clue-cards-area" class="mt-20" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+                <!-- 단서 카드가 여기에 렌더링됨 -->
+            </div>
+            
+            <div id="btn-to-gate6-wrap" class="hidden mt-20 text-center">
+                <button class="btn-primary" onclick="nextGate(6)">범인 지목하러 가기</button>
             </div>
         </section>
 
@@ -232,15 +254,15 @@
             </div>
             
             <div class="question-box">
-                <p class="mb-10 text-center"><strong>용의자 식단 분석</strong></p>
-                <label style="display:block; padding:10px; border-bottom:1px solid #444;">
-                    <input type="checkbox" id="chk-c" onchange="updateSuspects()"> [단서 C] 매운 음식인가?
+                <p class="mb-10 text-center"><strong>용의자 식단 분석 (획득한 단서를 바탕으로 범인 조건 선택)</strong></p>
+                <label style="display:block; padding:10px; border-bottom:1px solid #444; cursor:pointer;">
+                    <input type="checkbox" id="chk-c" onchange="updateSuspects()"> 범인이 올린 음식은 매운 음식인가? (단서 C, E 참조)
                 </label>
-                <label style="display:block; padding:10px; border-bottom:1px solid #444;">
-                    <input type="checkbox" id="chk-d" onchange="updateSuspects()"> [단서 D] 쌀밥·식혜(다당류)인가?
+                <label style="display:block; padding:10px; border-bottom:1px solid #444; cursor:pointer;">
+                    <input type="checkbox" id="chk-d" onchange="updateSuspects()"> 범인이 올린 음식은 다당류(식혜, 쌀밥 등) 위주인가? (단서 D 참조)
                 </label>
-                <label style="display:block; padding:10px;">
-                    <input type="checkbox" id="chk-e" onchange="updateSuspects()"> [단서 E] 돼지고기 + 고추양념인가?
+                <label style="display:block; padding:10px; cursor:pointer;">
+                    <input type="checkbox" id="chk-e" onchange="updateSuspects()"> 범인이 올린 음식은 돼지고기 기름과 붉은 고추 양념이 있는가? (단서 E 참조)
                 </label>
             </div>
             
