@@ -15,6 +15,9 @@
         <!-- 비밀 스킵 버튼 (선생님용, 우측 상단 투명 영역) -->
         <div onclick="secretSkip()" style="position: fixed; top: 0; right: 0; width: 50px; height: 50px; z-index: 9999; cursor: pointer;"></div>
 
+        <!-- 비밀 뒤로가기 버튼 (선생님용, 좌측 상단 투명 영역) -->
+        <div onclick="secretBack()" style="position: fixed; top: 0; left: 0; width: 50px; height: 50px; z-index: 9999; cursor: pointer;"></div>
+
         <!-- 포스터 모달 (입장 시 자동 표시) -->
         <div id="poster-modal" class="modal-overlay active">
             <div class="scroll-wrapper">
@@ -69,7 +72,7 @@
 
         <!-- 관문 1: 봉인된 약궤 -->
         <section id="sec-gate1" class="hidden">
-            <h2 class="title-gate">제1막. 봉인된 약궤</h2>
+            <h2 class="title-gate">제 1관문. 봉인된 약궤</h2>
             <div class="story-box">
                 <p>약궤 위에 낯선 필체로 자음만 남은 글귀가 적혀 있다.</p>
                 <p class="quote">'소리마다 받쳐 적은 자가 곧 숫자니라'</p>
@@ -79,92 +82,100 @@
             <div class="question-box">
                 <div class="q-item">
                     <span class="q-hint">① ㅌ ㅅ ㅎ ㅁ (몸의 주된 에너지원, 1g당 4kcal)</span>
-                    <input type="text" id="g1-q1" placeholder="정답 입력" autocomplete="off">
+                    <input type="text" id="g1-q1" placeholder="정답 입력" autocomplete="off" oninput="checkG1Elements()">
                 </div>
                 <div class="q-item">
                     <span class="q-hint">② ㄷ ㅂ ㅈ (신체 조직 구성, 부족하면 성장 부진)</span>
-                    <input type="text" id="g1-q2" placeholder="정답 입력" autocomplete="off">
+                    <input type="text" id="g1-q2" placeholder="정답 입력" autocomplete="off" oninput="checkG1Elements()">
                 </div>
                 <div class="q-item">
                     <span class="q-hint">③ ㅈ ㅂ (1g당 9kcal, 체온 유지와 장기 보호)</span>
-                    <input type="text" id="g1-q3" placeholder="정답 입력" autocomplete="off">
+                    <input type="text" id="g1-q3" placeholder="정답 입력" autocomplete="off" oninput="checkG1Elements()">
                 </div>
                 
-                <hr style="border:0; border-top:1px dashed var(--color-border); margin: 20px 0;">
-                <p class="text-center mb-10" style="color:var(--color-accent-gold);"><strong>조원들과 상의하여 1차 봉인 번호(3자리)를 추리하시오.</strong></p>
-                <p class="text-center mb-10" style="font-size: 0.9rem; color:#aaa;">힌트: 소리마다 받쳐 적은 자...</p>
-                <input type="text" id="g1-code" class="input-team" placeholder="3자리 숫자" maxlength="3" style="letter-spacing: 5px; font-size: 1.2rem; text-align: center;">
+                <div id="g1-padlock-area" class="hidden" style="animation: fadeIn 0.8s ease;">
+                    <hr style="border:0; border-top:1px dashed var(--color-border); margin: 20px 0;">
+                    <p class="text-center mt-20" style="color:var(--color-accent-gold); font-weight:bold;">조원들과 상의하여 1차 봉인 번호(3자리)를 추리하시오.</p>
+                    <p class="text-center" style="font-size:0.9rem;">힌트: 소리마다 받쳐 적은 자...</p>
+                    <div class="padlock-container" id="g1-padlock" data-digits="3"></div>
+                    <button id="btn-g1-submit" class="btn-primary mt-10" onclick="checkGate1()">봉인 해제</button>
+                </div>
             </div>
             
             <div id="g1-result" class="result-area"></div>
-            <button id="btn-g1-submit" class="btn-primary" onclick="checkGate1()">봉인 해제</button>
         </section>
 
         <!-- 관문 2: 찢어진 어의의 인장 -->
         <section id="sec-gate2" class="hidden">
-            <h2 class="title-gate">제2막. 찢어진 어의의 인장</h2>
+            <h2 class="title-gate">제 2관문. 찢어진 어의의 인장</h2>
             <div class="story-box">
                 <p>종이 뒷면에는 누군가 급히 휘갈겨 쓴 듯한 밀지가 거꾸로 붙어 있다.</p>
-                <p>복원한 문장의 지시에 따라 아래 빈칸에 원소기호를 채우고 문장을 입력하시오.</p>
+                <p>밀지의 내용에 따라 아래 빈칸에 올바른 원소기호를 채우시오.</p>
+                <div style="text-align: center; margin: 20px 0;">
+                    <img src="../무기질 밀지.png" alt="무기질 밀지" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.8); border: 2px solid var(--color-accent-gold);">
+                </div>
             </div>
             
             <div class="question-box mt-20">
                 <p class="text-center mb-10"><strong>원소기호를 적으시오. (대소문자 구분 없음)</strong></p>
-                <div class="q-item-inline">
-                    <span>① 칼슘</span> <input type="text" id="g2-q1" maxlength="2" autocomplete="off">
-                </div>
-                <div class="q-item-inline">
-                    <span>② 인</span> <input type="text" id="g2-q2" maxlength="2" autocomplete="off">
-                </div>
-                <div class="q-item-inline">
-                    <span>③ 철</span> <input type="text" id="g2-q3" maxlength="2" autocomplete="off">
-                </div>
-                <div class="q-item-inline">
-                    <span>④ 아연</span> <input type="text" id="g2-q4" maxlength="2" autocomplete="off">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="q-item-inline" style="margin-bottom: 0; padding: 0;">
+                        <span>① 칼슘</span> <input type="text" id="g2-q1" maxlength="2" autocomplete="off" oninput="checkG2Elements()" style="width: 80px;">
+                    </div>
+                    <div class="q-item-inline" style="margin-bottom: 0; padding: 0;">
+                        <span>② 인</span> <input type="text" id="g2-q2" maxlength="2" autocomplete="off" oninput="checkG2Elements()" style="width: 80px;">
+                    </div>
+                    <div class="q-item-inline" style="margin-bottom: 0; padding: 0;">
+                        <span>③ 철</span> <input type="text" id="g2-q3" maxlength="2" autocomplete="off" oninput="checkG2Elements()" style="width: 80px;">
+                    </div>
+                    <div class="q-item-inline" style="margin-bottom: 0; padding: 0;">
+                        <span>④ 아연</span> <input type="text" id="g2-q4" maxlength="2" autocomplete="off" oninput="checkG2Elements()" style="width: 80px;">
+                    </div>
                 </div>
                 
-                <hr style="border:0; border-top:1px dashed var(--color-border); margin: 20px 0;">
-                <p class="text-center mb-10" style="color:var(--color-accent-gold);"><strong>뒤집힌 밀지를 거꾸로 읽고 원소기호 번호를 조합하여<br>2차 봉인 번호(4자리)를 추리해 입력하시오.</strong></p>
-                <p class="text-center mb-10" style="font-size: 0.9rem; color:#aaa;">밀지: 다이철 연아 슘칼 인 는서순 짜진 의인봉</p>
-                <input type="text" id="g2-code" class="input-team" placeholder="4자리 숫자" maxlength="4" style="letter-spacing: 5px; font-size: 1.2rem; text-align: center;">
+                <div id="g2-padlock-area" class="hidden" style="animation: fadeIn 0.8s ease;">
+                    <hr style="border:0; border-top:1px dashed var(--color-border); margin: 20px 0;">
+                    <p class="text-center mb-10" style="color:var(--color-accent-gold);"><strong>뒤집힌 밀지를 거꾸로 읽고 원소기호 번호를 조합하여<br>2차 봉인 번호(4자리)를 추리해 입력하시오.</strong></p>
+                    <div class="padlock-container" id="g2-padlock" data-digits="4"></div>
+                    <button id="btn-g2-submit" class="btn-primary mt-10" onclick="checkGate2()">암호 해독</button>
+                </div>
             </div>
             
             <div id="g2-result" class="result-area"></div>
-            <button id="btn-g2-submit" class="btn-primary mt-10" onclick="checkGate2()">암호 해독</button>
         </section>
 
         <!-- 관문 3: 그림자 진단서 -->
         <section id="sec-gate3" class="hidden">
-            <h2 class="title-gate">제3막. 그림자 진단서</h2>
+            <h2 class="title-gate">제 3관문. 그림자 진단서</h2>
             <div class="story-box">
                 <p>어의가 남긴 진단 기록이다. 각 증상이 어떤 영양소의 결핍인지 짝지으시오.</p>
                 <p class="guide-text text-center">[보기] A. 비타민 D | B. 단백질 | C. 비타민 A | D. 오메가-3 | E. 비타민 C | F. 비타민 B군</p>
             </div>
             
             <div class="question-box">
-                <div class="q-item-inline">
-                    <span style="font-size: 0.9rem;">1. 어두워지면 눈앞이 안 보이고 헛손질</span>
-                    <select id="g3-q1"><option value="">선택</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option></select>
+                <div class="q-item-inline" style="margin-bottom: 15px;">
+                    <span style="font-size: 1.15rem;">1. 어두워지면 눈앞이 안 보이고 헛손질</span>
+                    <select id="g3-q1" style="font-size: 1.1rem; padding: 5px 10px; cursor: pointer;"><option value="">선택</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option></select>
                 </div>
-                <div class="q-item-inline">
-                    <span style="font-size: 0.9rem;">2. 잇몸 피가 안 멎고 멍이 심하게 듦</span>
-                    <select id="g3-q2"><option value="">선택</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option></select>
+                <div class="q-item-inline" style="margin-bottom: 15px;">
+                    <span style="font-size: 1.15rem;">2. 잇몸 피가 안 멎고 멍이 심하게 듦</span>
+                    <select id="g3-q2" style="font-size: 1.1rem; padding: 5px 10px; cursor: pointer;"><option value="">선택</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option></select>
                 </div>
-                <div class="q-item-inline">
-                    <span style="font-size: 0.9rem;">3. 다리와 척추 뼈가 눈에 띄게 휨</span>
-                    <select id="g3-q3"><option value="">선택</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option></select>
+                <div class="q-item-inline" style="margin-bottom: 15px;">
+                    <span style="font-size: 1.15rem;">3. 다리와 척추 뼈가 눈에 띄게 휨</span>
+                    <select id="g3-q3" style="font-size: 1.1rem; padding: 5px 10px; cursor: pointer;"><option value="">선택</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option></select>
                 </div>
-                <div class="q-item-inline">
-                    <span style="font-size: 0.9rem;">4. 키가 안 자라고 근육이 안 만들어짐</span>
-                    <select id="g3-q4"><option value="">선택</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option></select>
+                <div class="q-item-inline" style="margin-bottom: 15px;">
+                    <span style="font-size: 1.15rem;">4. 키가 안 자라고 근육이 안 만들어짐</span>
+                    <select id="g3-q4" style="font-size: 1.1rem; padding: 5px 10px; cursor: pointer;"><option value="">선택</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option></select>
                 </div>
-                <div class="q-item-inline">
-                    <span style="font-size: 0.9rem;">5. 매일 안 챙겨먹으면 금방 피로해짐</span>
-                    <select id="g3-q5"><option value="">선택</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option></select>
+                <div class="q-item-inline" style="margin-bottom: 15px;">
+                    <span style="font-size: 1.15rem;">5. 매일 안 챙겨먹으면 금방 피로해짐</span>
+                    <select id="g3-q5" style="font-size: 1.1rem; padding: 5px 10px; cursor: pointer;"><option value="">선택</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option></select>
                 </div>
-                <div class="q-item-inline">
-                    <span style="font-size: 0.9rem;">6. 두뇌 발달 더디고 혈행이 안 원활함</span>
-                    <select id="g3-q6"><option value="">선택</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option></select>
+                <div class="q-item-inline" style="margin-bottom: 15px;">
+                    <span style="font-size: 1.15rem;">6. 두뇌 발달 더디고 혈행이 안 원활함</span>
+                    <select id="g3-q6" style="font-size: 1.1rem; padding: 5px 10px; cursor: pointer;"><option value="">선택</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option></select>
                 </div>
             </div>
             
@@ -174,7 +185,7 @@
 
         <!-- 관문 4: 시각의 증거 -->
         <section id="sec-gate4" class="hidden">
-            <h2 class="title-gate">제4막. 시각의 증거</h2>
+            <h2 class="title-gate">제 4관문. 시각의 증거</h2>
             <div class="story-box">
                 <p>내의원 기록에 남은 짧은 한 줄.</p>
                 <p class="quote">'세자 저하가 쓰러진 시각은 유시(酉時)였다.'</p>
@@ -187,7 +198,7 @@
 
         <!-- 관문 5: 내의원의 마지막 질문 -->
         <section id="sec-gate5" class="hidden">
-            <h2 class="title-gate">제5막. 내의원의 마지막 질문</h2>
+            <h2 class="title-gate">제 5관문. 내의원의 마지막 질문</h2>
             <div class="story-box">
                 <p>서책의 마지막 장, 어의가 남긴 질문에 답하고 모범답안과 비교하여 스스로 채점하시오.</p>
             </div>
@@ -224,7 +235,7 @@
 
         <!-- 관문 5.5: 단서 획득소 -->
         <section id="sec-gate5_5" class="hidden">
-            <h2 class="title-gate">제5.5막. 비밀의 단서 카드</h2>
+            <h2 class="title-gate">제 5.5관문. 비밀의 단서 카드</h2>
             <div class="story-box">
                 <p>오프라인 '찢어진 내의원 의학 서책' 퀴즈를 모두 풀었는가?</p>
                 <p>맞힌 개수에 따라 진범을 밝힐 단서 카드가 지급될 것이다.</p>
@@ -247,7 +258,7 @@
 
         <!-- 관문 6: 호패 소거표 -->
         <section id="sec-gate6" class="hidden">
-            <h2 class="title-gate">제6막. 진실을 가르다</h2>
+            <h2 class="title-gate">제 6관문. 진실을 가르다</h2>
             <div class="story-box">
                 <p>단서는 저하가 '왜' 병을 얻으셨는지 말해준다. 그러나 '누가' 그리하였는지는 이 소거표 위에서 가려진다.</p>
                 <p>아래 조건에 해당하는 자만 남기고 지워나가라.</p>
@@ -298,16 +309,16 @@
 
         <!-- 종막: 어명 선포 -->
         <section id="sec-ending" class="hidden">
-            <h2 class="title-gate">종막. 어명 선포</h2>
+            <h2 class="title-gate">제 7관문. 어명 선포 (종막)</h2>
             <div class="story-box text-center">
                 <p>모든 봉인이 풀렸다.</p>
                 <p>그대가 밝혀낸 진실을 어명으로 선포하라!</p>
             </div>
 
             <div id="ending-code-area" class="question-box text-center">
-                <p class="mb-10">어전으로 나아가려면 <strong>2차 봉인 번호(4자리)</strong>를 입력하시오.</p>
-                <input type="text" id="final-code" class="input-team" placeholder="4자리 숫자" maxlength="4" style="text-align:center; letter-spacing: 10px; font-size: 1.5rem; width: 80%; padding: 15px;">
-                <button class="btn-primary mt-10" onclick="unlockEnding()">어전 입장</button>
+                <p>2차 봉인 번호(4자리)를 다시 입력하여 최종 어명을 내릴 준비를 하시오.</p>
+                <div class="padlock-container" id="final-padlock" data-digits="4"></div>
+                <button class="btn-primary mt-20" onclick="unlockEnding()">어명 선포 권한 확인</button>
             </div>
 
             <div id="ending-report-area" class="question-box text-center hidden">

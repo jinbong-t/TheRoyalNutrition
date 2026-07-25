@@ -1,5 +1,68 @@
 import { db, auth, collection, addDoc, doc, updateDoc, signInAnonymously, onSnapshot } from './firebase-config.js';
 
+// --- 사운드 이펙트 (Web Audio API) ---
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+window.playSound = function(type) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    const now = audioCtx.currentTime;
+    
+    if (type === 'success') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, now); 
+        osc.frequency.exponentialRampToValueAtTime(1046.50, now + 0.1); 
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(0.3, now + 0.05);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+        osc.start(now);
+        osc.stop(now + 0.5);
+    } else if (type === 'error') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, now);
+        osc.frequency.exponentialRampToValueAtTime(100, now + 0.3);
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(0.2, now + 0.05);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+    } else if (type === 'click') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, now);
+        osc.frequency.exponentialRampToValueAtTime(400, now + 0.05);
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(0.1, now + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+        osc.start(now);
+        osc.stop(now + 0.05);
+    } else if (type === 'doom') {
+        // 영화 예고편 같은 근엄하고 웅장한 저음
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(100, now);
+        osc.frequency.exponentialRampToValueAtTime(30, now + 3);
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(0.8, now + 0.1);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 3);
+        osc.start(now);
+        osc.stop(now + 3);
+    }
+};
+
+window.speakText = function(text) {
+    // 기계음 대신 선생님이 준비하신 진짜 성우(또는 직접 녹음) 목소리를 재생합니다.
+    const audio = new Audio('../narration.mp3');
+    audio.play().catch(e => console.log('오디오 재생 실패 (파일이 없거나 권한 문제):', e));
+};
+
+document.addEventListener('click', (e) => {
+    if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+        window.playSound('click');
+    }
+});
+// ------------------------------------
+
 let currentVersion = 'A'; // 기본값
 let teamName = '';
 let teamDocId = ''; 
@@ -23,7 +86,9 @@ onSnapshot(settingsRef, (docSnap) => {
 });
 
 // 알림창 제어
-function showAlert(message) {
+function showAlert(message, isSuccess = false) {
+    if (isSuccess) window.playSound('success');
+    else window.playSound('error');
     document.getElementById('alert-message').innerText = message;
     document.getElementById('alert-modal').classList.remove('hidden');
 }
@@ -84,12 +149,28 @@ window.startGame = async function() {
     }
 }
 
-// ================== 관문 1 로직 ==================
+// ================== 제 1 관문 ==================
+window.checkG1Elements = function() {
+    const q1 = document.getElementById('g1-q1').value.trim();
+    const q2 = document.getElementById('g1-q2').value.trim();
+    const q3 = document.getElementById('g1-q3').value.trim();
+    
+    // 정답 체크 (탄수화물, 단백질, 지방)
+    if (q1 === '탄수화물' && q2 === '단백질' && q3 === '지방') {
+        const padlockArea = document.getElementById('g1-padlock-area');
+        if (padlockArea && padlockArea.classList.contains('hidden')) {
+            window.playSound('success');
+            padlockArea.classList.remove('hidden');
+            padlockArea.classList.add('active');
+        }
+    }
+}
+
 window.checkGate1 = async function() {
     const q1 = document.getElementById('g1-q1').value.trim();
     const q2 = document.getElementById('g1-q2').value.trim();
     const q3 = document.getElementById('g1-q3').value.trim();
-    const code = document.getElementById('g1-code').value.trim();
+    const code = window.getPadlockValue('g1-padlock');
     
     if(!q1 || !q2 || !q3 || !code) {
         showAlert('모든 빈칸과 추리한 암호를 채우시오.');
@@ -99,6 +180,7 @@ window.checkGate1 = async function() {
     // 정답 체크 (탄수화물, 단백질, 지방)
     if(q1 === '탄수화물' && q2 === '단백질' && q3 === '지방') {
         if(code === '231') {
+            window.playSound('success');
             document.getElementById('g1-result').innerHTML = `
                 <div class="success-box">
                     <p>정답이오! 반절표에 따른 1차 봉인 번호 <strong>[ ${code} ]</strong>을 정확히 추리하였소.</p>
@@ -120,13 +202,29 @@ window.checkGate1 = async function() {
     }
 }
 
-// ================== 관문 2 로직 ==================
+// ================== 제 2 관문 ==================
+window.checkG2Elements = function() {
+    const q1 = document.getElementById('g2-q1').value.trim().toLowerCase();
+    const q2 = document.getElementById('g2-q2').value.trim().toLowerCase();
+    const q3 = document.getElementById('g2-q3').value.trim().toLowerCase();
+    const q4 = document.getElementById('g2-q4').value.trim().toLowerCase();
+    
+    if (q1 === 'ca' && q2 === 'p' && q3 === 'fe' && q4 === 'zn') {
+        const padlockArea = document.getElementById('g2-padlock-area');
+        if (padlockArea && padlockArea.classList.contains('hidden')) {
+            window.playSound('success'); // 성공 효과음으로 짜잔!
+            padlockArea.classList.remove('hidden');
+            padlockArea.classList.add('active'); // CSS에서 block 또는 flex로 처리되게 하거나 그냥 hidden만 지움
+        }
+    }
+}
+
 window.checkGate2 = async function() {
     const q1 = document.getElementById('g2-q1').value.trim().toLowerCase();
     const q2 = document.getElementById('g2-q2').value.trim().toLowerCase();
     const q3 = document.getElementById('g2-q3').value.trim().toLowerCase();
     const q4 = document.getElementById('g2-q4').value.trim().toLowerCase();
-    const code = document.getElementById('g2-code').value.trim();
+    const code = window.getPadlockValue('g2-padlock');
     
     if(!q1 || !q2 || !q3 || !q4 || !code) {
         showAlert('모든 원소기호와 추리한 암호를 채우시오.');
@@ -136,6 +234,7 @@ window.checkGate2 = async function() {
     // 정답 체크: 칼슘(ca), 인(p), 철(fe), 아연(zn)
     if(q1 === 'ca' && q2 === 'p' && q3 === 'fe' && q4 === 'zn') {
         if(code === '2143') {
+            window.playSound('success');
             document.getElementById('g2-result').innerHTML = `
                 <div class="success-box">
                     <p>암호를 해독하였소!</p>
@@ -174,7 +273,7 @@ window.checkGate3 = async function() {
 
     // 정답: 1-C, 2-E, 3-A, 4-B, 5-F, 6-D
     if(q1==='C' && q2==='E' && q3==='A' && q4==='B' && q5==='F' && q6==='D') {
-        showAlert('정확한 진단이오! 다음 관문으로 넘어가시오.');
+        showAlert('정확한 진단이오! 다음 관문으로 넘어가시오.', true);
         if(teamDocId) await updateDoc(doc(db, "teams", teamDocId), { currentGate: 4 });
         nextGate(4);
     } else {
@@ -224,8 +323,10 @@ window.getClueCards = function() {
     clueArea.innerHTML = '';
 
     if (clueCount === 0) {
+        window.playSound('error');
         clueArea.innerHTML = '<div style="text-align:center; padding: 20px;"><p style="color:var(--color-accent-red); font-size:1.2rem; font-weight:bold;">단서 획득 실패 (세자 저하를 구하지 못함)</p><p class="mt-10">오직 직감으로만 범인을 찾아내야 한다!</p></div>';
     } else {
+        window.playSound('success');
         const shuffled = [...clueData].sort(() => 0.5 - Math.random());
         const selectedClues = shuffled.slice(0, clueCount);
         selectedClues.sort((a, b) => a.title.localeCompare(b.title));
@@ -297,20 +398,23 @@ window.closeCompareModal = function() {
 }
 
 window.confirmArrest = async function() {
+    window.playSound('success');
     closeCompareModal();
     if(teamDocId) await updateDoc(doc(db, "teams", teamDocId), { currentGate: '종막' });
     nextGate('ending');
 }
 
 window.arrestSuspect = async function() {
+    window.playSound('success');
     if(teamDocId) await updateDoc(doc(db, "teams", teamDocId), { currentGate: '종막' });
     nextGate('ending');
 }
 
 // ================== 종막 로직 ==================
 window.unlockEnding = function() {
-    const code = document.getElementById('final-code').value.trim();
+    const code = window.getPadlockValue('final-padlock');
     if (code === '2143') {
+        window.playSound('success');
         document.getElementById('ending-code-area').classList.add('hidden');
         document.getElementById('ending-report-area').classList.remove('hidden');
     } else {
@@ -333,6 +437,7 @@ window.declareEnding = async function() {
 
     if(culprit === '최상궁') {
         // 성공
+        window.playSound('success');
         document.getElementById('sec-ending').classList.remove('active');
         document.getElementById('sec-ending').classList.add('hidden');
         document.getElementById('sec-final-result').classList.remove('hidden');
@@ -506,6 +611,29 @@ window.submitFinalDiet = async function() {
     document.getElementById('final-farewell').classList.remove('hidden');
 }
 
+window.updateBackground = function(sectionId) {
+    const bgOverlay = document.querySelector('.bg-overlay');
+    if (!bgOverlay) return;
+    
+    const bgMap = {
+        'sec-gate1': '../1관문 배경.png',
+        'sec-gate2': '../2관문 배경 이미지.png',
+        'sec-gate3': '../3관문 배경 이미지.png',
+        'sec-gate4': '../4관문 이미지.png',
+        'sec-gate5': '../5관문 이미지.png',
+        'sec-gate5_5': '../5관문 이미지.png',
+        'sec-gate6': '../6관문 이지미배경.png',
+        'sec-ending': '../7관문 이미지.png',
+        'sec-final-result': '../7관문 이미지.png'
+    };
+    
+    if (bgMap[sectionId]) {
+        bgOverlay.style.background = `url('${bgMap[sectionId]}') center/cover no-repeat fixed`;
+    } else {
+        bgOverlay.style.background = 'radial-gradient(circle at center, rgba(40,40,40,1) 0%, rgba(10,10,10,1) 100%)';
+    }
+};
+
 // 다음 관문 이동 유틸리티
 window.nextGate = function(gateNum) {
     currentGate = gateNum;
@@ -514,10 +642,13 @@ window.nextGate = function(gateNum) {
         sec.classList.add('hidden');
     });
     
-    const nextSec = document.getElementById(`sec-gate${gateNum}`);
+    let nextSec = document.getElementById(`sec-gate${gateNum}`);
+    if(!nextSec) nextSec = document.getElementById(`sec-${gateNum}`); // 'ending' 같은 예외 처리
+    
     if(nextSec) {
         nextSec.classList.remove('hidden');
         nextSec.classList.add('active');
+        window.updateBackground(nextSec.id);
     }
 }
 
@@ -552,6 +683,11 @@ function typeWriterEffect(lines, containerId, callback) {
                     currentP.style.cssText = lines[lineIndex].style;
                 }
                 container.appendChild(currentP);
+                
+                if (lines[lineIndex].text.includes("위기에서 구하라!")) {
+                    window.playSound('doom'); // 근엄한 배경음
+                    window.speakText(lines[lineIndex].text); // 근엄한 기계 음성 읽어주기
+                }
             }
             
             currentP.innerHTML += lines[lineIndex].text.charAt(charIndex);
@@ -596,15 +732,21 @@ if (introVideo) {
 
 // 모달 및 스토리 제어
 window.closePosterAndGoToLogin = function() {
-    document.getElementById('poster-modal').classList.remove('active');
-    document.getElementById('poster-modal').classList.add('hidden');
+    window.playSound('click');
+    const posterModal = document.getElementById('poster-modal');
+    posterModal.classList.remove('active');
+    posterModal.classList.add('hidden');
     
-    document.getElementById('sec-login').classList.remove('hidden');
-    document.getElementById('sec-login').classList.add('active');
+    const loginSec = document.getElementById('sec-login');
+    loginSec.classList.remove('hidden');
+    loginSec.classList.add('active');
+    
+    window.updateBackground('sec-login');
 }
 
 // 비밀 스킵 버튼 로직 (선생님용)
 window.secretSkip = function() {
+    window.playSound('click');
     console.log("Secret skip activated!");
     const posterModal = document.getElementById('poster-modal');
     if (posterModal && posterModal.classList.contains('active')) {
@@ -657,8 +799,9 @@ window.secretSkip = function() {
         } else if (currentId === 'sec-ending') {
             const reportArea = document.getElementById('ending-report-area');
             if (reportArea && reportArea.classList.contains('hidden')) {
-                document.getElementById('final-code').value = '2143';
-                unlockEnding();
+                window.playSound('success');
+                document.getElementById('ending-code-area').classList.add('hidden');
+                document.getElementById('ending-report-area').classList.remove('hidden');
             } else {
                 document.getElementById('final-culprit').value = "최상궁";
                 declareEnding();
@@ -666,4 +809,115 @@ window.secretSkip = function() {
         }
     }
 }
+
+// 비밀 뒤로가기 버튼 로직 (선생님용)
+window.secretBack = function() {
+    window.playSound('click');
+    console.log("Secret back activated!");
+    
+    const posterModal = document.getElementById('poster-modal');
+    if (posterModal && posterModal.classList.contains('active')) {
+        return; // 첫 화면에서는 뒤로 갈 곳이 없음
+    }
+    
+    const activeSec = document.querySelector('section.active');
+    if (!activeSec) return;
+    
+    let currentId = activeSec.id;
+    
+    // 현재 화면 숨기기
+    activeSec.classList.remove('active');
+    activeSec.classList.add('hidden');
+    
+    let prevSecId = '';
+    
+    if (currentId === 'sec-login') {
+        document.getElementById('poster-modal').classList.remove('hidden');
+        document.getElementById('poster-modal').classList.add('active');
+        return;
+    } else if (currentId === 'sec-story') {
+        prevSecId = 'sec-login';
+    } else if (currentId === 'sec-gate1') {
+        prevSecId = 'sec-story';
+    } else if (currentId === 'sec-gate2') {
+        prevSecId = 'sec-gate1';
+    } else if (currentId === 'sec-gate3') {
+        prevSecId = 'sec-gate2';
+    } else if (currentId === 'sec-gate4') {
+        prevSecId = 'sec-gate3';
+    } else if (currentId === 'sec-gate5') {
+        prevSecId = 'sec-gate4';
+    } else if (currentId === 'sec-gate5_5') {
+        prevSecId = 'sec-gate5';
+    } else if (currentId === 'sec-gate6') {
+        prevSecId = 'sec-gate5_5';
+    } else if (currentId === 'sec-ending') {
+        prevSecId = 'sec-gate6';
+    } else if (currentId === 'sec-final-result') {
+        prevSecId = 'sec-ending';
+    }
+    
+    if (prevSecId) {
+        document.getElementById(prevSecId).classList.remove('hidden');
+        document.getElementById(prevSecId).classList.add('active');
+        window.updateBackground(prevSecId);
+    }
+}
+
+// 자물쇠(Padlock) 로직
+window.createPadlock = function(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const digits = parseInt(container.getAttribute('data-digits'));
+    container.innerHTML = '';
+    
+    for (let i = 0; i < digits; i++) {
+        const wheel = document.createElement('div');
+        wheel.className = 'digit-wheel';
+        
+        const btnUp = document.createElement('button');
+        btnUp.className = 'wheel-btn';
+        btnUp.innerHTML = '▲';
+        
+        const display = document.createElement('div');
+        display.className = 'digit-display';
+        display.innerText = '0';
+        
+        const btnDown = document.createElement('button');
+        btnDown.className = 'wheel-btn';
+        btnDown.innerHTML = '▼';
+        
+        btnUp.onclick = () => {
+            window.playSound('click');
+            let val = parseInt(display.innerText);
+            display.innerText = val === 9 ? 0 : val + 1;
+        };
+        
+        btnDown.onclick = () => {
+            window.playSound('click');
+            let val = parseInt(display.innerText);
+            display.innerText = val === 0 ? 9 : val - 1;
+        };
+        
+        wheel.appendChild(btnUp);
+        wheel.appendChild(display);
+        wheel.appendChild(btnDown);
+        container.appendChild(wheel);
+    }
+}
+
+window.getPadlockValue = function(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return '';
+    let code = '';
+    container.querySelectorAll('.digit-display').forEach(d => {
+        code += d.innerText;
+    });
+    return code;
+}
+
+// 자물쇠 UI 초기화
+window.createPadlock('g1-padlock');
+window.createPadlock('g2-padlock');
+window.createPadlock('final-padlock');
 
