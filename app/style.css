@@ -655,6 +655,28 @@ button {
         margin-top: 10px;
         box-sizing: border-box;
     }
+
+    /* 자물쇠 다이얼 크기 및 여백 조절 */
+    .padlock-container {
+        gap: 8px;
+    }
+    .digit-wheel {
+        width: 55px;
+    }
+    .wheel-btn {
+        height: 30px;
+        font-size: 1rem;
+    }
+    .digit-display {
+        font-size: 1.8rem;
+        padding: 8px 0;
+    }
+    
+    /* 모바일에서 단서 카드 너비를 화면에 맞게 약간 조절 */
+    .clue-card-container {
+        width: 100%;
+        max-width: 280px;
+    }
 }
 
 /* 태블릿 및 PC 최적화 (너비 601px 이상) */
