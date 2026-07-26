@@ -47,6 +47,16 @@ window.playSound = function(type) {
         gainNode.gain.exponentialRampToValueAtTime(0.01, now + 3);
         osc.start(now);
         osc.stop(now + 3);
+    } else if (type === 'swipe') {
+        // 카드가 휙 뒤집히는 소리
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, now);
+        osc.frequency.exponentialRampToValueAtTime(100, now + 0.15);
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(0.3, now + 0.05);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+        osc.start(now);
+        osc.stop(now + 0.15);
     }
 };
 
@@ -62,6 +72,36 @@ document.addEventListener('click', (e) => {
     }
 });
 // ------------------------------------
+
+window.typewriterEffect = function(elementId, text, speed = 50, callback = null) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    el.innerHTML = '';
+    let i = 0;
+    
+    const typeInterval = setInterval(() => {
+        if (i < text.length) {
+            let char = text.charAt(i);
+            if(char === '<') {
+                let tag = '';
+                while(text.charAt(i) !== '>' && i < text.length) {
+                    tag += text.charAt(i);
+                    i++;
+                }
+                tag += '>';
+                el.innerHTML += tag;
+            } else {
+                el.innerHTML += char;
+                if (i % 3 === 0) window.playSound('click');
+            }
+            i++;
+        } else {
+            clearInterval(typeInterval);
+            el.innerHTML += '<span class="typewriter-cursor"></span>';
+            if (callback) callback();
+        }
+    }, speed);
+};
 
 let currentVersion = 'A'; // 기본값
 let teamName = '';
@@ -141,6 +181,13 @@ window.startGame = async function() {
         const video = document.getElementById('intro-video');
         if (video) {
             video.play().catch(e => console.log('Autoplay prevented by browser'));
+            video.onended = function() {
+                document.getElementById('story-narration').style.display = 'block';
+                const introText = "전하의 밀지가 당도했다!<br><br><span style='color:var(--color-accent-gold);'>'세자가 원인 모를 병에 걸렸고, 어의마저 누군가에게 납치되었다. 그대들을 특별 암행어사로 임명하니, 몰래 입궁하여 수라간의 비밀을 파헤쳐라!'</span><br><br>입궁을 위해선 납치된 어의가 궁궐 지도에 몰래 남겨둔 암호를 풀어야만 비밀의 문이 열린다.";
+                window.typewriterEffect('typewriter-text', introText, 40, () => {
+                    document.getElementById('btn-start-mission').style.display = 'inline-block';
+                });
+            };
         }
 
     } catch (error) {
@@ -214,7 +261,7 @@ window.checkG2Elements = function() {
         if (padlockArea && padlockArea.classList.contains('hidden')) {
             window.playSound('success'); // 성공 효과음으로 짜잔!
             padlockArea.classList.remove('hidden');
-            padlockArea.classList.add('active'); // CSS에서 block 또는 flex로 처리되게 하거나 그냥 hidden만 지움
+            padlockArea.classList.add('active');
         }
     }
 }
@@ -273,9 +320,17 @@ window.checkGate3 = async function() {
 
     // 정답: 1-C, 2-E, 3-A, 4-B, 5-F, 6-D
     if(q1==='C' && q2==='E' && q3==='A' && q4==='B' && q5==='F' && q6==='D') {
-        showAlert('정확한 진단이오! 다음 관문으로 넘어가시오.', true);
+        window.playSound('success');
+        document.getElementById('g3-result').innerHTML = `
+            <div class="success-box">
+                <p>정확한 진단이오!</p>
+                <p>진범이 영양소를 고의로 빼앗은 수법을 정확히 파악했소.</p>
+                <button class="btn-primary mt-10" onclick="nextGate(4)">다음 관문으로</button>
+            </div>
+        `;
+        document.getElementById('btn-g3-submit').style.display = 'none';
+        
         if(teamDocId) await updateDoc(doc(db, "teams", teamDocId), { currentGate: 4 });
-        nextGate(4);
     } else {
         showAlert('진단에 오류가 있소. (주의: 몸에 저장되지 않아 매일 먹어야 하는 영양소를 다시 생각해보시오)');
     }
@@ -290,23 +345,51 @@ window.checkGate4 = async function() {
     }
     
     if(ans === '유') {
-        showAlert('정확하오! 세자 저하가 쓰러진 시각은 유시(酉時, 10번째)였소. 이는 알리바이 대조의 핵심 기준이 될 것이오.', true);
+        window.playSound('success');
+        document.getElementById('g4-result').innerHTML = `
+            <div class="success-box">
+                <p>정확하오!</p>
+                <p>세자 저하가 쓰러진 시각은 유시(酉時, 10번째)였소. 이는 알리바이 대조의 핵심 기준이 될 것이오.</p>
+                <button class="btn-primary mt-10" onclick="nextGate(5)">다음 관문으로</button>
+            </div>
+        `;
+        document.getElementById('btn-g4-submit').style.display = 'none';
+        
         if(teamDocId) await updateDoc(doc(db, "teams", teamDocId), { currentGate: 5 });
-        nextGate(5);
     } else {
         showAlert('계산이 틀렸소. 조건(받침 수가 가장 적고 1g당 열량이 가장 높음)을 만족하는 영양소를 찾고, 그 받침 수에서 열량만큼 더해보시오.');
     }
 }
 
 // ================== 관문 5 로직 ==================
-window.showGate5Answer = function() {
-    const q1 = document.getElementById('g5-q1').value.trim();
-    if(!q1) {
-        showAlert('답안을 먼저 작성하시오.');
+window.closeG5Modal = function() {
+    window.playSound('click');
+    document.getElementById('g5-story-modal').classList.remove('active');
+    document.getElementById('g5-story-modal').classList.add('hidden');
+    document.getElementById('g5-puzzle-area').style.display = 'block';
+}
+
+window.checkGate5 = async function() {
+    const checkboxes = document.querySelectorAll('input[name="g5-recipe"]:checked');
+    const values = Array.from(checkboxes).map(cb => cb.value);
+    
+    if(values.length !== 3) {
+        showAlert('반드시 이로운 처방 3가지를 정확히 선택해야 하오.');
         return;
     }
-    document.getElementById('g5-answer-area').classList.remove('hidden');
-    document.getElementById('btn-g5-answer').style.display = 'none';
+    
+    // 정답: 1, 3, 5
+    if(values.includes('1') && values.includes('3') && values.includes('5')) {
+        window.playSound('success');
+        document.getElementById('g5-result-area').classList.remove('hidden');
+        document.getElementById('g5-result-msg').innerHTML = '<span style="font-size: 1.2rem; color: var(--color-accent-gold);"><strong>훌륭한 처방이오, 임시 어의!</strong></span><br><br>산책으로 비타민 D를 합성하고, 견과류로 두뇌를 깨우며, 버섯과 타락죽으로 칼슘을 든든하게 채워 저하의 시큰거리던 뼈마디가 멎고 눈빛이 다시 맑아지셨소.<br><br><span style="color: #aaa;">(급한 불을 껐으니, 이제 지체 없이 진범을 마저 쫓으러 가십시다!)</span>';
+        document.getElementById('btn-g5-submit').style.display = 'none';
+        document.getElementById('btn-to-gate5_5').classList.remove('hidden');
+        
+        if(teamDocId) await updateDoc(doc(db, "teams", teamDocId), { currentGate: 5.5 });
+    } else {
+        showAlert('독이 될 수 있는 처방이 섞여있소! 짠 음식이나 카페인, 운동 부족은 뼈를 삭게 하니 빼시오.');
+    }
 }
 
 // ================== 관문 5.5 로직 ==================
@@ -318,52 +401,91 @@ const clueData = [
     { title: "단서 카드 E", subtitle: "(결정적 목격담)", content: "“사건 당일, 세자 저하의 옷자락에서 붉은 고추 양념이 묻은 돼지고기 기름 자국이 발견되었다.”" }
 ];
 
-window.getClueCards = function() {
-    const scoreStr = document.getElementById('quiz-score').value.trim();
-    if (scoreStr === '') {
-        showAlert('의학 서책 퀴즈 점수를 입력하시오.');
+window.submitOnlineQuiz = function() {
+    const q1 = document.querySelector('input[name="q1"]:checked');
+    const q2 = document.querySelector('input[name="q2"]:checked');
+    const q3 = document.querySelector('input[name="q3"]:checked');
+    const q4 = document.querySelector('input[name="q4"]:checked');
+    const q5 = document.querySelector('input[name="q5"]:checked');
+    
+    if(!q1 || !q2 || !q3 || !q4 || !q5) {
+        showAlert('전하의 어명이다! 5문제를 모두 풀거라!');
         return;
     }
-    const score = parseInt(scoreStr, 10);
-    if (score < 0 || score > 10) {
-        showAlert('0에서 10 사이의 점수를 정확히 입력하시오.');
-        return;
-    }
-
-    let clueCount = 0;
-    if (score === 10) clueCount = 5;
-    else if (score >= 7) clueCount = 3;
-    else if (score >= 4) clueCount = 2;
-    else clueCount = 0;
-
+    
+    let score = 0;
+    if(q1.value === 'B') score++;
+    if(q2.value === 'B') score++;
+    if(q3.value === 'A') score++;
+    if(q4.value === 'B') score++;
+    if(q5.value === 'A') score++;
+    
+    // 정답 개수만큼 단서 획득 (최대 5개)
+    const clueCount = score;
+    
     const clueArea = document.getElementById('clue-cards-area');
     clueArea.innerHTML = '';
-
-    if (clueCount === 0) {
+    
+    document.getElementById('online-quiz-area').style.display = 'none';
+    
+    if(clueCount === 0) {
         window.playSound('error');
-        clueArea.innerHTML = '<div style="text-align:center; padding: 20px;"><p style="color:var(--color-accent-red); font-size:1.2rem; font-weight:bold;">단서 획득 실패 (세자 저하를 구하지 못함)</p><p class="mt-10">오직 직감으로만 범인을 찾아내야 한다!</p></div>';
+        clueArea.innerHTML = `<div style="text-align:center; padding: 20px;"><p style="color:var(--color-accent-red); font-size:1.2rem; font-weight:bold;">전하께서 크게 노하셨다!</p><p class="mt-10">단 한 문제도 맞히지 못하여 단서를 하나도 얻지 못했다... 오직 직감으로만 범인을 찾아내야 한다!</p></div>`;
     } else {
         window.playSound('success');
+        
+        const scoreMsg = document.createElement('div');
+        scoreMsg.style.cssText = "width:100%; text-align:center; margin-bottom:15px;";
+        if(clueCount === 5) {
+            scoreMsg.innerHTML = `<p style="font-size:1.3rem; color:var(--color-accent-gold); font-weight:bold;">만점이다! 전하께서 5개의 단서를 모두 하사하셨다!</p>`;
+        } else {
+            scoreMsg.innerHTML = `<p style="font-size:1.2rem; color:#fff;">5문제 중 ${clueCount}문제를 맞혔다! 단서 ${clueCount}개를 획득했다.</p>`;
+        }
+        clueArea.appendChild(scoreMsg);
+        
         const shuffled = [...clueData].sort(() => 0.5 - Math.random());
         const selectedClues = shuffled.slice(0, clueCount);
         selectedClues.sort((a, b) => a.title.localeCompare(b.title));
 
         selectedClues.forEach(clue => {
-            const card = document.createElement('div');
-            card.style.cssText = 'border: 2px solid var(--color-accent-gold); border-radius: 8px; padding: 15px; background: rgba(0,0,0,0.6); width: 220px; text-align: left; box-shadow: 0 4px 6px rgba(0,0,0,0.3);';
-            card.innerHTML = `
-                <div style="border-bottom:1px solid #555; padding-bottom:5px; margin-bottom:10px; text-align:center;">
-                    <h4 style="color:var(--color-accent-gold); margin:0; font-size:1.1rem;">${clue.title}</h4>
-                    <span style="font-size:0.85rem; color:#ccc;">${clue.subtitle}</span>
+            const cardContainer = document.createElement('div');
+            cardContainer.className = 'clue-card-container';
+            cardContainer.onclick = function() {
+                if(!this.classList.contains('flipped')) {
+                    window.playSound('swipe');
+                    this.classList.add('flipped');
+                }
+            };
+            
+            cardContainer.innerHTML = `
+                <div class="clue-card-inner">
+                    <div class="clue-card-front">
+                        <!-- 뒷면 디자인은 CSS ::after로 처리됨 -->
+                    </div>
+                    <div class="clue-card-back">
+                        <div style="border-bottom:1px solid #555; padding-bottom:5px; margin-bottom:10px; text-align:center; width:100%;">
+                            <h4 style="color:var(--color-accent-gold); margin:0; font-size:1.1rem;">${clue.title}</h4>
+                            <span style="font-size:0.85rem; color:#ccc;">${clue.subtitle}</span>
+                        </div>
+                        <p style="font-size:0.95rem; line-height:1.5;">${clue.content}</p>
+                    </div>
                 </div>
-                <p style="font-size:0.95rem; line-height:1.5;">${clue.content}</p>
             `;
-            clueArea.appendChild(card);
+            clueArea.appendChild(cardContainer);
         });
-    }
 
-    document.getElementById('btn-get-clues').style.display = 'none';
-    document.getElementById('quiz-score').disabled = true;
+        // 4명의 용의자 확보 서사 추가
+        const narrativeBox = document.createElement('div');
+        narrativeBox.style.cssText = "width:100%; margin-top:30px; padding: 20px; background: rgba(138, 28, 28, 0.2); border: 2px solid var(--color-accent-red); border-radius: 8px; text-align:left; box-shadow: 0 0 15px rgba(255, 0, 0, 0.2);";
+        narrativeBox.innerHTML = `
+            <p style="color:var(--color-accent-gold); font-weight:bold; font-size:1.2rem; margin-bottom:10px;">[ 결정적 증거: 용의자 명단 확보 ]</p>
+            <p style="color:#ddd; line-height:1.6; font-size: 1.05rem;">하수인은 벌벌 떨며 단서와 함께 낡은 명단을 하나 꺼내놓았다.</p>
+            <p style="color:var(--color-accent-red); font-weight:bold; font-style:italic; font-size:1.2rem; margin:15px 0; padding:10px; border-left: 4px solid var(--color-accent-red); background: rgba(0,0,0,0.5);">"저하의 수라를 직접 챙겼던 자들... <span style="color:#fff;">수라간 최상궁, 장내시, 세자빈, 의녀 장덕</span>... 진범은 이 4명 중에 있습니다!"</p>
+            <p style="color:#aaa; font-size: 0.95rem;">(다음 관문에서 이들의 심문 기록과 식단을 분석하여 진범을 가려낼 수 있다.)</p>
+        `;
+        clueArea.appendChild(narrativeBox);
+    }
+    
     document.getElementById('btn-to-gate6-wrap').classList.remove('hidden');
 }
 
@@ -375,22 +497,21 @@ const suspectsData = [
     { name: '의녀 장덕', c: false, d: false, e: false } // 돼지고기(수육)지만 고추양념은 아님
 ];
 
-window.updateSuspects = function() {
-    const chkC = document.getElementById('chk-c').checked;
-    const chkD = document.getElementById('chk-d').checked;
-    const chkE = document.getElementById('chk-e').checked;
+window.selectCulprit = function(name) {
+    const suspectArea = document.getElementById('suspects-area');
+    const msgArea = document.getElementById('suspect-selected-msg');
+    
+    suspectArea.classList.remove('hidden');
 
-    let filtered = suspectsData.filter(s => {
-        if(chkC && !s.c) return false;
-        if(chkD && !s.d) return false;
-        if(chkE && !s.e) return false;
-        return true;
-    });
-
-    document.getElementById('suspect-count').innerText = filtered.length;
-    document.getElementById('suspect-names').innerText = filtered.map(s => s.name).join(', ');
-
-    if(filtered.length === 1 && filtered[0].name === '최상궁') {
+    if(name === '최상궁') {
+        window.playSound('doom');
+        suspectArea.style.boxShadow = 'inset 0 0 20px rgba(255, 0, 0, 0.5), 0 0 15px rgba(255, 0, 0, 0.8)';
+        suspectArea.style.background = 'rgba(50, 0, 0, 0.5)';
+        suspectArea.style.border = '1px solid var(--color-accent-red)';
+        
+        msgArea.innerText = "모든 단서가 가리키는 유일한 진범이다!";
+        msgArea.style.color = "var(--color-accent-red)";
+        
         if (currentVersion === 'B') {
             document.getElementById('btn-g6-compare').style.display = 'inline-block';
             document.getElementById('btn-g6-arrest').style.display = 'none';
@@ -399,6 +520,14 @@ window.updateSuspects = function() {
             document.getElementById('btn-g6-compare').style.display = 'none';
         }
     } else {
+        window.playSound('error');
+        suspectArea.style.boxShadow = 'none';
+        suspectArea.style.background = 'transparent';
+        suspectArea.style.border = 'none';
+
+        msgArea.innerText = "단서와 일치하지 않는 자다. 다시 확인하라.";
+        msgArea.style.color = "#ccc";
+
         document.getElementById('btn-g6-arrest').style.display = 'none';
         document.getElementById('btn-g6-compare').style.display = 'none';
     }
@@ -407,6 +536,18 @@ window.updateSuspects = function() {
 window.showDigitalCompare = function() {
     document.getElementById('compare-modal').classList.remove('hidden');
     document.getElementById('compare-modal').classList.add('active');
+}
+
+window.openInterrogationModal = function() {
+    // 모달 열기
+    document.getElementById('interrogation-modal').classList.remove('hidden');
+    document.getElementById('interrogation-modal').classList.add('active');
+    
+    // 소거표(체크박스) 잠금 해제
+    document.getElementById('chk-warning-msg').style.display = 'none';
+    const checklistArea = document.getElementById('checklist-area');
+    checklistArea.style.opacity = '1';
+    checklistArea.style.pointerEvents = 'auto';
 }
 
 window.closeCompareModal = function() {
@@ -440,19 +581,24 @@ window.unlockEnding = function() {
 }
 
 window.declareEnding = async function() {
-    const culprit = document.getElementById('final-culprit').value;
+    const char1 = document.getElementById('final-ans1').value.trim().replace(/\s+/g, '');
+    const char2 = document.getElementById('final-ans2').value.trim().replace(/\s+/g, '');
+    const char3 = document.getElementById('final-ans3').value.trim().replace(/\s+/g, '');
     const reason = document.getElementById('final-reason').value.trim();
 
-    if(!culprit) {
-        showAlert('진범을 지목하시오.');
+    if(!char1 || !char2 || !char3) {
+        showAlert('진범의 이름 3글자를 외치시오!');
         return;
     }
+    
+    const culprit = char1 + char2 + char3;
+    
     if(!reason) {
         showAlert('범행 근거를 서술하시오.');
         return;
     }
 
-    if(culprit === '최상궁') {
+    if(culprit === '골고루') {
         // 성공
         window.playSound('success');
         document.getElementById('sec-ending').classList.remove('active');
@@ -468,7 +614,7 @@ window.declareEnding = async function() {
             });
         }
     } else {
-        showAlert('그자는 진범이 아니오! 소거표를 다시 확인해보시오.');
+        showAlert('그자는 진범이 아니오! 붉은 양념이 묻은 도형의 위치를 다시 확인해보시오.');
     }
 }
 
@@ -638,7 +784,7 @@ window.updateBackground = function(sectionId) {
         'sec-gate3': '../3관문 배경 이미지.png',
         'sec-gate4': '../4관문 이미지.png',
         'sec-gate5': '../5관문 이미지.png',
-        'sec-gate5_5': '../5관문 이미지.png',
+        'sec-gate5_5': '../5. [관문 5.5] 단서를 불태우려던 하수인 심문.png',
         'sec-gate6': '../6관문 이지미배경.png',
         'sec-ending': '../7관문 이미지.png',
         'sec-final-result': '../7관문 이미지.png'
@@ -666,6 +812,15 @@ window.nextGate = function(gateNum) {
         nextSec.classList.remove('hidden');
         nextSec.classList.add('active');
         window.updateBackground(nextSec.id);
+
+        if (gateNum === 5) {
+            const g5Modal = document.getElementById('g5-story-modal');
+            if(g5Modal) {
+                g5Modal.classList.remove('hidden');
+                g5Modal.classList.add('active');
+                document.getElementById('g5-puzzle-area').style.display = 'none';
+            }
+        }
     }
 }
 
