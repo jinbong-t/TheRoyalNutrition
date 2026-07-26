@@ -618,161 +618,7 @@ window.declareEnding = async function() {
     }
 }
 
-let chatHistory = [];
-let originalDiet = '';
 
-const systemPrompt = "당신은 조선시대 내의원 최고 어의입니다. 학생이 어제 먹은 식단(아침, 점심, 저녁, 간식)을 보고, 6대 영양소(탄수화물, 단백질, 지방, 무기질, 비타민, 물) 관점에서 어떤 점이 부족하거나 과한지 사극 말투(예: ~하옵니다, 저하, 통촉하시옵소서 등)로 재미있고 친절하게 분석해주세요. 학생의 질문에 대답하며 함께 더 나은 '추천 식단'을 만들어가는 것이 목표입니다.";
-
-window.startAiCounseling = function() {
-    originalDiet = document.getElementById('original-diet-input').value.trim();
-    if(!originalDiet) {
-        showAlert('어제 먹은 식단을 먼저 상세히 적어주시옵소서.');
-        return;
-    }
-    
-    if(!globalAiConfig || !globalAiConfig.apiKey) {
-        showAlert('어의(AI)가 아직 출근하지 않았습니다. 선생님께 대시보드에서 AI 설정을 부탁드리세요.');
-        return;
-    }
-
-    document.getElementById('btn-start-counseling').style.display = 'none';
-    document.getElementById('original-diet-input').disabled = true;
-    document.getElementById('ai-chat-area').classList.remove('hidden');
-    
-    appendMessage('assistant', '오셨사옵니까! 어제 드신 식단을 꼼꼼히 진맥해 보겠습니다. 잠시만 기다려 주시옵소서...');
-    
-    // 첫 프롬프트 전송
-    chatHistory = [];
-    callAiApi(`이것이 내가 어제 먹은 식단이야:\n${originalDiet}\n\n이 식단을 분석해주고, 어떻게 개선하면 좋을지 조선시대 어의 말투로 친근하게 상담을 시작해줘.`);
-}
-
-window.sendChatMessage = function() {
-    const input = document.getElementById('chat-input');
-    const msg = input.value.trim();
-    if(!msg) return;
-    
-    input.value = '';
-    appendMessage('user', msg);
-    callAiApi(msg);
-}
-
-// 엔터 키로 채팅 전송
-document.getElementById('chat-input')?.addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
-        window.sendChatMessage();
-    }
-});
-
-function appendMessage(role, text) {
-    const chatBox = document.getElementById('chat-messages');
-    const div = document.createElement('div');
-    if(role === 'user') {
-        div.style.textAlign = 'right';
-        div.innerHTML = `<span style="background:var(--color-primary); color:white; padding:10px 14px; border-radius:15px 15px 0 15px; display:inline-block; max-width:85%; text-align:left;">${text}</span>`;
-    } else {
-        div.style.textAlign = 'left';
-        // 간단한 마크다운 볼드 처리
-        const formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        div.innerHTML = `<span style="background:rgba(212,175,55,0.2); border: 1px solid var(--color-accent-gold); color:#eee; padding:10px 14px; border-radius:15px 15px 15px 0; display:inline-block; max-width:85%;">${formattedText}</span>`;
-    }
-    chatBox.appendChild(div);
-    chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-async function callAiApi(userMessage) {
-    chatHistory.push({ role: 'user', content: userMessage });
-    
-    try {
-        let aiResponseText = "";
-        
-        if (globalAiConfig.provider === 'gemini') {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${globalAiConfig.apiKey}`;
-            
-            let contents = [
-                { role: 'user', parts: [{ text: systemPrompt }] },
-                { role: 'model', parts: [{ text: '명을 받들겠사옵니다. 식단을 낱낱이 살펴 건강을 지켜드리겠나이다.' }] }
-            ];
-            chatHistory.forEach(msg => {
-                contents.push({
-                    role: msg.role === 'user' ? 'user' : 'model',
-                    parts: [{ text: msg.content }]
-                });
-            });
-            
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: contents })
-            });
-            
-            const data = await res.json();
-            if(data.error) throw new Error(data.error.message);
-            aiResponseText = data.candidates[0].content.parts[0].text;
-            
-        } else if (globalAiConfig.provider === 'openai') {
-            const url = `https://api.openai.com/v1/chat/completions`;
-            
-            let messages = [
-                { role: 'system', content: systemPrompt }
-            ];
-            chatHistory.forEach(msg => messages.push(msg));
-            
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${globalAiConfig.apiKey}`
-                },
-                body: JSON.stringify({ 
-                    model: 'gpt-4o-mini', 
-                    messages: messages 
-                })
-            });
-            
-            const data = await res.json();
-            if(data.error) throw new Error(data.error.message);
-            aiResponseText = data.choices[0].message.content;
-        }
-        
-        chatHistory.push({ role: 'assistant', content: aiResponseText });
-        
-        // "잠시만..." 첫 메시지 제거 (임시 방편)
-        const chatBox = document.getElementById('chat-messages');
-        const children = chatBox.children;
-        for(let i=0; i<children.length; i++) {
-            if(children[i].innerText.includes('잠시만 기다려 주시옵소서')) {
-                chatBox.removeChild(children[i]);
-                break;
-            }
-        }
-        
-        appendMessage('assistant', aiResponseText);
-        
-    } catch(e) {
-        console.error("AI API Error:", e);
-        appendMessage('assistant', '통촉하시옵소서... 의술서(서버 통신)에 문제가 생겨 진맥을 이어갈 수 없사옵니다. (API 오류가 발생했습니다. 키를 확인해주세요)');
-        chatHistory.pop(); // 에러 난 유저 메시지 삭제
-    }
-}
-
-window.submitFinalDiet = async function() {
-    const finalDiet = document.getElementById('final-diet-input').value.trim();
-    if(!finalDiet) {
-        showAlert('어의와 상담하여 결정한 최종 추천 식단을 적어주시오.');
-        return;
-    }
-
-    if(teamDocId) {
-        await updateDoc(doc(db, "teams", teamDocId), { 
-            originalDiet: originalDiet,
-            chatHistory: chatHistory,
-            finalDiet: finalDiet
-        });
-    }
-
-    document.getElementById('diet-diagnosis-area').classList.add('hidden');
-    document.getElementById('final-farewell').classList.remove('hidden');
-}
 
 window.updateBackground = function(sectionId) {
     const bgOverlay = document.querySelector('.bg-overlay');
@@ -1094,190 +940,184 @@ window.createPadlock('g2-padlock');
 window.createPadlock('final-padlock');
 
 // ============================================================================
-// [종막] AI 어의 챗봇 상담 로직
+// [종막] 다이어트 앱 스타일 식단 분석 로직
 // ============================================================================
 
-let aiChatHistory = [];
-const systemPrompt = "너는 조선시대 내의원의 최고 어의다. 다음은 수라간 궁녀(학생)가 어제 하루 먹은 식단 또는 질문이다. 6대 영양소(탄수화물, 단백질, 지방, 비타민, 무기질, 물) 관점에서 무엇이 부족하고 과한지 사극 말투로 호통치듯, 하지만 진심으로 건강을 걱정하며 따뜻하게 조언해 다오. 학생이 너무 심한 장난을 치면 엄하게 꾸짖어라.";
+const foodDB = [
+    { id: 1, name: "흰 쌀밥", icon: "🍚", category: "탄수화물", cal: 300, carbs: 65, protein: 5, fat: 0, vit: 0, min: 1, water: 29 },
+    { id: 2, name: "현미밥", icon: "🌾", category: "탄수화물", cal: 320, carbs: 60, protein: 7, fat: 2, vit: 10, min: 15, water: 6 },
+    { id: 3, name: "제육볶음", icon: "🥓", category: "단백질/지방", cal: 450, carbs: 10, protein: 25, fat: 35, vit: 5, min: 10, water: 15 },
+    { id: 4, name: "닭가슴살", icon: "🍗", category: "단백질", cal: 165, carbs: 0, protein: 31, fat: 3, vit: 5, min: 5, water: 60 },
+    { id: 5, name: "생선구이", icon: "🐟", category: "단백질", cal: 200, carbs: 0, protein: 20, fat: 10, vit: 5, min: 15, water: 50 },
+    { id: 6, name: "시금치나물", icon: "🥗", category: "채소", cal: 50, carbs: 5, protein: 2, fat: 2, vit: 40, min: 30, water: 21 },
+    { id: 7, name: "샐러드", icon: "🥬", category: "채소", cal: 30, carbs: 5, protein: 1, fat: 0, vit: 50, min: 20, water: 24 },
+    { id: 8, name: "사과", icon: "🍎", category: "과일", cal: 100, carbs: 25, protein: 0, fat: 0, vit: 50, min: 10, water: 15 },
+    { id: 9, name: "바나나", icon: "🍌", category: "과일", cal: 105, carbs: 27, protein: 1, fat: 0, vit: 20, min: 15, water: 36 },
+    { id: 10, name: "우유", icon: "🥛", category: "유제품", cal: 120, carbs: 10, protein: 8, fat: 7, vit: 10, min: 30, water: 35 },
+    { id: 11, name: "마라탕", icon: "🍲", category: "복합/나트륨", cal: 800, carbs: 40, protein: 20, fat: 60, vit: 5, min: 30, water: 5 },
+    { id: 12, name: "탕후루", icon: "🍡", category: "당류", cal: 250, carbs: 60, protein: 0, fat: 0, vit: 5, min: 0, water: 35 },
+    { id: 13, name: "햄버거", icon: "🍔", category: "복합", cal: 500, carbs: 45, protein: 25, fat: 25, vit: 10, min: 15, water: 10 },
+    { id: 14, name: "피자", icon: "🍕", category: "복합", cal: 600, carbs: 60, protein: 25, fat: 30, vit: 10, min: 20, water: 10 }
+];
 
-async function callAI(userText) {
-    if (!globalAiConfig || !globalAiConfig.apiKey) {
-        throw new Error("API 키가 설정되지 않았습니다.");
-    }
+// 1끼 권장 영양소 (단순화된 게임 기준)
+const TARGET_NUTRITION = {
+    cal: 800,
+    carbs: 100,
+    protein: 40,
+    fat: 30,
+    vit: 100,
+    min: 100,
+    water: 100
+};
 
-    const provider = globalAiConfig.provider || 'gemini';
-    const apiKey = globalAiConfig.apiKey;
+let myTray = [];
 
-    if (provider === 'gemini') {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-        
-        let contents = [];
-        for(let msg of aiChatHistory) {
-            contents.push({ role: msg.role === 'user' ? 'user' : 'model', parts: [{ text: msg.text }] });
-        }
-        
-        let promptText = userText;
-        if(aiChatHistory.length === 0) {
-             promptText = `${systemPrompt}\n\n[학생의 식단/질문]: ${userText}`;
-        }
-
-        contents.push({ role: 'user', parts: [{ text: promptText }] });
-
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: contents })
-        });
-        
-        const data = await response.json();
-        if (data.error) throw new Error(data.error.message);
-        
-        const reply = data.candidates[0].content.parts[0].text;
-        
-        aiChatHistory.push({ role: 'user', text: promptText });
-        aiChatHistory.push({ role: 'assistant', text: reply });
-        
-        return reply;
-        
-    } else if (provider === 'openai') {
-        const url = `https://api.openai.com/v1/chat/completions`;
-        
-        let messages = [
-            { role: "system", content: systemPrompt }
-        ];
-        
-        for(let msg of aiChatHistory) {
-            messages.push({ role: msg.role, content: msg.text });
-        }
-        messages.push({ role: "user", content: userText });
-
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-                model: "gpt-3.5-turbo",
-                messages: messages
-            })
-        });
-
-        const data = await response.json();
-        if (data.error) throw new Error(data.error.message);
-        
-        const reply = data.choices[0].message.content;
-        
-        aiChatHistory.push({ role: 'user', text: userText });
-        aiChatHistory.push({ role: 'assistant', text: reply });
-        
-        return reply;
-    }
+// 앱 초기화시 한 번 호출되도록 설계
+window.renderFoodList = function() {
+    const container = document.getElementById('food-grid');
+    if(!container) return;
+    container.innerHTML = '';
+    
+    foodDB.forEach(food => {
+        const btn = document.createElement('div');
+        btn.className = 'food-item';
+        btn.innerHTML = `<div class="food-icon">${food.icon}</div><div class="food-name">${food.name}</div><div class="food-cal">${food.cal}kcal</div>`;
+        btn.onclick = () => {
+            window.playSound('click');
+            window.addFoodToTray(food);
+        };
+        container.appendChild(btn);
+    });
 }
 
-function appendChatMessage(role, text) {
-    const chatContainer = document.getElementById('chat-messages');
-    const msgDiv = document.createElement('div');
-    msgDiv.style.maxWidth = '80%';
-    msgDiv.style.padding = '8px 12px';
-    msgDiv.style.borderRadius = '8px';
-    msgDiv.style.marginBottom = '5px';
+window.addFoodToTray = function(food) {
+    if (myTray.length >= 8) {
+        showAlert('수라상에 더 이상 올릴 자리가 없사옵니다! (최대 8개)');
+        return;
+    }
+    myTray.push(food);
+    window.updateTrayUI();
+}
+
+window.removeFoodFromTray = function(index) {
+    window.playSound('swipe');
+    myTray.splice(index, 1);
+    window.updateTrayUI();
+}
+
+window.updateTrayUI = function() {
+    // 1. 식판 렌더링
+    const trayEl = document.getElementById('my-tray-list');
+    if(!trayEl) return;
+    trayEl.innerHTML = '';
     
-    if (role === 'user') {
-        msgDiv.style.alignSelf = 'flex-end';
-        msgDiv.style.backgroundColor = 'rgba(212,175,55,0.2)';
-        msgDiv.style.border = '1px solid var(--color-accent-gold)';
-        msgDiv.innerHTML = `<strong>나:</strong> ${text}`;
+    let total = { cal: 0, carbs: 0, protein: 0, fat: 0, vit: 0, min: 0, water: 0 };
+    
+    myTray.forEach((food, index) => {
+        const item = document.createElement('div');
+        item.className = 'tray-item';
+        item.innerHTML = `<span>${food.icon} ${food.name}</span> <span class="remove-btn" onclick="removeFoodFromTray(${index})">❌</span>`;
+        trayEl.appendChild(item);
+        
+        total.cal += food.cal;
+        total.carbs += food.carbs;
+        total.protein += food.protein;
+        total.fat += food.fat;
+        total.vit += food.vit;
+        total.min += food.min;
+        total.water += food.water;
+    });
+    
+    if(myTray.length === 0) {
+        trayEl.innerHTML = '<div style="color:#aaa; font-style:italic; padding:10px;">수라상이 비어있습니다. 음식을 클릭해 담아주세요.</div>';
+    }
+
+    // 2. 게이지 바 업데이트
+    const updateBar = (id, current, target) => {
+        const percent = Math.min(150, Math.round((current / target) * 100)); // 최대 150% 까지만 게이지 표시
+        const bar = document.getElementById(`bar-${id}`);
+        const text = document.getElementById(`text-${id}`);
+        if(bar) bar.style.width = Math.min(100, percent) + '%';
+        if(text) text.innerText = `${percent}%`;
+        
+        // 색상 변경 로직
+        if (id === 'cal') {
+            if (percent > 120) bar.style.backgroundColor = 'var(--color-accent-red)';
+            else if (percent >= 80) bar.style.backgroundColor = 'var(--color-success)';
+            else bar.style.backgroundColor = 'var(--color-warning)';
+        } else {
+            if (percent > 150) bar.style.backgroundColor = 'var(--color-accent-red)'; // 과다
+            else if (percent >= 70) bar.style.backgroundColor = 'var(--color-success)'; // 충분
+            else bar.style.backgroundColor = 'var(--color-warning)'; // 부족
+        }
+        return percent;
+    };
+
+    const pCal = updateBar('cal', total.cal, TARGET_NUTRITION.cal);
+    const pCarbs = updateBar('carbs', total.carbs, TARGET_NUTRITION.carbs);
+    const pProtein = updateBar('protein', total.protein, TARGET_NUTRITION.protein);
+    const pFat = updateBar('fat', total.fat, TARGET_NUTRITION.fat);
+    const pVit = updateBar('vit', total.vit, TARGET_NUTRITION.vit);
+    const pMin = updateBar('min', total.min, TARGET_NUTRITION.min);
+    const pWater = updateBar('water', total.water, TARGET_NUTRITION.water);
+
+    // 3. 어의 피드백
+    const feedbackEl = document.getElementById('diet-feedback-text');
+    let feedback = "";
+    let isPerfect = false;
+
+    if (myTray.length === 0) {
+        feedback = "수라상에 올릴 음식을 골라주시옵소서.";
+    } else if (pCal > 130) {
+        feedback = "이놈! 칼로리가 폭발 직전이옵니다! 당장 음식을 덜어내시옵소서!";
+    } else if (pFat > 130 || pCarbs > 150) {
+        feedback = "기름지거나 단 음식이 너무 많사옵니다. 혈관이 막히겠사옵니다!";
+    } else if (pVit < 60) {
+        feedback = "채소나 과일이 부족하여 저하께서 괴혈병에 걸리겠사옵니다. 비타민을 보충하시오!";
+    } else if (pProtein < 60) {
+        feedback = "기력이 쇠하시옵니다. 뼈와 살이 될 고기나 생선을 올리시옵소서.";
+    } else if (pCal >= 70 && pCal <= 120 && pCarbs >= 70 && pProtein >= 70 && pFat <= 120 && pVit >= 70 && pMin >= 70 && pWater >= 70) {
+        feedback = "오오! 6대 영양소가 조화로운 완벽한 수라상이옵니다! 어서 제출하시옵소서!";
+        isPerfect = true;
     } else {
-        msgDiv.style.alignSelf = 'flex-start';
-        msgDiv.style.backgroundColor = 'rgba(255,255,255,0.1)';
-        msgDiv.style.border = '1px solid #777';
-        msgDiv.innerHTML = `<strong style="color:var(--color-accent-gold);">어의:</strong> ${text}`;
-    }
-    
-    chatContainer.appendChild(msgDiv);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-}
-
-window.startAiCounseling = async function() {
-    const dietInput = document.getElementById('original-diet-input').value.trim();
-    if(!dietInput) {
-        showAlert('어제 먹은 식단을 먼저 상세히 적어주시오!');
-        return;
-    }
-    if(!globalAiConfig || !globalAiConfig.apiKey) {
-        showAlert('현재 어의가 자리에 없소 (선생님 대시보드에서 AI API 키 설정 필요).');
-        return;
+        feedback = "아직 영양소가 부족하거나 불균형하옵니다. 6가지 게이지를 모두 초록색으로 만들어 보시지요!";
     }
 
-    // 초기화
-    aiChatHistory = [];
-    document.getElementById('chat-messages').innerHTML = '';
+    if(feedbackEl) feedbackEl.innerText = feedback;
     
-    // UI 전환
-    document.getElementById('ai-chat-area').classList.remove('hidden');
-    document.getElementById('original-diet-input').disabled = true;
-    document.getElementById('btn-start-counseling').classList.add('hidden');
-    
-    appendChatMessage('user', dietInput);
-    appendChatMessage('assistant', '진맥을 짚고 있소... (어의가 식단을 분석 중입니다)');
-    
-    try {
-        const reply = await callAI(dietInput);
-        const chatContainer = document.getElementById('chat-messages');
-        chatContainer.removeChild(chatContainer.lastChild);
-        
-        appendChatMessage('assistant', reply);
-        window.playSound('success');
-    } catch(err) {
-        const chatContainer = document.getElementById('chat-messages');
-        chatContainer.removeChild(chatContainer.lastChild);
-        appendChatMessage('assistant', `(통신 오류: ${err.message})`);
+    // 4. 제출 버튼 활성화
+    const submitBtn = document.getElementById('btn-submit-diet');
+    if (submitBtn) {
+        if (isPerfect) {
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('disabled-btn');
+            submitBtn.style.animation = "pulse 1s infinite";
+        } else {
+            submitBtn.disabled = true;
+            submitBtn.classList.add('disabled-btn');
+            submitBtn.style.animation = "none";
+        }
     }
 }
 
-window.sendChatMessage = async function() {
-    const inputEl = document.getElementById('chat-input');
-    const text = inputEl.value.trim();
-    if(!text) return;
+window.submitDietApp = async function() {
+    if (myTray.length === 0) return;
     
-    inputEl.value = '';
-    appendChatMessage('user', text);
-    appendChatMessage('assistant', '고민 중이오...');
-    
-    try {
-        const reply = await callAI(text);
-        const chatContainer = document.getElementById('chat-messages');
-        chatContainer.removeChild(chatContainer.lastChild);
-        
-        appendChatMessage('assistant', reply);
-        window.playSound('click');
-    } catch(err) {
-        const chatContainer = document.getElementById('chat-messages');
-        chatContainer.removeChild(chatContainer.lastChild);
-        appendChatMessage('assistant', `(통신 오류: ${err.message})`);
-    }
-}
-
-window.submitFinalDiet = async function() {
-    const finalDiet = document.getElementById('final-diet-input').value.trim();
-    if(!finalDiet) {
-        showAlert('최종 추천 식단을 적고 제출하시오!');
-        return;
-    }
-    
-    const originalDiet = document.getElementById('original-diet-input').value.trim();
+    const foodNames = myTray.map(f => f.name).join(', ');
+    const totalCal = myTray.reduce((sum, f) => sum + f.cal, 0);
+    const finalDietStr = `[영양 만점 수라상] ${foodNames} (총 ${totalCal}kcal)`;
     
     try {
         const teamRef = doc(db, 'teams', teamDocId);
         await updateDoc(teamRef, {
-            originalDiet: originalDiet,
-            finalDiet: finalDiet,
+            originalDiet: '다이어트 앱 모드로 대체됨',
+            finalDiet: finalDietStr,
             currentGate: '완료',
             endTime: new Date().toISOString()
         });
         
-        document.getElementById('diet-diagnosis-area').classList.add('hidden');
+        document.getElementById('diet-app-area').classList.add('hidden');
         document.getElementById('final-farewell').classList.remove('hidden');
         window.playSound('doom'); // 웅장한 마무리 소리
         
@@ -1286,3 +1126,4 @@ window.submitFinalDiet = async function() {
         showAlert('기록 전달에 실패하였소.');
     }
 }
+

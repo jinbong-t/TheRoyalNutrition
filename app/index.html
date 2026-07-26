@@ -562,28 +562,44 @@
                 <p class="mt-10" style="line-height: 1.8;">아무리 좋은 의도와 정성(좋아하는 음식)이라도, <strong>영양 지식 없이 한쪽으로 치우쳐 먹으면</strong> 병을 키울 수 있습니다.<br>오늘 배운 6대 영양소 지식으로 <strong>스스로 균형 잡힌 식단을 챙기는 것</strong>이 진정한 건강의 비결입니다!</p>
             </div>
             
-            <div id="diet-diagnosis-area" class="question-box mt-20" style="text-align: left;">
-                <h3 class="text-center mb-10" style="color: var(--color-accent-gold);">[ 특별 어명: 내의원 어의와의 식단 상담 ]</h3>
-                <p class="mb-10 text-center">최 상궁의 실수를 거울삼아, 어제 하루 그대들이 먹은 식단(아침, 점심, 저녁, 간식)을 상세히 적어보시오.</p>
+            <div id="diet-app-area" class="question-box mt-20" style="text-align: left; background: rgba(0,0,0,0.4); border: 2px solid var(--color-accent-gold);">
+                <h3 class="text-center mb-10" style="color: var(--color-accent-gold);">[ 특별 어명: 6대 영양소를 갖춘 완벽한 수라상을 차려라! ]</h3>
+                <p class="mb-20 text-center" style="font-size:0.9rem;">아래 음식들을 클릭하여 수라상에 담고, 6가지 영양소 게이지를 모두 <strong>초록색(70% 이상)</strong>으로 채우시오.<br>(단, 칼로리가 너무 높아도 안 되옵니다!)</p>
                 
-                <textarea id="original-diet-input" class="input-team" placeholder="예: 아침 - 굶음, 점심 - 학교 급식(돈까스, 밥, 김치), 저녁 - 마라탕, 탕후루, 간식 - 초코우유" style="width: 100%; box-sizing: border-box; text-align: left; padding: 10px; font-size:1rem; height: 80px; resize: none; margin-bottom: 10px; font-family: 'Gowun Dodum', sans-serif;"></textarea>
-                
-                <button id="btn-start-counseling" class="btn-primary" onclick="startAiCounseling()">내의원 어의에게 진맥(상담) 받기</button>
+                <!-- 음식 선택 그리드 -->
+                <div id="food-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-bottom: 20px;">
+                    <!-- JS에서 동적 생성됨 -->
+                </div>
 
-                <!-- AI 채팅 영역 (초기 숨김) -->
-                <div id="ai-chat-area" class="hidden mt-20" style="border: 1px solid var(--color-border); border-radius: 8px; padding: 10px; background: rgba(0,0,0,0.3);">
-                    <div id="chat-messages" style="height: 250px; overflow-y: auto; padding: 10px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 10px; font-size: 0.95rem;">
-                        <!-- 메시지 동적 추가 -->
+                <!-- 수라상 (식판) 영역 -->
+                <div style="background: rgba(255,255,255,0.05); border: 1px solid var(--color-border); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                    <h4 style="color: var(--color-accent-gold); margin-bottom: 10px;">🍽 나의 수라상 (최대 8개)</h4>
+                    <div id="my-tray-list" style="display: flex; flex-wrap: wrap; gap: 10px; min-height: 40px;">
+                        <div style="color:#aaa; font-style:italic; padding:10px;">음식을 클릭해 담아주세요.</div>
                     </div>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="text" id="chat-input" class="input-team" placeholder="어의에게 질문하거나 바꿀 식단을 말해보시오..." style="flex: 1; padding: 10px; font-size: 0.95rem;">
-                        <button onclick="sendChatMessage()" class="btn-primary" style="width: auto; padding: 0 15px;" id="btn-send-chat">전송</button>
-                    </div>
+                </div>
+
+                <!-- 게이지 바 (분석 차트) 영역 -->
+                <div id="nutrition-bars" style="margin-bottom: 20px;">
+                    <h4 style="color: var(--color-accent-gold); margin-bottom: 15px;">📊 영양소 분석결과</h4>
                     
-                    <hr style="border:0; border-top:1px dashed var(--color-border); margin: 15px 0;">
-                    <p style="color:var(--color-accent-gold); font-size: 0.9rem; margin-bottom: 5px;">어의와의 상담이 완료되었다면, 최종적으로 실천할 '추천 식단'을 적고 제출하시오.</p>
-                    <textarea id="final-diet-input" class="input-team" placeholder="예: 아침 - 사과 반쪽과 우유, 점심 - 급식 남기지 않기, 저녁 - 닭가슴살 샐러드, 간식 - 과자 대신 견과류" style="width: 100%; box-sizing: border-box; text-align: left; padding: 10px; font-size:1rem; height: 60px; resize: none; margin-bottom: 10px; font-family: 'Gowun Dodum', sans-serif;"></textarea>
-                    <button class="btn-primary" onclick="submitFinalDiet()">최종 추천 식단 제출하고 퇴궐하기</button>
+                    <div class="nutrition-row"><span class="n-label">칼로리</span><div class="n-bar-bg"><div id="bar-cal" class="n-bar-fill"></div></div><span id="text-cal" class="n-text">0%</span></div>
+                    <div class="nutrition-row"><span class="n-label">탄수화물</span><div class="n-bar-bg"><div id="bar-carbs" class="n-bar-fill"></div></div><span id="text-carbs" class="n-text">0%</span></div>
+                    <div class="nutrition-row"><span class="n-label">단백질</span><div class="n-bar-bg"><div id="bar-protein" class="n-bar-fill"></div></div><span id="text-protein" class="n-text">0%</span></div>
+                    <div class="nutrition-row"><span class="n-label">지방</span><div class="n-bar-bg"><div id="bar-fat" class="n-bar-fill"></div></div><span id="text-fat" class="n-text">0%</span></div>
+                    <div class="nutrition-row"><span class="n-label">비타민</span><div class="n-bar-bg"><div id="bar-vit" class="n-bar-fill"></div></div><span id="text-vit" class="n-text">0%</span></div>
+                    <div class="nutrition-row"><span class="n-label">무기질</span><div class="n-bar-bg"><div id="bar-min" class="n-bar-fill"></div></div><span id="text-min" class="n-text">0%</span></div>
+                    <div class="nutrition-row"><span class="n-label">수분(물)</span><div class="n-bar-bg"><div id="bar-water" class="n-bar-fill"></div></div><span id="text-water" class="n-text">0%</span></div>
+                </div>
+
+                <!-- 어의 피드백 텍스트 -->
+                <div style="background: rgba(255, 152, 0, 0.1); border-left: 4px solid var(--color-warning); padding: 15px; margin-bottom: 20px;">
+                    <strong style="color:var(--color-warning);">[어의의 호통]</strong>
+                    <p id="diet-feedback-text" style="margin-top:5px; font-weight:bold; font-size:1.1rem; color:#fff;">수라상에 올릴 음식을 골라주시옵소서.</p>
+                </div>
+
+                <div class="text-center">
+                    <button id="btn-submit-diet" class="btn-primary disabled-btn" onclick="submitDietApp()" disabled>완벽한 수라상 올리기 (제출)</button>
                 </div>
             </div>
             

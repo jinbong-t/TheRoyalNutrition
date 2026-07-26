@@ -1024,3 +1024,100 @@ button {
     border-color: var(--color-accent-red);
     box-shadow: 0 0 10px rgba(255, 0, 0, 0.6);
 }
+
+/* ========================================================================== */
+/* [종막] 다이어트 앱 스타일 UI CSS */
+/* ========================================================================== */
+
+.food-item {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.food-item:hover {
+    background: rgba(212,175,55,0.2);
+    border-color: var(--color-accent-gold);
+    transform: translateY(-2px);
+}
+.food-icon {
+    font-size: 2rem;
+    margin-bottom: 5px;
+}
+.food-name {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #fff;
+}
+.food-cal {
+    font-size: 0.75rem;
+    color: #aaa;
+}
+
+.tray-item {
+    background: rgba(212,175,55,0.2);
+    border: 1px solid var(--color-accent-gold);
+    border-radius: 20px;
+    padding: 5px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    animation: fadeIn 0.3s;
+}
+.tray-item .remove-btn {
+    cursor: pointer;
+    font-size: 0.8rem;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+.tray-item .remove-btn:hover {
+    opacity: 1;
+}
+
+.nutrition-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+.n-label {
+    width: 60px;
+    color: #ddd;
+}
+.n-bar-bg {
+    flex: 1;
+    height: 12px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 6px;
+    margin: 0 10px;
+    overflow: hidden;
+}
+.n-bar-fill {
+    height: 100%;
+    width: 0%;
+    background-color: var(--color-warning);
+    border-radius: 6px;
+    transition: width 0.5s ease, background-color 0.5s ease;
+}
+.n-text {
+    width: 45px;
+    text-align: right;
+    color: #fff;
+    font-weight: bold;
+}
+
+.disabled-btn {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #555 !important;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212,175,55, 0.7); }
+    50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(212,175,55, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212,175,55, 0); }
+}
