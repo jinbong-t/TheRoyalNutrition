@@ -1093,3 +1093,196 @@ window.createPadlock('g1-padlock');
 window.createPadlock('g2-padlock');
 window.createPadlock('final-padlock');
 
+// ============================================================================
+// [종막] AI 어의 챗봇 상담 로직
+// ============================================================================
+
+let aiChatHistory = [];
+const systemPrompt = "너는 조선시대 내의원의 최고 어의다. 다음은 수라간 궁녀(학생)가 어제 하루 먹은 식단 또는 질문이다. 6대 영양소(탄수화물, 단백질, 지방, 비타민, 무기질, 물) 관점에서 무엇이 부족하고 과한지 사극 말투로 호통치듯, 하지만 진심으로 건강을 걱정하며 따뜻하게 조언해 다오. 학생이 너무 심한 장난을 치면 엄하게 꾸짖어라.";
+
+async function callAI(userText) {
+    if (!globalAiConfig || !globalAiConfig.apiKey) {
+        throw new Error("API 키가 설정되지 않았습니다.");
+    }
+
+    const provider = globalAiConfig.provider || 'gemini';
+    const apiKey = globalAiConfig.apiKey;
+
+    if (provider === 'gemini') {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        
+        let contents = [];
+        for(let msg of aiChatHistory) {
+            contents.push({ role: msg.role === 'user' ? 'user' : 'model', parts: [{ text: msg.text }] });
+        }
+        
+        let promptText = userText;
+        if(aiChatHistory.length === 0) {
+             promptText = `${systemPrompt}\n\n[학생의 식단/질문]: ${userText}`;
+        }
+
+        contents.push({ role: 'user', parts: [{ text: promptText }] });
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: contents })
+        });
+        
+        const data = await response.json();
+        if (data.error) throw new Error(data.error.message);
+        
+        const reply = data.candidates[0].content.parts[0].text;
+        
+        aiChatHistory.push({ role: 'user', text: promptText });
+        aiChatHistory.push({ role: 'assistant', text: reply });
+        
+        return reply;
+        
+    } else if (provider === 'openai') {
+        const url = `https://api.openai.com/v1/chat/completions`;
+        
+        let messages = [
+            { role: "system", content: systemPrompt }
+        ];
+        
+        for(let msg of aiChatHistory) {
+            messages.push({ role: msg.role, content: msg.text });
+        }
+        messages.push({ role: "user", content: userText });
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: "gpt-3.5-turbo",
+                messages: messages
+            })
+        });
+
+        const data = await response.json();
+        if (data.error) throw new Error(data.error.message);
+        
+        const reply = data.choices[0].message.content;
+        
+        aiChatHistory.push({ role: 'user', text: userText });
+        aiChatHistory.push({ role: 'assistant', text: reply });
+        
+        return reply;
+    }
+}
+
+function appendChatMessage(role, text) {
+    const chatContainer = document.getElementById('chat-messages');
+    const msgDiv = document.createElement('div');
+    msgDiv.style.maxWidth = '80%';
+    msgDiv.style.padding = '8px 12px';
+    msgDiv.style.borderRadius = '8px';
+    msgDiv.style.marginBottom = '5px';
+    
+    if (role === 'user') {
+        msgDiv.style.alignSelf = 'flex-end';
+        msgDiv.style.backgroundColor = 'rgba(212,175,55,0.2)';
+        msgDiv.style.border = '1px solid var(--color-accent-gold)';
+        msgDiv.innerHTML = `<strong>나:</strong> ${text}`;
+    } else {
+        msgDiv.style.alignSelf = 'flex-start';
+        msgDiv.style.backgroundColor = 'rgba(255,255,255,0.1)';
+        msgDiv.style.border = '1px solid #777';
+        msgDiv.innerHTML = `<strong style="color:var(--color-accent-gold);">어의:</strong> ${text}`;
+    }
+    
+    chatContainer.appendChild(msgDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+window.startAiCounseling = async function() {
+    const dietInput = document.getElementById('original-diet-input').value.trim();
+    if(!dietInput) {
+        showAlert('어제 먹은 식단을 먼저 상세히 적어주시오!');
+        return;
+    }
+    if(!globalAiConfig || !globalAiConfig.apiKey) {
+        showAlert('현재 어의가 자리에 없소 (선생님 대시보드에서 AI API 키 설정 필요).');
+        return;
+    }
+
+    // 초기화
+    aiChatHistory = [];
+    document.getElementById('chat-messages').innerHTML = '';
+    
+    // UI 전환
+    document.getElementById('ai-chat-area').classList.remove('hidden');
+    document.getElementById('original-diet-input').disabled = true;
+    document.getElementById('btn-start-counseling').classList.add('hidden');
+    
+    appendChatMessage('user', dietInput);
+    appendChatMessage('assistant', '진맥을 짚고 있소... (어의가 식단을 분석 중입니다)');
+    
+    try {
+        const reply = await callAI(dietInput);
+        const chatContainer = document.getElementById('chat-messages');
+        chatContainer.removeChild(chatContainer.lastChild);
+        
+        appendChatMessage('assistant', reply);
+        window.playSound('success');
+    } catch(err) {
+        const chatContainer = document.getElementById('chat-messages');
+        chatContainer.removeChild(chatContainer.lastChild);
+        appendChatMessage('assistant', `(통신 오류: ${err.message})`);
+    }
+}
+
+window.sendChatMessage = async function() {
+    const inputEl = document.getElementById('chat-input');
+    const text = inputEl.value.trim();
+    if(!text) return;
+    
+    inputEl.value = '';
+    appendChatMessage('user', text);
+    appendChatMessage('assistant', '고민 중이오...');
+    
+    try {
+        const reply = await callAI(text);
+        const chatContainer = document.getElementById('chat-messages');
+        chatContainer.removeChild(chatContainer.lastChild);
+        
+        appendChatMessage('assistant', reply);
+        window.playSound('click');
+    } catch(err) {
+        const chatContainer = document.getElementById('chat-messages');
+        chatContainer.removeChild(chatContainer.lastChild);
+        appendChatMessage('assistant', `(통신 오류: ${err.message})`);
+    }
+}
+
+window.submitFinalDiet = async function() {
+    const finalDiet = document.getElementById('final-diet-input').value.trim();
+    if(!finalDiet) {
+        showAlert('최종 추천 식단을 적고 제출하시오!');
+        return;
+    }
+    
+    const originalDiet = document.getElementById('original-diet-input').value.trim();
+    
+    try {
+        const teamRef = doc(db, 'teams', teamDocId);
+        await updateDoc(teamRef, {
+            originalDiet: originalDiet,
+            finalDiet: finalDiet,
+            currentGate: '완료',
+            endTime: new Date().toISOString()
+        });
+        
+        document.getElementById('diet-diagnosis-area').classList.add('hidden');
+        document.getElementById('final-farewell').classList.remove('hidden');
+        window.playSound('doom'); // 웅장한 마무리 소리
+        
+    } catch(e) {
+        console.error(e);
+        showAlert('기록 전달에 실패하였소.');
+    }
+}
