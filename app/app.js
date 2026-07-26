@@ -1127,3 +1127,6 @@ window.submitDietApp = async function() {
     }
 }
 
+// 초기 다이어트 앱 UI 렌더링
+window.renderFoodList();
+window.updateTrayUI();
