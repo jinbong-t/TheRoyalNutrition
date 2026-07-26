@@ -23,6 +23,7 @@ body {
     color: var(--color-text-main);
     line-height: 1.6;
     overflow-x: hidden;
+    word-break: keep-all; /* 한글 단어 끊김 방지 */
 }
 
 /* 배경 효과 */
@@ -252,7 +253,8 @@ button {
     padding: 0 20px;
 }
 
-.q-item-inline input {
+.q-item-inline input,
+.q-item-inline select {
     width: 80px;
     margin-bottom: 0;
 }
@@ -449,12 +451,14 @@ button {
     .q-item-inline {
         flex-direction: column;
         align-items: stretch;
-        padding: 0 10px;
+        padding: 0; /* 모바일에서 좌우 여백 줄이기 */
     }
     
-    .q-item-inline input {
+    .q-item-inline input,
+    .q-item-inline select {
         width: 100%;
         margin-top: 10px;
+        box-sizing: border-box;
     }
 }
 
@@ -499,7 +503,8 @@ button {
         padding: 15px;
     }
     
-    .q-item-inline input {
+    .q-item-inline input,
+    .q-item-inline select {
         width: 120px;
     }
 }

@@ -187,13 +187,37 @@
         <section id="sec-gate4" class="hidden">
             <h2 class="title-gate">제 4관문. 시각의 증거</h2>
             <div class="story-box">
-                <p>내의원 기록에 남은 짧은 한 줄.</p>
-                <p class="quote">'세자 저하가 쓰러진 시각은 유시(酉時)였다.'</p>
-                <p>십이지시 암호표를 보아라. 자(1) 축(2) 인(3) 묘(4) 진(5) 사(6) 오(7) 미(8) 신(9) <strong>유(10)</strong> 술(11) 해(12)</p>
-                <p class="mt-10" style="color: var(--color-accent-red);">사건 발생 시각 = 유시(酉)</p>
-                <p class="guide-text">이 '유시'라는 사실 자체가 알리바이 대조의 핵심 기준이 될 것이다.</p>
+                <p>어의는 세자 저하의 문갑 깊숙한 곳에서 낯선 그림 한 장을 발견했다. 붓질은 서툴렀지만, 분명 세자 저하가 손수 그리신 것이었다.</p>
+                <div style="text-align: center; margin: 20px 0;">
+                    <img src="../제 4관문 세자의 그림.png" alt="세자의 그림" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.8); border: 2px solid var(--color-accent-gold);">
+                </div>
+                <p class="quote">'밤이 되면 눈이 감기니, 낮 동안 남겨둔다. 혹여 내게 무슨 일이 생기거든, 내가 쓰러진 시각을 이렇게 찾아라 — 내 몸을 가장 괴롭힌 영양소는, 앞서 그대가 푼 세 가지(탄수화물·단백질·지방) 중 하나이니, 그 이름의 받침 있는 글자가 가장 적고 한 줌만 먹어도 가장 큰 힘을 내는 것이다. 그 받침의 수에서 시작하여, 그 영양소가 1g당 내는 열량의 수만큼 나아간 시진이, 곧 내가 쓰러진 시각이다. 허나 조심하라 — 그대가 셈한 시진이 열둘을 넘어선다면, 이미 잘못된 길로 접어든 것이다.'</p>
+                <p class="mt-10 text-center" style="color: var(--color-accent-gold);">세자 저하가 쓰러진 시각(십이지)은 언제인가?</p>
             </div>
-            <button class="btn-primary" onclick="nextGate(5)">증거 확보 완료</button>
+            
+            <div class="question-box text-center">
+                <p class="mb-10"><strong>12지지 순번표</strong></p>
+                <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; font-size: 0.9rem; margin-bottom: 15px; color: var(--color-text-muted);">
+                    <div>자(1)</div><div>축(2)</div><div>인(3)</div><div>묘(4)</div><div>진(5)</div><div>사(6)</div>
+                    <div>오(7)</div><div>미(8)</div><div>신(9)</div><div>유(10)</div><div>술(11)</div><div>해(12)</div>
+                </div>
+                <select id="g4-answer" class="input-team" style="padding: 10px; font-size: 1.1rem; width: 60%; margin-bottom: 10px; cursor: pointer;">
+                    <option value="">시각 선택</option>
+                    <option value="자">자(子)시</option>
+                    <option value="축">축(丑)시</option>
+                    <option value="인">인(寅)시</option>
+                    <option value="묘">묘(卯)시</option>
+                    <option value="진">진(辰)시</option>
+                    <option value="사">사(巳)시</option>
+                    <option value="오">오(午)시</option>
+                    <option value="미">미(未)시</option>
+                    <option value="신">신(申)시</option>
+                    <option value="유">유(酉)시</option>
+                    <option value="술">술(戌)시</option>
+                    <option value="해">해(亥)시</option>
+                </select>
+                <button class="btn-primary mt-10" onclick="checkGate4()">증거 확보 완료</button>
+            </div>
         </section>
 
         <!-- 관문 5: 내의원의 마지막 질문 -->

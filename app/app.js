@@ -281,6 +281,23 @@ window.checkGate3 = async function() {
     }
 }
 
+// ================== 관문 4 로직 ==================
+window.checkGate4 = async function() {
+    const ans = document.getElementById('g4-answer').value;
+    if(!ans) {
+        showAlert('세자 저하가 쓰러진 시각을 선택하시오.');
+        return;
+    }
+    
+    if(ans === '유') {
+        showAlert('정확하오! 세자 저하가 쓰러진 시각은 유시(酉時, 10번째)였소. 이는 알리바이 대조의 핵심 기준이 될 것이오.', true);
+        if(teamDocId) await updateDoc(doc(db, "teams", teamDocId), { currentGate: 5 });
+        nextGate(5);
+    } else {
+        showAlert('계산이 틀렸소. 조건(받침 수가 가장 적고 1g당 열량이 가장 높음)을 만족하는 영양소를 찾고, 그 받침 수에서 열량만큼 더해보시오.');
+    }
+}
+
 // ================== 관문 5 로직 ==================
 window.showGate5Answer = function() {
     const q1 = document.getElementById('g5-q1').value.trim();
