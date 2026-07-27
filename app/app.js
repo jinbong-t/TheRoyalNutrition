@@ -348,7 +348,7 @@ window.checkGate4 = async function() {
         document.getElementById('g4-result').innerHTML = `
             <div class="success-box">
                 <p>정확하오!</p>
-                <p>세자 저하가 쓰러진 시각은 유시(酉時, 10번째)였소. 이는 알리바이 대조의 핵심 기준이 될 것이오.</p>
+                <p>세자 저하가 쓰러진 시각은 십이지신 중 10번째인 유시(酉時, 17~19시)였소. 이는 알리바이 대조의 핵심 기준이 될 것이오.</p>
                 <button class="btn-primary mt-10" onclick="nextGate(5)">다음 관문으로</button>
             </div>
         `;
