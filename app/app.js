@@ -499,6 +499,36 @@ const suspectsData = [
     { name: '의녀 장덕', c: false, d: false, e: false } // 돼지고기(수육)지만 고추양념은 아님
 ];
 
+window.updateSuspects = function() {
+    const chkC = document.getElementById('chk-c').checked;
+    const chkD = document.getElementById('chk-d').checked;
+    const chkE = document.getElementById('chk-e').checked;
+
+    let filtered = suspectsData.filter(s => {
+        if(chkC && !s.c) return false;
+        if(chkD && !s.d) return false;
+        if(chkE && !s.e) return false;
+        return true;
+    });
+
+    const countEl = document.getElementById('suspect-count');
+    const namesEl = document.getElementById('suspect-names');
+    if(countEl) countEl.innerText = filtered.length;
+    if(namesEl) namesEl.innerText = filtered.map(s => s.name).join(', ');
+    
+    // 단서를 하나라도 체크하면 진범 지목 영역 활성화
+    const gridArea = document.getElementById('suspect-grid-area');
+    if (gridArea) {
+        if (chkC || chkD || chkE) {
+            gridArea.style.opacity = '1';
+            gridArea.style.pointerEvents = 'auto';
+        } else {
+            gridArea.style.opacity = '0.5';
+            gridArea.style.pointerEvents = 'none';
+        }
+    }
+}
+
 window.selectCulprit = function(name) {
     const suspectArea = document.getElementById('suspects-area');
     const msgArea = document.getElementById('suspect-selected-msg');

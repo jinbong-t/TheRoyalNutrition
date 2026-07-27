@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>수라간의 비밀</title>
     <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=21">
+    <link rel="stylesheet" href="style.css?v=22">
 </head>
 <body>
     <div id="app-container">
@@ -380,7 +380,7 @@
             
             <div class="question-box mt-20" style="text-align: center; border: none; background: transparent;">
                 <p class="mb-20" style="font-size: 0.95rem; color: var(--color-accent-gold); word-break: keep-all;"><strong>[ 진범 지목 ] 범인의 호패를 선택하시오</strong></p>
-                <div class="suspect-grid">
+                <div class="suspect-grid" id="suspect-grid-area" style="opacity: 0.5; pointer-events: none; transition: all 0.3s;">
                     <label class="suspect-card">
                         <input type="radio" name="culprit" value="최상궁" onchange="selectCulprit(this.value)">
                         <div class="suspect-img" style="background-position: 0% 0%;"></div>
@@ -651,6 +651,6 @@
     </div>
 
     <script type="module" src="firebase-config.js"></script>
-    <script type="module" src="app.js?v=9"></script>
+    <script type="module" src="app.js?v=10"></script>
 </body>
 </html>
