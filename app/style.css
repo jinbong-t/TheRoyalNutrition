@@ -212,11 +212,11 @@ button {
 /* 추가 스타일: 관문 UI */
 .story-box {
     background: rgba(0,0,0,0.7); /* 투명도 낮춤 */
-    padding: 20px;
+    padding: 15px;
     border-left: 4px solid var(--color-accent-gold);
-    margin-bottom: 25px;
+    margin-bottom: 15px;
     font-size: 1.05rem;
-    line-height: 1.8;
+    line-height: 1.6;
 }
 
 .quote {
@@ -224,26 +224,26 @@ button {
     font-style: italic;
     color: var(--color-accent-gold);
     text-align: center;
-    margin: 15px 0;
+    margin: 10px 0;
     font-size: 1.2rem;
 }
 
 .question-box {
     background: var(--color-bg-panel);
-    padding: 20px;
+    padding: 15px;
     border: 1px solid var(--color-border);
     border-radius: 8px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     width: 100%;
 }
 
 .q-item {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .q-hint {
     display: block;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     color: var(--color-text-main);
     font-size: 0.9rem;
     word-break: keep-all;
@@ -253,8 +253,8 @@ button {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
-    padding: 0 20px;
+    margin-bottom: 8px;
+    padding: 0 15px;
 }
 
 .q-item-inline input,
