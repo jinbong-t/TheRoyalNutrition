@@ -79,26 +79,27 @@ section.active {
     text-shadow: 2px 2px 8px rgba(0,0,0,0.9);
 }
 
+.title-gate {
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    color: var(--color-accent-gold);
+    border-bottom: 1px solid var(--color-accent-gold);
+    margin-bottom: 10px;
+    width: 100%;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.9);
+    background: rgba(0,0,0,0.6);
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    word-break: keep-all;
+}
+
 .subtitle {
     font-size: 1.1rem;
     color: var(--color-text-muted);
     margin-bottom: 40px;
     letter-spacing: 2px;
     text-shadow: 1px 1px 4px rgba(0,0,0,0.9);
-}
-
-.title-gate {
-    font-family: var(--font-heading);
-    color: var(--color-accent-gold);
-    border-bottom: 1px solid var(--color-accent-gold);
-    padding-bottom: 10px;
-    margin-bottom: 20px;
-    width: 100%;
-    text-shadow: 2px 2px 6px rgba(0,0,0,0.9);
-    background: rgba(0,0,0,0.6);
-    padding: 15px;
-    border-radius: 8px;
-    text-align: center;
 }
 
 /* 로그인 박스 */
@@ -212,11 +213,11 @@ button {
 /* 추가 스타일: 관문 UI */
 .story-box {
     background: rgba(0,0,0,0.7); /* 투명도 낮춤 */
-    padding: 15px;
+    padding: 10px;
     border-left: 4px solid var(--color-accent-gold);
-    margin-bottom: 15px;
-    font-size: 1.05rem;
-    line-height: 1.5; /* 줄간격 더 축소 */
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    line-height: 1.4;
     word-break: keep-all;
 }
 
@@ -225,8 +226,8 @@ button {
     font-style: italic;
     color: var(--color-accent-gold);
     text-align: center;
-    margin: 10px 0;
-    font-size: 1.15rem; /* 살짝 축소 */
+    margin: 8px 0;
+    font-size: 0.95rem;
     word-break: keep-all;
 }
 

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>수라간의 비밀</title>
     <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=7">
+    <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
     <div id="app-container">
@@ -118,18 +118,18 @@
             
             <div class="question-box mt-20">
                 <p class="text-center mb-10"><strong>원소기호를 적으시오. (대소문자 구분 없음)</strong></p>
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <div class="q-item-inline" style="margin-bottom: 0; padding: 0;">
-                        <span>① 칼슘</span> <input type="text" id="g2-q1" maxlength="2" autocomplete="off" oninput="checkG2Elements()" style="width: 100px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div class="q-item-inline" style="margin-bottom: 0; padding: 0; display: flex; justify-content: flex-start; gap: 5px;">
+                        <span style="white-space: nowrap; font-size: 0.95rem;">① 칼슘</span> <input type="text" id="g2-q1" maxlength="2" autocomplete="off" oninput="checkG2Elements()" style="width: 50px; padding: 5px;">
                     </div>
-                    <div class="q-item-inline" style="margin-bottom: 0; padding: 0;">
-                        <span>② 인</span> <input type="text" id="g2-q2" maxlength="2" autocomplete="off" oninput="checkG2Elements()" style="width: 100px;">
+                    <div class="q-item-inline" style="margin-bottom: 0; padding: 0; display: flex; justify-content: flex-start; gap: 5px;">
+                        <span style="white-space: nowrap; font-size: 0.95rem;">② 인</span> <input type="text" id="g2-q2" maxlength="2" autocomplete="off" oninput="checkG2Elements()" style="width: 50px; padding: 5px;">
                     </div>
-                    <div class="q-item-inline" style="margin-bottom: 0; padding: 0;">
-                        <span>③ 철</span> <input type="text" id="g2-q3" maxlength="2" autocomplete="off" oninput="checkG2Elements()" style="width: 100px;">
+                    <div class="q-item-inline" style="margin-bottom: 0; padding: 0; display: flex; justify-content: flex-start; gap: 5px;">
+                        <span style="white-space: nowrap; font-size: 0.95rem;">③ 철</span> <input type="text" id="g2-q3" maxlength="2" autocomplete="off" oninput="checkG2Elements()" style="width: 50px; padding: 5px;">
                     </div>
-                    <div class="q-item-inline" style="margin-bottom: 0; padding: 0;">
-                        <span>④ 아연</span> <input type="text" id="g2-q4" maxlength="2" autocomplete="off" oninput="checkG2Elements()" style="width: 100px;">
+                    <div class="q-item-inline" style="margin-bottom: 0; padding: 0; display: flex; justify-content: flex-start; gap: 5px;">
+                        <span style="white-space: nowrap; font-size: 0.95rem;">④ 아연</span> <input type="text" id="g2-q4" maxlength="2" autocomplete="off" oninput="checkG2Elements()" style="width: 50px; padding: 5px;">
                     </div>
                 </div>
                 
@@ -151,8 +151,8 @@
                 <p>수라간 구석, 바닥 장판 아래에서 세자의 '수라 일지'와 진단 기록이 발견되었다!</p>
                 <p class="quote">"누군가 고의로 세자에게 특정 영양소를 빼앗아 서서히 병들게 하고 있다!"</p>
                 <p>각 증상을 일으키도록 진범이 고의로 빼앗은 영양소(결핍)를 짝지어 음모를 밝혀내시오.</p>
-                <p class="text-center mt-10" style="font-size: 1.1rem; font-weight: bold; color: var(--color-accent-gold); border: 2px dashed var(--color-accent-gold); padding: 15px; border-radius: 8px; background: rgba(0,0,0,0.6); display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;">
-                    <span style="width: 100%; margin-bottom: 5px;">[보기]</span>
+                <p class="text-center mt-10" style="font-size: 0.95rem; font-weight: bold; color: var(--color-accent-gold); border: 2px dashed var(--color-accent-gold); padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.6); display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;">
+                    <span style="width: 100%; margin-bottom: 2px;">[보기]</span>
                     <span style="white-space: nowrap;">A. 비타민 D</span>
                     <span style="white-space: nowrap;">B. 단백질</span>
                     <span style="white-space: nowrap;">C. 비타민 A</span>
@@ -163,29 +163,29 @@
             </div>
             
             <div class="question-box">
-                <div class="q-item-inline" style="margin-bottom: 15px; flex-direction: column; align-items: flex-start; gap: 5px;">
-                    <span style="font-size: 1.1rem; word-break: keep-all;">1. 어두워지면 눈앞이 안 보이고 헛손질</span>
-                    <select id="g3-q1" style="font-size: 1rem; padding: 5px; width: 100%; max-width: 250px; cursor: pointer;"><option value="">선택</option><option value="A">A. 비타민 D</option><option value="B">B. 단백질</option><option value="C">C. 비타민 A</option><option value="D">D. 오메가-3</option><option value="E">E. 비타민 C</option><option value="F">F. 비타민 B군</option></select>
+                <div class="q-item-inline" style="margin-bottom: 12px; flex-direction: column; align-items: flex-start; gap: 3px;">
+                    <span style="font-size: 0.95rem; word-break: keep-all;">1. 어두워지면 눈앞이 안 보이고 헛손질</span>
+                    <select id="g3-q1" style="font-size: 0.9rem; padding: 3px; width: 100%; max-width: 250px; cursor: pointer;"><option value="">선택</option><option value="A">A. 비타민 D</option><option value="B">B. 단백질</option><option value="C">C. 비타민 A</option><option value="D">D. 오메가-3</option><option value="E">E. 비타민 C</option><option value="F">F. 비타민 B군</option></select>
                 </div>
-                <div class="q-item-inline" style="margin-bottom: 15px; flex-direction: column; align-items: flex-start; gap: 5px;">
-                    <span style="font-size: 1.1rem; word-break: keep-all;">2. 잇몸 피가 안 멎고 멍이 심하게 듦</span>
-                    <select id="g3-q2" style="font-size: 1rem; padding: 5px; width: 100%; max-width: 250px; cursor: pointer;"><option value="">선택</option><option value="A">A. 비타민 D</option><option value="B">B. 단백질</option><option value="C">C. 비타민 A</option><option value="D">D. 오메가-3</option><option value="E">E. 비타민 C</option><option value="F">F. 비타민 B군</option></select>
+                <div class="q-item-inline" style="margin-bottom: 12px; flex-direction: column; align-items: flex-start; gap: 3px;">
+                    <span style="font-size: 0.95rem; word-break: keep-all;">2. 잇몸 피가 안 멎고 멍이 심하게 듦</span>
+                    <select id="g3-q2" style="font-size: 0.9rem; padding: 3px; width: 100%; max-width: 250px; cursor: pointer;"><option value="">선택</option><option value="A">A. 비타민 D</option><option value="B">B. 단백질</option><option value="C">C. 비타민 A</option><option value="D">D. 오메가-3</option><option value="E">E. 비타민 C</option><option value="F">F. 비타민 B군</option></select>
                 </div>
-                <div class="q-item-inline" style="margin-bottom: 15px; flex-direction: column; align-items: flex-start; gap: 5px;">
-                    <span style="font-size: 1.1rem; word-break: keep-all;">3. 다리와 척추 뼈가 눈에 띄게 휨</span>
-                    <select id="g3-q3" style="font-size: 1rem; padding: 5px; width: 100%; max-width: 250px; cursor: pointer;"><option value="">선택</option><option value="A">A. 비타민 D</option><option value="B">B. 단백질</option><option value="C">C. 비타민 A</option><option value="D">D. 오메가-3</option><option value="E">E. 비타민 C</option><option value="F">F. 비타민 B군</option></select>
+                <div class="q-item-inline" style="margin-bottom: 12px; flex-direction: column; align-items: flex-start; gap: 3px;">
+                    <span style="font-size: 0.95rem; word-break: keep-all;">3. 다리와 척추 뼈가 눈에 띄게 휨</span>
+                    <select id="g3-q3" style="font-size: 0.9rem; padding: 3px; width: 100%; max-width: 250px; cursor: pointer;"><option value="">선택</option><option value="A">A. 비타민 D</option><option value="B">B. 단백질</option><option value="C">C. 비타민 A</option><option value="D">D. 오메가-3</option><option value="E">E. 비타민 C</option><option value="F">F. 비타민 B군</option></select>
                 </div>
-                <div class="q-item-inline" style="margin-bottom: 15px; flex-direction: column; align-items: flex-start; gap: 5px;">
-                    <span style="font-size: 1.1rem; word-break: keep-all;">4. 키가 안 자라고 근육이 안 만들어짐</span>
-                    <select id="g3-q4" style="font-size: 1rem; padding: 5px; width: 100%; max-width: 250px; cursor: pointer;"><option value="">선택</option><option value="A">A. 비타민 D</option><option value="B">B. 단백질</option><option value="C">C. 비타민 A</option><option value="D">D. 오메가-3</option><option value="E">E. 비타민 C</option><option value="F">F. 비타민 B군</option></select>
+                <div class="q-item-inline" style="margin-bottom: 12px; flex-direction: column; align-items: flex-start; gap: 3px;">
+                    <span style="font-size: 0.95rem; word-break: keep-all;">4. 키가 안 자라고 근육이 안 만들어짐</span>
+                    <select id="g3-q4" style="font-size: 0.9rem; padding: 3px; width: 100%; max-width: 250px; cursor: pointer;"><option value="">선택</option><option value="A">A. 비타민 D</option><option value="B">B. 단백질</option><option value="C">C. 비타민 A</option><option value="D">D. 오메가-3</option><option value="E">E. 비타민 C</option><option value="F">F. 비타민 B군</option></select>
                 </div>
-                <div class="q-item-inline" style="margin-bottom: 15px; flex-direction: column; align-items: flex-start; gap: 5px;">
-                    <span style="font-size: 1.1rem; word-break: keep-all;">5. 매일 안 챙겨먹으면 금방 피로해짐</span>
-                    <select id="g3-q5" style="font-size: 1rem; padding: 5px; width: 100%; max-width: 250px; cursor: pointer;"><option value="">선택</option><option value="A">A. 비타민 D</option><option value="B">B. 단백질</option><option value="C">C. 비타민 A</option><option value="D">D. 오메가-3</option><option value="E">E. 비타민 C</option><option value="F">F. 비타민 B군</option></select>
+                <div class="q-item-inline" style="margin-bottom: 12px; flex-direction: column; align-items: flex-start; gap: 3px;">
+                    <span style="font-size: 0.95rem; word-break: keep-all;">5. 매일 안 챙겨먹으면 금방 피로해짐</span>
+                    <select id="g3-q5" style="font-size: 0.9rem; padding: 3px; width: 100%; max-width: 250px; cursor: pointer;"><option value="">선택</option><option value="A">A. 비타민 D</option><option value="B">B. 단백질</option><option value="C">C. 비타민 A</option><option value="D">D. 오메가-3</option><option value="E">E. 비타민 C</option><option value="F">F. 비타민 B군</option></select>
                 </div>
-                <div class="q-item-inline" style="margin-bottom: 15px; flex-direction: column; align-items: flex-start; gap: 5px;">
-                    <span style="font-size: 1.1rem; word-break: keep-all;">6. 두뇌 발달 더디고 혈행이 안 원활함</span>
-                    <select id="g3-q6" style="font-size: 1rem; padding: 5px; width: 100%; max-width: 250px; cursor: pointer;"><option value="">선택</option><option value="A">A. 비타민 D</option><option value="B">B. 단백질</option><option value="C">C. 비타민 A</option><option value="D">D. 오메가-3</option><option value="E">E. 비타민 C</option><option value="F">F. 비타민 B군</option></select>
+                <div class="q-item-inline" style="margin-bottom: 12px; flex-direction: column; align-items: flex-start; gap: 3px;">
+                    <span style="font-size: 0.95rem; word-break: keep-all;">6. 두뇌 발달 더디고 혈행이 안 원활함</span>
+                    <select id="g3-q6" style="font-size: 0.9rem; padding: 3px; width: 100%; max-width: 250px; cursor: pointer;"><option value="">선택</option><option value="A">A. 비타민 D</option><option value="B">B. 단백질</option><option value="C">C. 비타민 A</option><option value="D">D. 오메가-3</option><option value="E">E. 비타민 C</option><option value="F">F. 비타민 B군</option></select>
                 </div>
             </div>
             
@@ -254,12 +254,12 @@
                 
                 <div class="question-box">
                 <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <label class="recipe-label" style="display: flex; gap: 8px; align-items: flex-start; text-align: left; word-break: keep-all;"><input type="checkbox" name="g5-recipe" value="1" style="margin-top: 5px;"> <span>① 햇볕을 쬐며 후원을 거니는 산책 (비타민 D 합성)</span></label>
-                    <label class="recipe-label" style="display: flex; gap: 8px; align-items: flex-start; text-align: left; word-break: keep-all;"><input type="checkbox" name="g5-recipe" value="2" style="margin-top: 5px;"> <span>② 짠맛이 강하게 밴 어란과 소금 절임 (나트륨)</span></label>
-                    <label class="recipe-label" style="display: flex; gap: 8px; align-items: flex-start; text-align: left; word-break: keep-all;"><input type="checkbox" name="g5-recipe" value="3" style="margin-top: 5px;"> <span>③ 잣, 호두, 등푸른 생선 (오메가-3 등 필수 지방산)</span></label>
-                    <label class="recipe-label" style="display: flex; gap: 8px; align-items: flex-start; text-align: left; word-break: keep-all;"><input type="checkbox" name="g5-recipe" value="4" style="margin-top: 5px;"> <span>④ 진하게 달인 가배(커피)와 엽차 (카페인)</span></label>
-                    <label class="recipe-label" style="display: flex; gap: 8px; align-items: flex-start; text-align: left; word-break: keep-all;"><input type="checkbox" name="g5-recipe" value="5" style="margin-top: 5px;"> <span>⑤ 말린 표고버섯을 우려낸 타락죽(우유) (칼슘과 비타민 D의 시너지)</span></label>
-                    <label class="recipe-label" style="display: flex; gap: 8px; align-items: flex-start; text-align: left; word-break: keep-all;"><input type="checkbox" name="g5-recipe" value="6" style="margin-top: 5px;"> <span>⑥ 방 안에서 꼼짝 않고 누워만 있기 (운동 부족)</span></label>
+                    <label class="recipe-label" style="display: flex; gap: 6px; align-items: flex-start; text-align: left; word-break: keep-all;"><input type="checkbox" name="g5-recipe" value="1" style="margin-top: 3px;"> <span style="font-size: 0.95rem;">① 햇볕을 쬐며 후원을 거니는 산책 (비타민 D 합성)</span></label>
+                    <label class="recipe-label" style="display: flex; gap: 6px; align-items: flex-start; text-align: left; word-break: keep-all;"><input type="checkbox" name="g5-recipe" value="2" style="margin-top: 3px;"> <span style="font-size: 0.95rem;">② 짠맛이 강하게 밴 어란과 소금 절임 (나트륨)</span></label>
+                    <label class="recipe-label" style="display: flex; gap: 6px; align-items: flex-start; text-align: left; word-break: keep-all;"><input type="checkbox" name="g5-recipe" value="3" style="margin-top: 3px;"> <span style="font-size: 0.95rem;">③ 잣, 호두, 등푸른 생선 (오메가-3)</span></label>
+                    <label class="recipe-label" style="display: flex; gap: 6px; align-items: flex-start; text-align: left; word-break: keep-all;"><input type="checkbox" name="g5-recipe" value="4" style="margin-top: 3px;"> <span style="font-size: 0.95rem;">④ 진하게 달인 가배(커피)와 엽차 (카페인)</span></label>
+                    <label class="recipe-label" style="display: flex; gap: 6px; align-items: flex-start; text-align: left; word-break: keep-all;"><input type="checkbox" name="g5-recipe" value="5" style="margin-top: 3px;"> <span style="font-size: 0.95rem;">⑤ 표고버섯 타락죽(우유) (칼슘과 비타민 D 시너지)</span></label>
+                    <label class="recipe-label" style="display: flex; gap: 6px; align-items: flex-start; text-align: left; word-break: keep-all;"><input type="checkbox" name="g5-recipe" value="6" style="margin-top: 3px;"> <span style="font-size: 0.95rem;">⑥ 방 안에서 꼼짝 않고 누워만 있기 (운동 부족)</span></label>
                 </div>
             </div>
             
