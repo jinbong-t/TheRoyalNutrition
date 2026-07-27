@@ -298,7 +298,7 @@ window.checkGate2 = async function() {
             document.getElementById('g2-result').innerHTML = `
                 <div class="success-box">
                     <p>암호를 해독하였소!</p>
-                    <p>밀지를 거꾸로 읽어 2차 봉인 번호 <strong>[ ${code} ]</strong>를 정확히 추리했소.</p>
+                    <p>밀지를 거꾸로 읽어 2차 봉인 번호 <strong style="white-space: nowrap;">[ ${code} ]</strong>를 정확히 추리했소.</p>
                     <button class="btn-primary mt-10" onclick="nextGate(3)">다음 관문으로</button>
                 </div>
             `;
