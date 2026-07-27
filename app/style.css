@@ -238,13 +238,15 @@ button {
 }
 
 .q-item {
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 .q-hint {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
     color: var(--color-text-main);
+    font-size: 0.9rem;
+    word-break: keep-all;
 }
 
 .q-item-inline {
