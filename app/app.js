@@ -1188,15 +1188,19 @@ window.updateTrayUI = function() {
         if(bar) bar.style.width = Math.min(100, percent) + '%';
         if(text) text.innerText = `${percent}%`;
         
-        // 색상 변경 로직
+        // 색상 변경 로직 (절대 색상값 사용으로 캐시 문제 원천 차단)
+        const COLOR_RED = '#ff5252';
+        const COLOR_GREEN = '#4caf50';
+        const COLOR_ORANGE = '#ff9800';
+
         if (id === 'cal') {
-            if (percent > 120) bar.style.backgroundColor = 'var(--color-accent-red)';
-            else if (percent >= 80) bar.style.backgroundColor = 'var(--color-success)';
-            else bar.style.backgroundColor = 'var(--color-warning)';
+            if (percent > 120) bar.style.backgroundColor = COLOR_RED;
+            else if (percent >= 80) bar.style.backgroundColor = COLOR_GREEN;
+            else bar.style.backgroundColor = COLOR_ORANGE;
         } else {
-            if (percent > 150) bar.style.backgroundColor = 'var(--color-accent-red)'; // 과다
-            else if (percent >= 70) bar.style.backgroundColor = 'var(--color-success)'; // 충분
-            else bar.style.backgroundColor = 'var(--color-warning)'; // 부족
+            if (percent > 150) bar.style.backgroundColor = COLOR_RED; // 과다
+            else if (percent >= 70) bar.style.backgroundColor = COLOR_GREEN; // 충분
+            else bar.style.backgroundColor = COLOR_ORANGE; // 부족
         }
         return percent;
     };
