@@ -944,20 +944,119 @@ window.createPadlock('final-padlock');
 // ============================================================================
 
 const foodDB = [
-    { id: 1, name: "흰 쌀밥", icon: "🍚", category: "탄수화물", cal: 300, carbs: 65, protein: 5, fat: 0, vit: 0, min: 1, water: 29 },
-    { id: 2, name: "현미밥", icon: "🌾", category: "탄수화물", cal: 320, carbs: 60, protein: 7, fat: 2, vit: 10, min: 15, water: 6 },
-    { id: 3, name: "제육볶음", icon: "🥓", category: "단백질/지방", cal: 450, carbs: 10, protein: 25, fat: 35, vit: 5, min: 10, water: 15 },
-    { id: 4, name: "닭가슴살", icon: "🍗", category: "단백질", cal: 165, carbs: 0, protein: 31, fat: 3, vit: 5, min: 5, water: 60 },
-    { id: 5, name: "생선구이", icon: "🐟", category: "단백질", cal: 200, carbs: 0, protein: 20, fat: 10, vit: 5, min: 15, water: 50 },
-    { id: 6, name: "시금치나물", icon: "🥗", category: "채소", cal: 50, carbs: 5, protein: 2, fat: 2, vit: 40, min: 30, water: 21 },
-    { id: 7, name: "샐러드", icon: "🥬", category: "채소", cal: 30, carbs: 5, protein: 1, fat: 0, vit: 50, min: 20, water: 24 },
-    { id: 8, name: "사과", icon: "🍎", category: "과일", cal: 100, carbs: 25, protein: 0, fat: 0, vit: 50, min: 10, water: 15 },
-    { id: 9, name: "바나나", icon: "🍌", category: "과일", cal: 105, carbs: 27, protein: 1, fat: 0, vit: 20, min: 15, water: 36 },
-    { id: 10, name: "우유", icon: "🥛", category: "유제품", cal: 120, carbs: 10, protein: 8, fat: 7, vit: 10, min: 30, water: 35 },
-    { id: 11, name: "마라탕", icon: "🍲", category: "복합/나트륨", cal: 800, carbs: 40, protein: 20, fat: 60, vit: 5, min: 30, water: 5 },
-    { id: 12, name: "탕후루", icon: "🍡", category: "당류", cal: 250, carbs: 60, protein: 0, fat: 0, vit: 5, min: 0, water: 35 },
-    { id: 13, name: "햄버거", icon: "🍔", category: "복합", cal: 500, carbs: 45, protein: 25, fat: 25, vit: 10, min: 15, water: 10 },
-    { id: 14, name: "피자", icon: "🍕", category: "복합", cal: 600, carbs: 60, protein: 25, fat: 30, vit: 10, min: 20, water: 10 }
+    // --- 밥/면 (주식) ---
+    { id: 1, name: "흰 쌀밥", icon: "🍚", category: "밥/면", cal: 300, carbs: 65, protein: 5, fat: 0, vit: 0, min: 1, water: 29 },
+    { id: 2, name: "현미밥", icon: "🌾", category: "밥/면", cal: 320, carbs: 60, protein: 7, fat: 2, vit: 10, min: 15, water: 6 },
+    { id: 3, name: "보리밥", icon: "🌾", category: "밥/면", cal: 300, carbs: 62, protein: 6, fat: 1, vit: 5, min: 10, water: 16 },
+    { id: 4, name: "잡곡밥", icon: "🍱", category: "밥/면", cal: 330, carbs: 60, protein: 8, fat: 2, vit: 15, min: 20, water: 15 },
+    { id: 5, name: "팥밥", icon: "🍙", category: "밥/면", cal: 310, carbs: 61, protein: 7, fat: 1, vit: 5, min: 12, water: 14 },
+    { id: 6, name: "흑미밥", icon: "🍙", category: "밥/면", cal: 325, carbs: 63, protein: 6, fat: 1, vit: 8, min: 15, water: 12 },
+    { id: 7, name: "콩나물밥", icon: "🍲", category: "밥/면", cal: 250, carbs: 45, protein: 10, fat: 3, vit: 20, min: 15, water: 30 },
+    { id: 8, name: "비빔밥", icon: "🍛", category: "밥/면", cal: 500, carbs: 65, protein: 15, fat: 12, vit: 40, min: 20, water: 20 },
+    { id: 9, name: "김치볶음밥", icon: "🍛", category: "밥/면", cal: 450, carbs: 60, protein: 10, fat: 15, vit: 10, min: 25, water: 15 },
+    { id: 10, name: "새우볶음밥", icon: "🍤", category: "밥/면", cal: 480, carbs: 55, protein: 15, fat: 18, vit: 5, min: 15, water: 10 },
+    { id: 11, name: "오므라이스", icon: "🍳", category: "밥/면", cal: 520, carbs: 58, protein: 14, fat: 20, vit: 10, min: 10, water: 12 },
+    { id: 12, name: "짜장면", icon: "🍜", category: "밥/면", cal: 700, carbs: 100, protein: 15, fat: 20, vit: 5, min: 25, water: 10 },
+    { id: 13, name: "짬뽕", icon: "🍜", category: "밥/면", cal: 650, carbs: 80, protein: 25, fat: 15, vit: 15, min: 35, water: 40 },
+    { id: 14, name: "잔치국수", icon: "🍜", category: "밥/면", cal: 350, carbs: 60, protein: 10, fat: 3, vit: 5, min: 20, water: 50 },
+    { id: 15, name: "비빔국수", icon: "🍝", category: "밥/면", cal: 420, carbs: 70, protein: 12, fat: 8, vit: 10, min: 15, water: 15 },
+    { id: 16, name: "냉면", icon: "🍜", category: "밥/면", cal: 400, carbs: 75, protein: 12, fat: 4, vit: 5, min: 10, water: 30 },
+    { id: 17, name: "칼국수", icon: "🍜", category: "밥/면", cal: 450, carbs: 70, protein: 15, fat: 5, vit: 5, min: 20, water: 45 },
+    { id: 18, name: "수제비", icon: "🍲", category: "밥/면", cal: 430, carbs: 68, protein: 12, fat: 4, vit: 5, min: 15, water: 40 },
+    { id: 19, name: "떡국", icon: "🍲", category: "밥/면", cal: 480, carbs: 75, protein: 18, fat: 8, vit: 2, min: 10, water: 45 },
+    { id: 20, name: "만두국", icon: "🥟", category: "밥/면", cal: 500, carbs: 60, protein: 20, fat: 15, vit: 5, min: 15, water: 40 },
+    { id: 21, name: "카레라이스", icon: "🍛", category: "밥/면", cal: 550, carbs: 70, protein: 12, fat: 15, vit: 15, min: 10, water: 15 },
+    { id: 22, name: "돈까스", icon: "🥩", category: "밥/면", cal: 600, carbs: 50, protein: 25, fat: 30, vit: 5, min: 10, water: 5 },
+    { id: 23, name: "초밥", icon: "🍣", category: "밥/면", cal: 400, carbs: 60, protein: 25, fat: 5, vit: 5, min: 10, water: 15 },
+    { id: 24, name: "김밥", icon: "🍘", category: "밥/면", cal: 450, carbs: 65, protein: 10, fat: 12, vit: 15, min: 10, water: 10 },
+    
+    // --- 국/탕 ---
+    { id: 25, name: "된장찌개", icon: "🥘", category: "국/탕", cal: 150, carbs: 12, protein: 15, fat: 5, vit: 10, min: 35, water: 60 },
+    { id: 26, name: "김치찌개", icon: "🥘", category: "국/탕", cal: 200, carbs: 15, protein: 18, fat: 10, vit: 15, min: 40, water: 55 },
+    { id: 27, name: "미역국", icon: "🥣", category: "국/탕", cal: 100, carbs: 5, protein: 10, fat: 3, vit: 10, min: 45, water: 70 },
+    { id: 28, name: "소고기무국", icon: "🥣", category: "국/탕", cal: 180, carbs: 8, protein: 20, fat: 8, vit: 5, min: 20, water: 65 },
+    { id: 29, name: "콩나물국", icon: "🥣", category: "국/탕", cal: 50, carbs: 4, protein: 4, fat: 1, vit: 15, min: 15, water: 80 },
+    { id: 30, name: "설렁탕", icon: "🍲", category: "국/탕", cal: 450, carbs: 10, protein: 35, fat: 25, vit: 2, min: 10, water: 70 },
+    { id: 31, name: "갈비탕", icon: "🍲", category: "국/탕", cal: 500, carbs: 15, protein: 40, fat: 30, vit: 5, min: 15, water: 65 },
+    { id: 32, name: "삼계탕", icon: "🍗", category: "국/탕", cal: 800, carbs: 40, protein: 60, fat: 35, vit: 10, min: 20, water: 60 },
+    { id: 33, name: "육개장", icon: "🥘", category: "국/탕", cal: 350, carbs: 20, protein: 30, fat: 15, vit: 15, min: 35, water: 60 },
+    { id: 34, name: "부대찌개", icon: "🥘", category: "국/탕", cal: 600, carbs: 40, protein: 30, fat: 35, vit: 10, min: 50, water: 50 },
+    { id: 35, name: "청국장", icon: "🥘", category: "국/탕", cal: 180, carbs: 15, protein: 20, fat: 6, vit: 5, min: 30, water: 55 },
+    { id: 36, name: "동태탕", icon: "🥘", category: "국/탕", cal: 250, carbs: 10, protein: 35, fat: 5, vit: 10, min: 25, water: 65 },
+    { id: 37, name: "어묵탕", icon: "🍢", category: "국/탕", cal: 200, carbs: 15, protein: 12, fat: 8, vit: 2, min: 35, water: 70 },
+    { id: 38, name: "순두부찌개", icon: "🥘", category: "국/탕", cal: 220, carbs: 10, protein: 20, fat: 12, vit: 5, min: 20, water: 60 },
+    { id: 39, name: "아욱국", icon: "🥣", category: "국/탕", cal: 70, carbs: 8, protein: 5, fat: 1, vit: 25, min: 20, water: 75 },
+
+    // --- 반찬(육류/생선) ---
+    { id: 40, name: "제육볶음", icon: "🥓", category: "반찬(육류/생선)", cal: 450, carbs: 15, protein: 25, fat: 35, vit: 10, min: 15, water: 20 },
+    { id: 41, name: "불고기", icon: "🥩", category: "반찬(육류/생선)", cal: 350, carbs: 20, protein: 30, fat: 15, vit: 5, min: 15, water: 25 },
+    { id: 42, name: "갈비찜", icon: "🍖", category: "반찬(육류/생선)", cal: 600, carbs: 25, protein: 40, fat: 40, vit: 5, min: 20, water: 20 },
+    { id: 43, name: "삼겹살구이", icon: "🥓", category: "반찬(육류/생선)", cal: 650, carbs: 0, protein: 35, fat: 60, vit: 0, min: 5, water: 10 },
+    { id: 44, name: "수육", icon: "🥩", category: "반찬(육류/생선)", cal: 400, carbs: 0, protein: 40, fat: 25, vit: 2, min: 10, water: 25 },
+    { id: 45, name: "닭강정", icon: "🍗", category: "반찬(육류/생선)", cal: 500, carbs: 50, protein: 20, fat: 25, vit: 2, min: 10, water: 10 },
+    { id: 46, name: "계란말이", icon: "🥚", category: "반찬(육류/생선)", cal: 150, carbs: 2, protein: 12, fat: 10, vit: 15, min: 10, water: 20 },
+    { id: 47, name: "고등어구이", icon: "🐟", category: "반찬(육류/생선)", cal: 250, carbs: 0, protein: 30, fat: 15, vit: 10, min: 15, water: 40 },
+    { id: 48, name: "갈치구이", icon: "🐟", category: "반찬(육류/생선)", cal: 220, carbs: 0, protein: 25, fat: 12, vit: 5, min: 10, water: 40 },
+    { id: 49, name: "오징어볶음", icon: "🦑", category: "반찬(육류/생선)", cal: 200, carbs: 15, protein: 25, fat: 5, vit: 10, min: 20, water: 30 },
+    { id: 50, name: "낙지볶음", icon: "🐙", category: "반찬(육류/생선)", cal: 180, carbs: 12, protein: 22, fat: 3, vit: 15, min: 25, water: 35 },
+    { id: 51, name: "새우튀김", icon: "🍤", category: "반찬(육류/생선)", cal: 300, carbs: 25, protein: 15, fat: 18, vit: 2, min: 10, water: 10 },
+    { id: 52, name: "장어구이", icon: "🐍", category: "반찬(육류/생선)", cal: 350, carbs: 5, protein: 30, fat: 25, vit: 20, min: 15, water: 20 },
+    { id: 53, name: "멸치볶음", icon: "🐟", category: "반찬(육류/생선)", cal: 150, carbs: 10, protein: 15, fat: 5, vit: 5, min: 45, water: 5 },
+    { id: 54, name: "두부조림", icon: "🧊", category: "반찬(육류/생선)", cal: 120, carbs: 5, protein: 12, fat: 6, vit: 5, min: 15, water: 40 },
+    { id: 55, name: "장조림", icon: "🥩", category: "반찬(육류/생선)", cal: 180, carbs: 10, protein: 25, fat: 5, vit: 2, min: 25, water: 25 },
+    { id: 56, name: "메추리알", icon: "🥚", category: "반찬(육류/생선)", cal: 100, carbs: 2, protein: 10, fat: 8, vit: 10, min: 10, water: 15 },
+    { id: 57, name: "게장", icon: "🦀", category: "반찬(육류/생선)", cal: 250, carbs: 15, protein: 20, fat: 8, vit: 5, min: 35, water: 20 },
+    { id: 58, name: "꼬막무침", icon: "🦪", category: "반찬(육류/생선)", cal: 120, carbs: 8, protein: 18, fat: 2, vit: 5, min: 25, water: 25 },
+
+    // --- 반찬(채소) ---
+    { id: 59, name: "배추김치", icon: "🥬", category: "반찬(채소)", cal: 30, carbs: 6, protein: 2, fat: 0, vit: 25, min: 30, water: 30 },
+    { id: 60, name: "깍두기", icon: "🟥", category: "반찬(채소)", cal: 40, carbs: 8, protein: 1, fat: 0, vit: 20, min: 25, water: 30 },
+    { id: 61, name: "오이소박이", icon: "🥒", category: "반찬(채소)", cal: 35, carbs: 7, protein: 1, fat: 0, vit: 30, min: 20, water: 40 },
+    { id: 62, name: "시금치나물", icon: "🥗", category: "반찬(채소)", cal: 50, carbs: 5, protein: 3, fat: 3, vit: 45, min: 30, water: 25 },
+    { id: 63, name: "콩나물무침", icon: "🥗", category: "반찬(채소)", cal: 40, carbs: 4, protein: 4, fat: 2, vit: 20, min: 15, water: 35 },
+    { id: 64, name: "고사리나물", icon: "🌿", category: "반찬(채소)", cal: 60, carbs: 10, protein: 3, fat: 2, vit: 15, min: 20, water: 20 },
+    { id: 65, name: "도라지무침", icon: "🌿", category: "반찬(채소)", cal: 55, carbs: 12, protein: 2, fat: 1, vit: 20, min: 15, water: 25 },
+    { id: 66, name: "무생채", icon: "🥗", category: "반찬(채소)", cal: 45, carbs: 10, protein: 1, fat: 1, vit: 25, min: 15, water: 35 },
+    { id: 67, name: "애호박볶음", icon: "🥒", category: "반찬(채소)", cal: 60, carbs: 8, protein: 2, fat: 4, vit: 20, min: 10, water: 30 },
+    { id: 68, name: "가지볶음", icon: "🍆", category: "반찬(채소)", cal: 70, carbs: 10, protein: 2, fat: 5, vit: 15, min: 10, water: 25 },
+    { id: 69, name: "감자조림", icon: "🥔", category: "반찬(채소)", cal: 120, carbs: 25, protein: 3, fat: 2, vit: 10, min: 15, water: 15 },
+    { id: 70, name: "연근조림", icon: "🥔", category: "반찬(채소)", cal: 110, carbs: 22, protein: 2, fat: 1, vit: 5, min: 20, water: 15 },
+    { id: 71, name: "우엉조림", icon: "🌿", category: "반찬(채소)", cal: 100, carbs: 20, protein: 2, fat: 1, vit: 5, min: 25, water: 10 },
+    { id: 72, name: "브로콜리", icon: "🥦", category: "반찬(채소)", cal: 30, carbs: 5, protein: 3, fat: 0, vit: 50, min: 20, water: 30 },
+    { id: 73, name: "샐러드", icon: "🥗", category: "반찬(채소)", cal: 80, carbs: 10, protein: 2, fat: 5, vit: 40, min: 15, water: 35 },
+    { id: 74, name: "버섯볶음", icon: "🍄", category: "반찬(채소)", cal: 70, carbs: 8, protein: 4, fat: 4, vit: 15, min: 20, water: 25 },
+    { id: 75, name: "파전", icon: "🥞", category: "반찬(채소)", cal: 300, carbs: 40, protein: 8, fat: 15, vit: 20, min: 15, water: 15 },
+    { id: 76, name: "김", icon: "⬛", category: "반찬(채소)", cal: 20, carbs: 2, protein: 2, fat: 1, vit: 10, min: 30, water: 5 },
+
+    // --- 간식/후식 ---
+    { id: 77, name: "사과", icon: "🍎", category: "간식/후식", cal: 100, carbs: 25, protein: 0, fat: 0, vit: 50, min: 10, water: 15 },
+    { id: 78, name: "바나나", icon: "🍌", category: "간식/후식", cal: 105, carbs: 27, protein: 1, fat: 0, vit: 20, min: 15, water: 36 },
+    { id: 79, name: "귤", icon: "🍊", category: "간식/후식", cal: 40, carbs: 10, protein: 0, fat: 0, vit: 45, min: 5, water: 45 },
+    { id: 80, name: "포도", icon: "🍇", category: "간식/후식", cal: 60, carbs: 15, protein: 1, fat: 0, vit: 30, min: 10, water: 40 },
+    { id: 81, name: "수박", icon: "🍉", category: "간식/후식", cal: 30, carbs: 8, protein: 1, fat: 0, vit: 25, min: 5, water: 80 },
+    { id: 82, name: "딸기", icon: "🍓", category: "간식/후식", cal: 35, carbs: 8, protein: 1, fat: 0, vit: 60, min: 10, water: 50 },
+    { id: 83, name: "복숭아", icon: "🍑", category: "간식/후식", cal: 50, carbs: 13, protein: 1, fat: 0, vit: 20, min: 10, water: 45 },
+    { id: 84, name: "떡볶이", icon: "🥘", category: "간식/후식", cal: 400, carbs: 80, protein: 10, fat: 5, vit: 10, min: 25, water: 20 },
+    { id: 85, name: "순대", icon: "🌭", category: "간식/후식", cal: 300, carbs: 30, protein: 15, fat: 15, vit: 5, min: 20, water: 10 },
+    { id: 86, name: "튀김", icon: "🍤", category: "간식/후식", cal: 350, carbs: 40, protein: 5, fat: 25, vit: 2, min: 10, water: 5 },
+    { id: 87, name: "핫도그", icon: "🌭", category: "간식/후식", cal: 280, carbs: 30, protein: 10, fat: 15, vit: 0, min: 15, water: 5 },
+    { id: 88, name: "호떡", icon: "🥞", category: "간식/후식", cal: 250, carbs: 40, protein: 5, fat: 10, vit: 0, min: 5, water: 5 },
+    { id: 89, name: "붕어빵", icon: "🐟", category: "간식/후식", cal: 200, carbs: 35, protein: 4, fat: 5, vit: 0, min: 5, water: 5 },
+    { id: 90, name: "아이스크림", icon: "🍦", category: "간식/후식", cal: 200, carbs: 25, protein: 4, fat: 10, vit: 5, min: 10, water: 10 },
+    { id: 91, name: "초콜릿", icon: "🍫", category: "간식/후식", cal: 150, carbs: 15, protein: 2, fat: 10, vit: 0, min: 5, water: 0 },
+    { id: 92, name: "과자", icon: "🍪", category: "간식/후식", cal: 200, carbs: 30, protein: 2, fat: 10, vit: 0, min: 5, water: 0 },
+    { id: 93, name: "빵", icon: "🍞", category: "간식/후식", cal: 250, carbs: 40, protein: 8, fat: 5, vit: 2, min: 10, water: 10 },
+    { id: 94, name: "케이크", icon: "🍰", category: "간식/후식", cal: 350, carbs: 45, protein: 5, fat: 20, vit: 5, min: 10, water: 5 },
+    { id: 95, name: "우유", icon: "🥛", category: "간식/후식", cal: 120, carbs: 10, protein: 8, fat: 7, vit: 10, min: 30, water: 35 },
+    { id: 96, name: "식혜", icon: "🥤", category: "간식/후식", cal: 150, carbs: 35, protein: 1, fat: 0, vit: 2, min: 5, water: 60 },
+    { id: 97, name: "수정과", icon: "🍵", category: "간식/후식", cal: 140, carbs: 35, protein: 0, fat: 0, vit: 5, min: 5, water: 60 },
+    { id: 98, name: "아메리카노", icon: "☕", category: "간식/후식", cal: 10, carbs: 2, protein: 0, fat: 0, vit: 0, min: 5, water: 90 },
+    { id: 99, name: "콜라", icon: "🥤", category: "간식/후식", cal: 150, carbs: 38, protein: 0, fat: 0, vit: 0, min: 5, water: 50 },
+    { id: 100, name: "오렌지주스", icon: "🧃", category: "간식/후식", cal: 120, carbs: 28, protein: 1, fat: 0, vit: 40, min: 10, water: 60 },
+    { id: 101, name: "녹차", icon: "🍵", category: "간식/후식", cal: 5, carbs: 1, protein: 0, fat: 0, vit: 10, min: 5, water: 95 },
+    { id: 102, name: "마카롱", icon: "🍔", category: "간식/후식", cal: 150, carbs: 20, protein: 2, fat: 8, vit: 0, min: 5, water: 5 },
+    { id: 103, name: "탕후루", icon: "🍡", category: "간식/후식", cal: 250, carbs: 60, protein: 0, fat: 0, vit: 15, min: 5, water: 35 },
+    { id: 104, name: "약과", icon: "🍩", category: "간식/후식", cal: 180, carbs: 25, protein: 2, fat: 8, vit: 0, min: 2, water: 5 }
 ];
 
 // 1끼 권장 영양소 (단순화된 게임 기준)
@@ -973,13 +1072,19 @@ const TARGET_NUTRITION = {
 
 let myTray = [];
 
+let currentFoodCategory = '전체';
+
 // 앱 초기화시 한 번 호출되도록 설계
 window.renderFoodList = function() {
     const container = document.getElementById('food-grid');
     if(!container) return;
     container.innerHTML = '';
     
-    foodDB.forEach(food => {
+    const filteredDB = currentFoodCategory === '전체' 
+        ? foodDB 
+        : foodDB.filter(food => food.category === currentFoodCategory);
+    
+    filteredDB.forEach(food => {
         const btn = document.createElement('div');
         btn.className = 'food-item';
         btn.innerHTML = `<div class="food-icon">${food.icon}</div><div class="food-name">${food.name}</div><div class="food-cal">${food.cal}kcal</div>`;
@@ -991,9 +1096,26 @@ window.renderFoodList = function() {
     });
 }
 
+// 카테고리 필터 기능
+window.filterFood = function(category) {
+    currentFoodCategory = category;
+    
+    // 버튼 활성화 스타일 변경
+    const buttons = document.querySelectorAll('.btn-category');
+    buttons.forEach(btn => {
+        if(btn.innerText.includes(category) || (category === '전체' && btn.innerText === '전체')) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+    
+    window.renderFoodList();
+}
+
 window.addFoodToTray = function(food) {
-    if (myTray.length >= 8) {
-        showAlert('수라상에 더 이상 올릴 자리가 없사옵니다! (최대 8개)');
+    if (myTray.length >= 12) {
+        showAlert('수라상에 더 이상 올릴 자리가 없사옵니다! (최대 12개)');
         return;
     }
     myTray.push(food);
@@ -1062,26 +1184,36 @@ window.updateTrayUI = function() {
     const pMin = updateBar('min', total.min, TARGET_NUTRITION.min);
     const pWater = updateBar('water', total.water, TARGET_NUTRITION.water);
 
-    // 3. 어의 피드백
+    // 3. 어의 피드백 (AI 시뮬레이션 평가)
     const feedbackEl = document.getElementById('diet-feedback-text');
     let feedback = "";
     let isPerfect = false;
 
     if (myTray.length === 0) {
-        feedback = "수라상에 올릴 음식을 골라주시옵소서.";
+        feedback = "전하, 수라상에 올릴 음식을 골라주시옵소서.";
     } else if (pCal > 130) {
-        feedback = "이놈! 칼로리가 폭발 직전이옵니다! 당장 음식을 덜어내시옵소서!";
-    } else if (pFat > 130 || pCarbs > 150) {
-        feedback = "기름지거나 단 음식이 너무 많사옵니다. 혈관이 막히겠사옵니다!";
-    } else if (pVit < 60) {
-        feedback = "채소나 과일이 부족하여 저하께서 괴혈병에 걸리겠사옵니다. 비타민을 보충하시오!";
-    } else if (pProtein < 60) {
-        feedback = "기력이 쇠하시옵니다. 뼈와 살이 될 고기나 생선을 올리시옵소서.";
+        feedback = "이놈! 칼로리가 폭발 직전이옵니다! 옥체가 둥글게 변하실까 염려되오니 음식을 조금 덜어내시옵소서!";
+    } else if (pCal < 40 && myTray.length >= 3) {
+        feedback = "전하, 이리 적게 드시고 어찌 정무를 돌보시려 하십니까? 고기나 밥을 더 챙겨 드시옵소서.";
+    } else if (pFat > 140 || pCarbs > 150) {
+        feedback = "기름지거나 단 음식이 너무 많사옵니다. 피가 끈적해지고 혈관이 막히실까 심히 우려되옵니다!";
+    } else if (pVit < 50) {
+        feedback = "수라에 채소와 과일이 턱없이 부족하옵니다. 이대로면 잇몸에 피가 나는 괴혈병에 걸리시옵니다. 나물이나 과일을 더 올리라 명하소서!";
+    } else if (pMin < 50) {
+        feedback = "뼈를 튼튼하게 할 무기질(칼슘 등)이 부족하옵니다. 우유나 뼈째 먹는 생선, 콩나물국 등을 더 찾아보시옵소서.";
+    } else if (pProtein < 50) {
+        feedback = "기력이 쇠하시옵니다. 근육과 피가 될 고기나 생선, 두부 반찬을 어서 더 얹으시옵소서!";
+    } else if (pWater < 50) {
+        feedback = "수분이 부족하여 옥체에 열이 오를 수 있사옵니다. 국물이나 시원한 과일, 마실 것을 더 추가하심이 옳사옵니다.";
     } else if (pCal >= 70 && pCal <= 120 && pCarbs >= 70 && pProtein >= 70 && pFat <= 120 && pVit >= 70 && pMin >= 70 && pWater >= 70) {
-        feedback = "오오! 6대 영양소가 조화로운 완벽한 수라상이옵니다! 어서 제출하시옵소서!";
-        isPerfect = true;
+        if (myTray.length >= 7) {
+            feedback = "오오! 6대 영양소가 완벽하게 조화를 이룬 훌륭한 12첩 수라상이옵니다! 당장 전하께 이 수라를 올리시옵소서!";
+            isPerfect = true;
+        } else {
+            feedback = "영양소는 훌륭하나, 가짓수가 적어 수라상이 다소 휑해 보이옵니다. 음식을 몇 가지 더 추가하여 풍성하게 채워주시옵소서.";
+        }
     } else {
-        feedback = "아직 영양소가 부족하거나 불균형하옵니다. 6가지 게이지를 모두 초록색으로 만들어 보시지요!";
+        feedback = "음... 영양소가 꽤 차올랐으나 아직 2% 부족하옵니다. 6가지 게이지를 모두 70% 이상의 '초록색'으로 만들어 보시옵소서!";
     }
 
     if(feedbackEl) feedbackEl.innerText = feedback;

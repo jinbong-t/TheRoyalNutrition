@@ -1121,3 +1121,103 @@ button {
     50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(212,175,55, 0); }
     100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212,175,55, 0); }
 }
+
+/* ============================================================================
+   수라상 및 음식 카테고리 스타일
+   ============================================================================ */
+
+/* 카테고리 탭 버튼 */
+.btn-category {
+    background: rgba(0, 0, 0, 0.6);
+    color: #ccc;
+    border: 1px solid var(--color-border);
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Gowun Dodum', sans-serif;
+}
+
+.btn-category:hover {
+    background: rgba(212, 175, 55, 0.3);
+    color: #fff;
+}
+
+.btn-category.active {
+    background: var(--color-accent-gold);
+    color: #000;
+    font-weight: bold;
+    border-color: var(--color-accent-gold);
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+}
+
+/* 수라상 (식판) 컨테이너 */
+#surasang-container {
+    background: radial-gradient(circle, #5c3a21 0%, #3e2715 70%, #2a1a0e 100%);
+    border: 4px solid #8b5a2b;
+    border-radius: 30px; /* 둥근 다각반/원반 느낌 */
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 10px 20px rgba(0,0,0,0.6);
+    position: relative;
+}
+
+/* 수라상 위 그릇 리스트 */
+#my-tray-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    min-height: 120px;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 수라상 위 개별 음식 (그릇 모양) */
+.tray-item {
+    background: radial-gradient(circle, #fff 0%, #e0e0e0 80%, #ccc 100%);
+    color: #000;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+    box-shadow: 2px 5px 10px rgba(0,0,0,0.5), inset -2px -5px 10px rgba(0,0,0,0.1);
+    position: relative;
+    text-align: center;
+    border: 2px solid #bba;
+}
+
+.tray-item span:first-child {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+/* 삭제 버튼 (그릇 우측 상단 X) */
+.tray-item .remove-btn {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ff4444;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.7rem;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    border: 1px solid #fff;
+}
+
+.tray-item .remove-btn:hover {
+    background: #cc0000;
+}
