@@ -1299,7 +1299,15 @@ window.submitDietApp = async function() {
         
         document.getElementById('diet-app-area').classList.add('hidden');
         document.getElementById('final-farewell').classList.remove('hidden');
-        window.playSound('doom'); // 웅장한 마무리 소리
+        
+        // 팝업 임명장 띄우기
+        const teamNameText = window.teamName || '수사관';
+        document.getElementById('plaque-team-name').innerText = teamNameText;
+        document.getElementById('appointment-modal').classList.remove('hidden');
+        document.getElementById('appointment-modal').classList.add('active');
+        
+        window.playSound('doom'); // 종료 소리
+        setTimeout(() => window.playSound('success'), 800); // 도장 찍힐 때 소리
         
     } catch(e) {
         console.error(e);
@@ -1358,4 +1366,10 @@ window.checkFinalTime = function(val) {
         document.getElementById('arrest-msg').style.display = 'block';
         document.getElementById('btn-confirm-arrest').style.display = 'block';
     }
+}
+
+// 임명장 모달 닫기
+window.closeAppointmentModal = function() {
+    document.getElementById('appointment-modal').classList.remove('active');
+    document.getElementById('appointment-modal').classList.add('hidden');
 }

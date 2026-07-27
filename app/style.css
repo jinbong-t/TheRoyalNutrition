@@ -1232,3 +1232,6 @@ button {
 .tray-item .remove-btn:hover {
     background: #cc0000;
 }
+
+@keyframes stampPop { 0% { transform: scale(0.5); opacity: 0; } 70% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes stampFadeIn { 0% { transform: rotate(-15deg) scale(3); opacity: 0; } 50% { opacity: 1; } 100% { transform: rotate(-15deg) scale(1); opacity: 1; } }
