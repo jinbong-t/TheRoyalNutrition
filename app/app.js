@@ -2,7 +2,18 @@ import { db, auth, collection, addDoc, doc, updateDoc, signInAnonymously, onSnap
 
 // --- 사운드 이펙트 (Web Audio API) ---
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+window.isMuted = false;
+
+window.toggleMute = function() {
+    window.isMuted = !window.isMuted;
+    const muteIcon = document.getElementById('mute-icon');
+    if (muteIcon) {
+        muteIcon.innerText = window.isMuted ? '🔇' : '🔊';
+    }
+}
+
 window.playSound = function(type) {
+    if (window.isMuted) return;
     if (audioCtx.state === 'suspended') audioCtx.resume();
     const osc = audioCtx.createOscillator();
     const gainNode = audioCtx.createGain();
