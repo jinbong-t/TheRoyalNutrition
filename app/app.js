@@ -466,6 +466,7 @@ window.submitOnlineQuiz = function() {
                 if(!this.classList.contains('flipped')) {
                     window.playSound('swipe');
                     this.classList.add('flipped');
+                    window.checkAllCluesFlipped();
                 }
             };
             
@@ -498,7 +499,20 @@ window.submitOnlineQuiz = function() {
         clueArea.appendChild(narrativeBox);
     }
     
-    document.getElementById('btn-to-gate6-wrap').classList.remove('hidden');
+    if (clueCount === 0) {
+        document.getElementById('btn-to-gate6-wrap').classList.remove('hidden');
+    }
+}
+
+window.checkAllCluesFlipped = function() {
+    const allCards = document.querySelectorAll('.clue-card-container');
+    const flippedCards = document.querySelectorAll('.clue-card-container.flipped');
+    if (allCards.length > 0 && allCards.length === flippedCards.length) {
+        document.getElementById('btn-to-gate6-wrap').classList.remove('hidden');
+        setTimeout(() => {
+            document.getElementById('btn-to-gate6-wrap').scrollIntoView({behavior: 'smooth', block: 'end'});
+        }, 100);
+    }
 }
 
 // ================== 관문 6 로직 ==================
