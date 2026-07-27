@@ -587,7 +587,7 @@ window.declareEnding = async function() {
     const reason = document.getElementById('final-reason').value.trim();
 
     if(!char1 || !char2 || !char3) {
-        showAlert('진범의 이름 3글자를 외치시오!');
+        showAlert('진정한 처방 3글자를 외치시오!');
         return;
     }
     
