@@ -17,15 +17,15 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    word-break: keep-all;
 }
 
 body {
     font-family: var(--font-body);
     background-color: var(--color-bg-dark);
     color: var(--color-text-main);
-    line-height: 1.6;
+    line-height: 1.4;
     overflow-x: hidden;
-    word-break: keep-all; /* 한글 단어 끊김 방지 */
 }
 
 /* 배경 효과 */
@@ -216,7 +216,8 @@ button {
     border-left: 4px solid var(--color-accent-gold);
     margin-bottom: 15px;
     font-size: 1.05rem;
-    line-height: 1.6;
+    line-height: 1.5; /* 줄간격 더 축소 */
+    word-break: keep-all;
 }
 
 .quote {
@@ -225,7 +226,8 @@ button {
     color: var(--color-accent-gold);
     text-align: center;
     margin: 10px 0;
-    font-size: 1.2rem;
+    font-size: 1.15rem; /* 살짝 축소 */
+    word-break: keep-all;
 }
 
 .question-box {
