@@ -1059,16 +1059,41 @@ const foodDB = [
     { id: 104, name: "약과", icon: "🍩", category: "간식/후식", cal: 180, carbs: 25, protein: 2, fat: 8, vit: 0, min: 2, water: 5 }
 ];
 
-// 1끼 권장 영양소 (단순화된 게임 기준)
-const TARGET_NUTRITION = {
-    cal: 800,
-    carbs: 100,
-    protein: 40,
-    fat: 30,
+// 2022 (2020 개정) 한국인 영양소 섭취기준 (12~14세 청소년 1끼 기준, 1/3)
+const TARGET_NUTRITION_M = {
+    cal: 833,     // 하루 2500kcal / 3
+    carbs: 115,   // 약 55%
+    protein: 20,  // 하루 55g / 3
+    fat: 23,      // 약 25%
     vit: 100,
     min: 100,
     water: 100
 };
+
+const TARGET_NUTRITION_F = {
+    cal: 667,     // 하루 2000kcal / 3
+    carbs: 90,
+    protein: 17,  // 하루 50g / 3
+    fat: 18,
+    vit: 100,
+    min: 100,
+    water: 100
+};
+
+let currentGender = 'M'; // 기본값 남학생
+
+window.setGender = function(gender) {
+    currentGender = gender;
+    document.getElementById('btn-gender-m').classList.toggle('active', gender === 'M');
+    document.getElementById('btn-gender-f').classList.toggle('active', gender === 'F');
+    
+    // 목표가 변경되었으므로 현재 담은 식판의 퍼센트 재계산
+    window.updateTrayUI();
+}
+
+function getTargetNutrition() {
+    return currentGender === 'M' ? TARGET_NUTRITION_M : TARGET_NUTRITION_F;
+}
 
 let myTray = [];
 
@@ -1176,13 +1201,15 @@ window.updateTrayUI = function() {
         return percent;
     };
 
-    const pCal = updateBar('cal', total.cal, TARGET_NUTRITION.cal);
-    const pCarbs = updateBar('carbs', total.carbs, TARGET_NUTRITION.carbs);
-    const pProtein = updateBar('protein', total.protein, TARGET_NUTRITION.protein);
-    const pFat = updateBar('fat', total.fat, TARGET_NUTRITION.fat);
-    const pVit = updateBar('vit', total.vit, TARGET_NUTRITION.vit);
-    const pMin = updateBar('min', total.min, TARGET_NUTRITION.min);
-    const pWater = updateBar('water', total.water, TARGET_NUTRITION.water);
+    const target = getTargetNutrition();
+
+    const pCal = updateBar('cal', total.cal, target.cal);
+    const pCarbs = updateBar('carbs', total.carbs, target.carbs);
+    const pProtein = updateBar('protein', total.protein, target.protein);
+    const pFat = updateBar('fat', total.fat, target.fat);
+    const pVit = updateBar('vit', total.vit, target.vit);
+    const pMin = updateBar('min', total.min, target.min);
+    const pWater = updateBar('water', total.water, target.water);
 
     // 3. 어의 피드백 (AI 시뮬레이션 평가)
     const feedbackEl = document.getElementById('diet-feedback-text');
