@@ -1264,8 +1264,16 @@ window.renderFoodList();
 window.updateTrayUI();
 
 window.goToDietApp = function() {
-    document.getElementById('sec-final-result').classList.add('hidden');
+    // 현재 활성화된 모든 섹션(화면) 숨기기
+    const activeSecs = document.querySelectorAll('section:not(.hidden)');
+    activeSecs.forEach(sec => {
+        sec.classList.add('hidden');
+        sec.classList.remove('active');
+    });
+    
+    // 수라상 섹션 표시
     document.getElementById('sec-diet-app').classList.remove('hidden');
+    document.getElementById('sec-diet-app').classList.add('active');
     
     // 영상이 재생 중이라면 정지
     const video = document.getElementById('ending-video');
