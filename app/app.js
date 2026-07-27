@@ -604,6 +604,11 @@ window.declareEnding = async function() {
         document.getElementById('sec-ending').classList.add('hidden');
         document.getElementById('sec-final-result').classList.remove('hidden');
         document.getElementById('sec-final-result').classList.add('active');
+        
+        const endingVideo = document.getElementById('ending-video');
+        if(endingVideo) {
+            endingVideo.play().catch(e => console.log('Autoplay prevented by browser'));
+        }
 
         if(teamDocId) {
             await updateDoc(doc(db, "teams", teamDocId), { 

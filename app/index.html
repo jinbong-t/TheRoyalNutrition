@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>수라간의 비밀</title>
     <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=17">
+    <link rel="stylesheet" href="style.css?v=18">
 </head>
 <body>
     <div id="app-container">
@@ -42,7 +42,7 @@
             <h1 class="title-main mb-20" style="font-size: 2.2rem; margin-top: 20px;">수라간의 비밀</h1>
             
             <div class="video-container" style="max-width: 600px; width: 100%; border-radius: 10px; overflow: hidden; border: 2px solid var(--color-accent-gold); margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.5);">
-                <video id="intro-video" controls width="100%" style="display: block;">
+                <video id="intro-video" controls autoplay playsinline width="100%" style="display: block;">
                     <source src="../인트로영상.mp4" type="video/mp4">
                     브라우저가 영상을 지원하지 않습니다.
                 </video>
@@ -557,7 +557,7 @@
             
             <!-- 마지막 엔딩 영상 (작게) -->
             <div class="video-container" style="max-width: 400px; width: 100%; margin: 0 auto 20px auto; border-radius: 10px; overflow: hidden; border: 2px solid var(--color-accent-gold); box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
-                <video id="ending-video" controls width="100%" style="display: block;">
+                <video id="ending-video" controls autoplay playsinline width="100%" style="display: block;">
                     <source src="../라스트 엔딩.mp4" type="video/mp4">
                     브라우저가 영상을 지원하지 않습니다.
                 </video>
@@ -651,6 +651,6 @@
     </div>
 
     <script type="module" src="firebase-config.js"></script>
-    <script type="module" src="app.js?v=6"></script>
+    <script type="module" src="app.js?v=7"></script>
 </body>
 </html>
