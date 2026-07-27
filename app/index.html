@@ -582,10 +582,10 @@
                 <p class="mb-20 text-center" style="font-size:0.9rem;">아래 음식들을 클릭하여 수라상에 담고, 6가지 영양소 게이지를 모두 <strong>초록색(70% 이상)</strong>으로 채우시오.<br>(단, 칼로리가 너무 높아도 안 되옵니다! 최대 12개)</p>
                 
                 <!-- 성별 선택 (영양섭취기준 적용) -->
-                <div id="gender-selection" style="margin-bottom: 20px; display: flex; justify-content: center; gap: 15px; align-items: center;">
-                    <span style="color: var(--color-accent-gold); font-weight: bold;">나의 성별(기준):</span>
-                    <button id="btn-gender-m" class="btn-category active" onclick="setGender('M')">👦 남학생 (약 830kcal)</button>
-                    <button id="btn-gender-f" class="btn-category" onclick="setGender('F')">👧 여학생 (약 670kcal)</button>
+                <div id="gender-selection" style="margin-bottom: 20px; display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; align-items: center;">
+                    <span style="color: var(--color-accent-gold); font-weight: bold; width: 100%; text-align: center; margin-bottom: 5px;">나의 성별(기준) 선택</span>
+                    <button id="btn-gender-m" class="btn-category active" onclick="setGender('M')" style="flex: 1; min-width: 140px;">👦 남학생 (약 830kcal)</button>
+                    <button id="btn-gender-f" class="btn-category" onclick="setGender('F')" style="flex: 1; min-width: 140px;">👧 여학생 (약 670kcal)</button>
                 </div>
 
                 <!-- 카테고리 탭 -->
