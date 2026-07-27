@@ -286,7 +286,6 @@ window.checkGate2 = async function() {
                 <div class="success-box">
                     <p>암호를 해독하였소!</p>
                     <p>밀지를 거꾸로 읽어 2차 봉인 번호 <strong>[ ${code} ]</strong>를 정확히 추리했소.</p>
-                    <p class="guide-text">이 번호(2143)는 종막 어전에 입장할 때 쓰이니 반드시 기억해두시오.</p>
                     <button class="btn-primary mt-10" onclick="nextGate(3)">다음 관문으로</button>
                 </div>
             `;
