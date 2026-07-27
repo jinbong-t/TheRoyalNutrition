@@ -1331,3 +1331,31 @@ window.goToDietApp = function() {
     
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+// 최종 시각 입력 확인
+window.checkFinalTime = function(val) {
+    if (val.trim() === '유시' || val.trim() === '유시(酉時)') {
+        window.playSound('success');
+        
+        // 입력창 숨기고 정답 텍스트 보이기
+        document.getElementById('final-time-input').style.display = 'none';
+        document.getElementById('final-time-text').style.display = 'block';
+        
+        // 출입 시각 박스 빨간색 테두리로 변경
+        document.getElementById('final-time-box').style.border = '1px solid var(--color-accent-red)';
+        
+        // 출입 기록부 목록에서 최상궁 행 빨간색으로 강조
+        const choiLog = document.getElementById('suspect-choi-log');
+        if (choiLog) {
+            choiLog.style.background = 'rgba(200, 0, 0, 0.15)';
+            choiLog.style.borderLeft = '3px solid maroon';
+            choiLog.style.paddingLeft = '8px';
+            choiLog.style.fontWeight = 'bold';
+            choiLog.style.transition = 'all 0.5s ease';
+        }
+        
+        // 검거 확정 버튼과 메시지 표시
+        document.getElementById('arrest-msg').style.display = 'block';
+        document.getElementById('btn-confirm-arrest').style.display = 'block';
+    }
+}

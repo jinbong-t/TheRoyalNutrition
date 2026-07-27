@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>수라간의 비밀</title>
     <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=26">
+    <link rel="stylesheet" href="style.css?v=27">
 </head>
 <body>
     <div id="app-container">
@@ -424,7 +424,7 @@
                             <li>- <strong>장내시</strong> : 신시(申時, 15~17시)</li>
                             <li>- <strong>세자빈</strong> : 미시(未時, 13~15시)</li>
                             <li>- <strong>의녀 장덕</strong> : 술시(戌時, 19~21시)</li>
-                            <li style="background: rgba(200, 0, 0, 0.15); font-weight: bold; border-left: 3px solid maroon; padding-left: 8px;">- <strong>최상궁</strong> : 유시(酉時, 17~19시)</li>
+                            <li id="suspect-choi-log">- <strong>최상궁</strong> : 유시(酉時, 17~19시)</li>
                         </ul>
                     </div>
 
@@ -436,13 +436,14 @@
                             <h4 style="font-size: 1.2rem; letter-spacing: 1px; white-space: nowrap;">최상궁</h4>
                         </div>
                         <div style="font-size: 1.5rem; color: #666; margin: 0 5px;">➡</div>
-                        <div style="border: 1px solid var(--color-accent-red); padding: 10px 5px; border-radius: 5px; flex: 1; text-align: center; background: rgba(0,0,0,0.5);">
+                        <div id="final-time-box" style="border: 1px solid #666; padding: 10px 5px; border-radius: 5px; flex: 1; text-align: center; background: rgba(0,0,0,0.5); transition: all 0.3s;">
                             <p style="color: var(--color-accent-gold); font-size: 0.8rem; margin-bottom: 5px; white-space: nowrap;">출입 시각</p>
-                            <h4 style="font-size: 1.2rem; color: var(--color-accent-red); letter-spacing: 0; white-space: nowrap;">유시(酉時)</h4>
+                            <input type="text" id="final-time-input" placeholder="시각 입력(예: 유시)" style="width: 90%; padding: 5px; text-align: center; background: #222; color: white; border: 1px solid #888; border-radius: 4px;" oninput="window.checkFinalTime(this.value)">
+                            <h4 id="final-time-text" style="display: none; font-size: 1.2rem; color: var(--color-accent-red); letter-spacing: 0; white-space: nowrap;">유시(酉時)</h4>
                         </div>
                     </div>
-                    <p class="mt-20" style="line-height: 1.6;">입궁 시각이 <strong style="color: var(--color-accent-gold);">제 4관문에서 밝힌 사건 시각(유시)</strong>과 정확히 일치합니다.<br><strong style="color: var(--color-accent-red); font-size: 1.1rem; display: block; margin-top: 10px;">이 자를 최종 진범으로 확정하시겠습니까?</strong></p>
-                    <button class="btn-primary mt-20" onclick="confirmArrest()" style="background: linear-gradient(135deg, #8a1c1c, #4a0d0d); font-size: 1.2rem; padding: 15px; width: 100%;">이 자가 진범이다! (검거 확정)</button>
+                    <p id="arrest-msg" class="mt-20" style="line-height: 1.6; display: none;">입궁 시각이 <strong style="color: var(--color-accent-gold);">제 4관문에서 밝힌 사건 시각(유시)</strong>과 정확히 일치합니다.<br><strong style="color: var(--color-accent-red); font-size: 1.1rem; display: block; margin-top: 10px;">이 자를 최종 진범으로 확정하시겠습니까?</strong></p>
+                    <button id="btn-confirm-arrest" class="btn-primary mt-20" onclick="confirmArrest()" style="display: none; background: linear-gradient(135deg, #8a1c1c, #4a0d0d); font-size: 1.2rem; padding: 15px; width: 100%;">이 자가 진범이다! (검거 확정)</button>
                     <button class="btn-version mt-10" onclick="closeCompareModal()" style="width: 100%;">다시 살펴보기</button>
                 </div>
             </div>
