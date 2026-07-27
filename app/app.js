@@ -1130,3 +1130,16 @@ window.submitDietApp = async function() {
 // 초기 다이어트 앱 UI 렌더링
 window.renderFoodList();
 window.updateTrayUI();
+
+window.goToDietApp = function() {
+    document.getElementById('sec-final-result').classList.add('hidden');
+    document.getElementById('sec-diet-app').classList.remove('hidden');
+    
+    // 영상이 재생 중이라면 정지
+    const video = document.getElementById('ending-video');
+    if(video) {
+        video.pause();
+    }
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
