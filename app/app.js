@@ -182,6 +182,9 @@ window.startGame = async function() {
         if (video) {
             video.play().catch(e => console.log('Autoplay prevented by browser'));
             video.onended = function() {
+                const videoContainer = document.querySelector('.video-container');
+                if (videoContainer) videoContainer.style.display = 'none';
+                
                 document.getElementById('story-narration').style.display = 'block';
                 const introText = "전하의 밀지가 당도했다!<br><br><span style='color:var(--color-accent-gold);'>'세자가 원인 모를 병에 걸렸고, 어의마저 누군가에게 납치되었다. 그대들을 특별 암행어사로 임명하니, 몰래 입궁하여 수라간의 비밀을 파헤쳐라!'</span><br><br>입궁을 위해선 납치된 어의가 궁궐 지도에 몰래 남겨둔 암호를 풀어야만 비밀의 문이 열린다.";
                 window.typewriterEffect('typewriter-text', introText, 40, () => {
@@ -678,79 +681,6 @@ window.nextGate = function(gateNum) {
 console.log("수라간의 비밀 앱 로드 완료");
 
 const introVideo = document.getElementById('intro-video');
-const storyLines = [
-    { text: "평화롭던 조선의 궁궐, 차기 왕위를 이을 세자 저하께서 원인을 알 수 없는 괴질로 쓰러지셨다." },
-    { text: "어의가 백방으로 원인을 찾으려 애썼으나, 병세는 호전되기는커녕 날이 갈수록 악화될 뿐이었다." },
-    { text: "궁궐 내에는 누군가 세자 저하를 해하려 한다는 흉흉한 소문이 돌기 시작했고..." },
-    { text: "그러던 중, 내의원 한구석에서 어의가 남긴 찢어진 서책과 수상한 약병이 발견된다." },
-    { text: "\"세자 저하의 병은 단순한 병이 아니다. 누군가 수라상에 교묘하게 손을 대어 영양을 소실시킨 것이다!\"", style: "color:var(--color-accent-gold);" },
-    { text: "이제 당신은 궁중 내의원이 되어, 어의가 남긴 서책의 암호를 풀고 수라간 식단의 비밀을 파헤쳐야 한다." },
-    { text: "수라간 최상궁부터 장내시, 의녀 장덕, 심지어 세자빈까지... 모두가 용의선상에 올랐다." },
-    { text: "사라진 영양소의 진실을 밝혀내고, 세자 저하를 위기에서 구하라!", style: "color:var(--color-accent-red); font-size: 1.1rem; font-weight: bold; text-align: center;" }
-];
-
-function typeWriterEffect(lines, containerId, callback) {
-    const container = document.getElementById(containerId);
-    container.innerHTML = '';
-    let lineIndex = 0;
-    let charIndex = 0;
-    let currentP = null;
-
-    function typeChar() {
-        if (lineIndex < lines.length) {
-            if (charIndex === 0) {
-                currentP = document.createElement('p');
-                currentP.className = "mt-10";
-                if (lines[lineIndex].style) {
-                    currentP.style.cssText = lines[lineIndex].style;
-                }
-                container.appendChild(currentP);
-                
-                if (lines[lineIndex].text.includes("위기에서 구하라!")) {
-                    window.playSound('doom'); // 근엄한 배경음
-                    window.speakText(lines[lineIndex].text); // 근엄한 기계 음성 읽어주기
-                }
-            }
-            
-            currentP.innerHTML += lines[lineIndex].text.charAt(charIndex);
-            charIndex++;
-
-            if (charIndex >= lines[lineIndex].text.length) {
-                lineIndex++;
-                charIndex = 0;
-                if (lineIndex < lines.length) {
-                    setTimeout(typeChar, 800); // 문장 끝나고 0.8초 대기
-                } else {
-                    if (callback) callback();
-                }
-            } else {
-                setTimeout(typeChar, 40); // 글자당 0.04초
-            }
-        }
-    }
-    typeChar();
-}
-
-if (introVideo) {
-    introVideo.addEventListener('ended', () => {
-        // 영상 컨테이너 숨기기
-        const videoContainer = document.querySelector('.video-container');
-        if (videoContainer) videoContainer.style.display = 'none';
-
-        const narration = document.getElementById('story-narration');
-        if (narration) {
-            narration.style.display = 'block';
-            narration.scrollIntoView({ behavior: 'smooth' });
-            
-            // 타이핑 효과 시작
-            typeWriterEffect(storyLines, 'typewriter-text', () => {
-                // 타이핑이 모두 끝나면 시작 버튼 등장
-                const btn = document.getElementById('btn-start-mission');
-                if (btn) btn.style.display = 'block';
-            });
-        }
-    });
-}
 
 // 모달 및 스토리 제어
 window.closePosterAndGoToLogin = function() {
@@ -802,7 +732,8 @@ window.secretSkip = function() {
                     narration.scrollIntoView({ behavior: 'smooth' });
                     
                     // 타이핑 효과 시작
-                    typeWriterEffect(storyLines, 'typewriter-text', () => {
+                    const introText = "전하의 밀지가 당도했다!<br><br><span style='color:var(--color-accent-gold);'>'세자가 원인 모를 병에 걸렸고, 어의마저 누군가에게 납치되었다. 그대들을 특별 암행어사로 임명하니, 몰래 입궁하여 수라간의 비밀을 파헤쳐라!'</span><br><br>입궁을 위해선 납치된 어의가 궁궐 지도에 몰래 남겨둔 암호를 풀어야만 비밀의 문이 열린다.";
+                    window.typewriterEffect('typewriter-text', introText, 10, () => {
                         const btn = document.getElementById('btn-start-mission');
                         if (btn) btn.style.display = 'block';
                     });
