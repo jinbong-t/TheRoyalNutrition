@@ -162,14 +162,14 @@ button {
 
 .btn-primary {
     width: 100%;
-    padding: 15px;
+    padding: 10px;
     background: var(--color-accent-red);
     color: white;
     border: none;
     border-radius: 6px;
-    font-size: 1.2rem;
+    font-size: 1.05rem;
     font-weight: bold;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
 }
 
 .btn-primary:hover {
@@ -646,8 +646,8 @@ button {
     }
     
     .btn-primary {
-        font-size: 1.1rem;
-        padding: 12px;
+        font-size: 1rem;
+        padding: 10px;
     }
     
     .q-item-inline {
