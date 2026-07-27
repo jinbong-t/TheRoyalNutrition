@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>수라간의 비밀</title>
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=41">
+</head>
+<body>
+    <div id="app-container">
+        <!-- 배경 효과용 레이어 -->
+        <div class="bg-overlay"></div>
+
+        <!-- 비밀 스킵 버튼 (선생님용, 우측 상단 투명 영역) -->
+        <div onclick="secretSkip()" style="position: fixed; top: 0; right: 0; width: 50px; height: 50px; z-index: 9999; cursor: pointer;"></div>
+
+        <!-- 비밀 뒤로가기 버튼 (선생님용, 좌측 상단 투명 영역) -->
+        <div onclick="secretBack()" style="position: fixed; top: 0; left: 0; width: 50px; height: 50px; z-index: 9999; cursor: pointer;"></div>
+
+        <!-- 포스터 모달 (입장 시 자동 표시) -->
+        <div id="poster-modal" class="modal-overlay active">
+            <div class="scroll-wrapper">
+                <div class="scroll-content">
+                    <img src="../궁중 영양 추리극 수라간의 비밀1.png" alt="포스터" style="width:100%; border-radius:10px; border: 2px solid var(--color-accent-gold);">
+                    <button class="btn-primary mt-20" onclick="closePosterAndGoToLogin()">어명 받들기 (확인)</button>
+                </div>
+                <div class="scroll-cylinder"></div>
+            </div>
+        </div>
+
+        <!-- 알림 모달 (공통) -->
+        <div id="alert-modal" class="hidden">
+            <div class="modal-content" style="text-align: center;">
+                <p id="alert-message">메시지</p>
+                <button onclick="closeAlert()">확인</button>
+            </div>
+        </div>
+
+        <!-- 섹션: 스토리 (영상) -->
+        <section id="sec-story" class="hidden text-center">
+            <h1 class="title-main mb-20" style="font-size: 2.2rem; margin-top: 20px;">수라간의 비밀</h1>
+            
+            <div class="video-container" style="max-width: 600px; width: 100%; border-radius: 10px; overflow: hidden; border: 2px solid var(--color-accent-gold); margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.5);">
+                <video id="intro-video" controls autoplay playsinline width="100%" style="display: block;">
+                    <source src="../인트로영상.mp4" type="video/mp4">
+                    브라우저가 영상을 지원하지 않습니다.
+                </video>
+            </div>
+
+            <!-- 영상 끝난 후 나타날 나레이션 영역 -->
+            <div id="story-narration" style="display: none; animation: fadeIn 1s ease;">
+                <div id="typewriter-text" style="text-align: left; max-width: 600px; margin: 0 auto; line-height: 1.8; font-size: 1.05rem; padding: 20px; background: rgba(0,0,0,0.6); border-radius: 8px; border-left: 4px solid var(--color-accent-gold); min-height: 200px;">
+                    <!-- 타이핑 효과가 여기에 들어갑니다 -->
+                </div>
+                <button id="btn-start-mission" class="btn-primary mt-20" style="display: none;" onclick="nextGate(1)">사건 조사 시작 (관문 1로)</button>
+            </div>
+        </section>
+
+        <!-- 섹션: 로그인 (도입부) -->
+        <section id="sec-login" class="hidden">
+            <h1 class="title-main">수라간의 비밀</h1>
+            <p class="subtitle">세자 저하의 괴질을 고쳐라</p>
+            
+            <div class="login-box">
+             <p class="mt-20">입궐하기 전, 모둠 이름을 밝히시오.</p>
+            <input type="text" id="team-name" class="input-team" placeholder="예: 1모둠" />
+            
+            <button class="btn-primary mt-20" onclick="startGame()">입궐하기</button>
+            </div>
+            <div style="margin-top: 30px; opacity: 0.15; cursor: pointer; font-size: 1.2rem; display: inline-block; user-select: none;" onclick="window.toggleMute()" id="mute-icon" title="음소거 설정">🔊</div>
+        </section>
+
+        <!-- 관문 1: 봉인된 약궤 -->
+        <section id="sec-gate1" class="hidden">
+            <h2 class="title-gate">제 1관문. 어의의 암호(봉인된 약궤)</h2>
+            <div class="story-box">
+                <p>수라간으로 향하는 문이 굳게 잠겨있다. 문 앞 약궤 위에 어의가 남긴 낯선 필체의 경고문이 보인다.</p>
+                <p class="quote">"소리마다 받쳐 적은 자가 곧 숫자니라"</p>
+                <p>누군가 눈치채지 못하게 6대 영양소의 초성을 통해 암호를 숨겨둔 듯하다. 초성을 보고 알맞은 3대 영양소를 적으시오.</p>
+            </div>
+            
+            <div class="question-box">
+                <div class="q-item">
+                    <span class="q-hint">① ㅌ ㅅ ㅎ ㅁ (몸의 주된 에너지원, 1g당 4kcal)</span>
+                    <input type="text" id="g1-q1" placeholder="정답 입력" autocomplete="off" oninput="checkG1Elements()">
+                </div>
+                <div class="q-item">
+                    <span class="q-hint">② ㄷ ㅂ ㅈ (신체 조직 구성, 부족하면 성장 부진)</span>
+                    <input type="text" id="g1-q2" placeholder="정답 입력" autocomplete="off" oninput="checkG1Elements()">
+                </div>
+                <div class="q-item">
+                    <span class="q-hint">③ ㅈ ㅂ (1g당 9kcal, 체온 유지와 장기 보호)</span>
+                    <input type="text" id="g1-q3" placeholder="정답 입력" autocomplete="off" oninput="checkG1Elements()">
+                </div>
+                
+                <div id="g1-padlock-area" class="hidden" style="animation: fadeIn 0.8s ease;">
+                    <hr style="border:0; border-top:1px dashed var(--color-border); margin: 20px 0;">
+                    <p class="text-center mt-20" style="color:var(--color-accent-gold); font-weight:bold;">조원들과 상의하여 약궤의 봉인 번호(3자리)를 풀고 잠입에 성공하시오!</p>
+                    <p class="text-center" style="font-size:0.9rem;">힌트: 소리마다 받쳐 적은 자...</p>
+                    <div class="padlock-container" id="g1-padlock" data-digits="3"></div>
+                    <button id="btn-g1-submit" class="btn-primary mt-10" onclick="checkGate1()">자물쇠 열기 (수라간 잠입)</button>
+                </div>
+            </div>
+            
+            <div id="g1-result" class="result-area"></div>
+        </section>
+
+        <!-- 관문 2: 찢어진 어의의 인장 -->
+        <section id="sec-gate2" class="hidden">
+            <h2 class="title-gate">제 2관문. 찢어진 어의의 인장</h2>
+            <div class="story-box">
+                <p>종이 뒷면에는 누군가 급히 휘갈겨 쓴 듯한 밀지가 거꾸로 붙어 있다.</p>
+                <p>밀지의 내용에 따라 아래 빈칸에 올바른 원소기호를 채우시오.</p>
+                <div style="text-align: center; margin: 20px 0;">
+                    <img src="../무기질 밀지.png" alt="무기질 밀지" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.8); border: 2px solid var(--color-accent-gold);">
+                </div>
+            </div>
+            
+            <div class="question-box mt-20">
+                <p class="text-center mb-10"><strong>원소기호를 적으시오. (대소문자 구분 없음)</strong></p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; justify-items: center; padding: 0 10px;">
+                    <div style="display: flex; align-items: center; gap: 5px; width: 100%; max-width: 130px;">
+                        <span style="white-space: nowrap; font-size: 0.95rem; width: 60px; text-align: left; line-height: 1;">① 칼슘</span> 
+                        <input type="text" id="g2-q1" maxlength="2" autocomplete="off" oninput="checkG2Elements()" style="width: 50px; height: 35px; padding: 0; text-align: center; margin: 0; box-sizing: border-box;">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 5px; width: 100%; max-width: 130px;">
+                        <span style="white-space: nowrap; font-size: 0.95rem; width: 60px; text-align: left; line-height: 1;">② 인</span> 
+                        <input type="text" id="g2-q2" maxlength="2" autocomplete="off" oninput="checkG2Elements()" style="width: 50px; height: 35px; padding: 0; text-align: center; margin: 0; box-sizing: border-box;">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 5px; width: 100%; max-width: 130px;">
+                        <span style="white-space: nowrap; font-size: 0.95rem; width: 60px; text-align: left; line-height: 1;">③ 철</span> 
+                        <input type="text" id="g2-q3" maxlength="2" autocomplete="off" oninput="checkG2Elements()" style="width: 50px; height: 35px; padding: 0; text-align: center; margin: 0; box-sizing: border-box;">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 5px; width: 100%; max-width: 130px;">
+                        <span style="white-space: nowrap; font-size: 0.95rem; width: 60px; text-align: left; line-height: 1;">④ 아연</span> 
+                        <input type="text" id="g2-q4" maxlength="2" autocomplete="off" oninput="checkG2Elements()" style="width: 50px; height: 35px; padding: 0; text-align: center; margin: 0; box-sizing: border-box;">
+                    </div>
+                </div>
+                
+                <div id="g2-padlock-area" class="hidden" style="animation: fadeIn 0.8s ease;">
+                    <hr style="border:0; border-top:1px dashed var(--color-border); margin: 20px 0;">
+                    <p class="text-center mb-10" style="color:var(--color-accent-gold);"><strong>뒤집힌 밀지를 거꾸로 읽고 원소기호 번호를 조합하여<br>2차 봉인 번호(4자리)를 추리해 입력하시오.</strong></p>
+                    <div class="padlock-container" id="g2-padlock" data-digits="4"></div>
+                    <button id="btn-g2-submit" class="btn-primary mt-10" onclick="checkGate2()">암호 해독</button>
+                </div>
+            </div>
+            
+            <div id="g2-result" class="result-area"></div>
+        </section>
+
+        <!-- 관문 3: 그림자 진단서 -->
+        <section id="sec-gate3" class="hidden">
+            <h2 class="title-gate">제 3관문. 숨겨진 수라 일지 (그림자 진단서)</h2>
+            <div class="story-box">
+                <p>수라간 구석, 바닥 장판 아래에서 세자의 '수라 일지'와 진단 기록이 발견되었다!</p>
+                <p class="quote">"누군가 고의로 세자에게 특정 영양소를 빼앗아 서서히 병들게 하고 있다!"</p>
+                <p>각 증상을 일으키도록 진범이 고의로 빼앗은 영양소(결핍)를 짝지어 음모를 밝혀내시오.</p>
+                <p class="text-center mt-10" style="font-size: 0.95rem; font-weight: bold; color: var(--color-accent-gold); border: 2px dashed var(--color-accent-gold); padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.6); display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;">
+                    <span style="width: 100%; margin-bottom: 2px;">[보기]</span>
+                    <span style="white-space: nowrap;">A. 비타민 D</span>
+                    <span style="white-space: nowrap;">B. 단백질</span>
+                    <span style="white-space: nowrap;">C. 비타민 A</span>
+                    <span style="white-space: nowrap;">D. 필수지방산</span>
+                    <span style="white-space: nowrap;">E. 비타민 C</span>
+                    <span style="white-space: nowrap;">F. 비타민 B군</span>
+                </p>
+            </div>
+            
+            <div class="question-box">
+                <div class="q-item-inline" style="margin-bottom: 12px; flex-direction: column; align-items: center; gap: 3px; text-align: center;">
+                    <span style="font-size: 0.95rem; word-break: keep-all;">1. 어두워지면 눈앞이 안 보이고 헛손질</span>
+                    <select id="g3-q1" style="font-size: 0.9rem; padding: 3px; width: 100%; max-width: 250px; cursor: pointer;"><option value="">선택</option><option value="A">A. 비타민 D</option><option value="B">B. 단백질</option><option value="C">C. 비타민 A</option><option value="D">D. 필수지방산</option><option value="E">E. 비타민 C</option><option value="F">F. 비타민 B군</option></select>
+                </div>
+                <div class="q-item-inline" style="margin-bottom: 12px; flex-direction: column; align-items: center; gap: 3px; text-align: center;">
+                    <span style="font-size: 0.95rem; word-break: keep-all;">2. 잇몸 피가 안 멎고 멍이 심하게 듦</span>
+                    <select id="g3-q2" style="font-size: 0.9rem; padding: 3px; width: 100%; max-width: 250px; cursor: pointer;"><option value="">선택</option><option value="A">A. 비타민 D</option><option value="B">B. 단백질</option><option value="C">C. 비타민 A</option><option value="D">D. 필수지방산</option><option value="E">E. 비타민 C</option><option value="F">F. 비타민 B군</option></select>
+                </div>
+                <div class="q-item-inline" style="margin-bottom: 12px; flex-direction: column; align-items: center; gap: 3px; text-align: center;">
+                    <span style="font-size: 0.95rem; word-break: keep-all;">3. 다리와 척추 뼈가 눈에 띄게 휨</span>
+                    <select id="g3-q3" style="font-size: 0.9rem; padding: 3px; width: 100%; max-width: 250px; cursor: pointer;"><option value="">선택</option><option value="A">A. 비타민 D</option><option value="B">B. 단백질</option><option value="C">C. 비타민 A</option><option value="D">D. 필수지방산</option><option value="E">E. 비타민 C</option><option value="F">F. 비타민 B군</option></select>
+                </div>
+                <div class="q-item-inline" style="margin-bottom: 12px; flex-direction: column; align-items: center; gap: 3px; text-align: center;">
+                    <span style="font-size: 0.95rem; word-break: keep-all;">4. 키가 안 자라고 근육이 안 만들어짐</span>
+                    <select id="g3-q4" style="font-size: 0.9rem; padding: 3px; width: 100%; max-width: 250px; cursor: pointer;"><option value="">선택</option><option value="A">A. 비타민 D</option><option value="B">B. 단백질</option><option value="C">C. 비타민 A</option><option value="D">D. 필수지방산</option><option value="E">E. 비타민 C</option><option value="F">F. 비타민 B군</option></select>
+                </div>
+                <div class="q-item-inline" style="margin-bottom: 12px; flex-direction: column; align-items: center; gap: 3px; text-align: center;">
+                    <span style="font-size: 0.95rem; word-break: keep-all;">5. 매일 안 챙겨먹으면 금방 피로해짐</span>
+                    <select id="g3-q5" style="font-size: 0.9rem; padding: 3px; width: 100%; max-width: 250px; cursor: pointer;"><option value="">선택</option><option value="A">A. 비타민 D</option><option value="B">B. 단백질</option><option value="C">C. 비타민 A</option><option value="D">D. 필수지방산</option><option value="E">E. 비타민 C</option><option value="F">F. 비타민 B군</option></select>
+                </div>
+                <div class="q-item-inline" style="margin-bottom: 12px; flex-direction: column; align-items: center; gap: 3px; text-align: center;">
+                    <span style="font-size: 0.95rem; word-break: keep-all;">6. 두뇌 발달 더디고 혈행이 안 원활함</span>
+                    <select id="g3-q6" style="font-size: 0.9rem; padding: 3px; width: 100%; max-width: 250px; cursor: pointer;"><option value="">선택</option><option value="A">A. 비타민 D</option><option value="B">B. 단백질</option><option value="C">C. 비타민 A</option><option value="D">D. 필수지방산</option><option value="E">E. 비타민 C</option><option value="F">F. 비타민 B군</option></select>
+                </div>
+            </div>
+            
+            <div id="g3-result" class="result-area"></div>
+            <button id="btn-g3-submit" class="btn-primary" onclick="checkGate3()">진단 완료</button>
+        </section>
+
+        <!-- 관문 4: 시각의 증거 -->
+        <section id="sec-gate4" class="hidden">
+            <h2 class="title-gate">제 4관문. 시각의 증거</h2>
+            <div class="story-box">
+                <p>어의는 세자 저하의 문갑 깊숙한 곳에서 낯선 그림 한 장을 발견했다. 붓질은 서툴렀지만, 분명 세자 저하가 손수 그리신 것이었다.</p>
+                <div style="text-align: center; margin: 20px 0;">
+                    <img src="../제 4관문 세자의 그림.png" alt="세자의 그림" style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.8); border: 2px solid var(--color-accent-gold);">
+                </div>
+                <p class="quote">'밤이 되면 눈이 감기니, 낮 동안 남겨둔다. 혹여 내게 무슨 일이 생기거든, 내가 쓰러진 시각을 이렇게 찾아라 — 내 몸을 가장 괴롭힌 영양소는, 앞서 그대가 푼 세 가지(탄수화물·단백질·지방) 중 하나이니, 그 이름의 받침 있는 글자가 가장 적고 한 줌만 먹어도 가장 큰 힘을 내는 것이다. 그 받침의 수에서 시작하여, 그 영양소가 1g당 내는 열량의 수만큼 나아간 시진이, 곧 내가 쓰러진 시각이다. 허나 조심하라 — 그대가 셈한 시진이 열둘을 넘어선다면, 이미 잘못된 길로 접어든 것이다.'</p>
+                <p class="mt-10 text-center" style="color: var(--color-accent-gold);">세자 저하가 쓰러진 시각(십이지)은 언제인가?</p>
+            </div>
+            
+            <div class="question-box text-center">
+                <p class="mb-10"><strong>12지지 순번표</strong></p>
+                <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; font-size: 0.9rem; margin-bottom: 15px; color: var(--color-text-muted);">
+                    <div>자(1)</div><div>축(2)</div><div>인(3)</div><div>묘(4)</div><div>진(5)</div><div>사(6)</div>
+                    <div>오(7)</div><div>미(8)</div><div>신(9)</div><div>유(10)</div><div>술(11)</div><div>해(12)</div>
+                </div>
+                <select id="g4-answer" class="input-team" style="padding: 10px; font-size: 1.1rem; width: 60%; margin-bottom: 10px; cursor: pointer;">
+                    <option value="">시각 선택</option>
+                    <option value="자">자(子)시</option>
+                    <option value="축">축(丑)시</option>
+                    <option value="인">인(寅)시</option>
+                    <option value="묘">묘(卯)시</option>
+                    <option value="진">진(辰)시</option>
+                    <option value="사">사(巳)시</option>
+                    <option value="오">오(午)시</option>
+                    <option value="미">미(未)시</option>
+                    <option value="신">신(申)시</option>
+                    <option value="유">유(酉)시</option>
+                    <option value="술">술(戌)시</option>
+                    <option value="해">해(亥)시</option>
+                </select>
+                <button id="btn-g4-submit" class="btn-primary mt-10" onclick="checkGate4()">증거 확보 완료</button>
+            </div>
+            <div id="g4-result" class="result-area"></div>
+        </section>
+
+        <!-- 관문 5: 임시 어의가 되어라! -->
+        <section id="sec-gate5" class="hidden">
+            <h2 class="title-gate">제 5관문. 임시 어의가 되어라!</h2>
+            <!-- 스토리 팝업 모달 -->
+            <div id="g5-story-modal" class="modal-overlay hidden">
+                <div class="modal-content" style="max-width: 550px; text-align: left; background: var(--color-bg-panel); border: 2px solid var(--color-accent-gold);">
+                    <h3 style="color: var(--color-accent-gold); border-bottom: 1px solid #555; padding-bottom: 10px; margin-bottom: 15px;">긴급 상황 발생</h3>
+                    <p style="font-size: 1.1rem; line-height: 1.6;">큰일이다! 범인을 쫓는 사이, 지독한 편식과 영양 결핍으로 인해 세자 저하의 뼈마디가 시큰거리고 두뇌가 흐려져 학문에 집중조차 하지 못하고 계신다!</p>
+                    <p class="mt-10" style="font-size: 1.1rem; line-height: 1.6;">당장 목숨이 위태로운 것은 아니나, 이대로 방치하면 평생의 후유증이 남을 것이다. 진짜 어의마저 자리를 비운 지금, <strong style="color: var(--color-accent-red);">이제 그대들이 직접 임시 어의가 되어</strong> 저하의 옥체를 회복시킬 처방을 내려야 한다!</p>
+                    <div class="text-center mt-20">
+                        <button class="btn-primary" onclick="closeG5Modal()">임시 어의 역할 수락하기 (문제 보기)</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="g5-puzzle-area" style="width: 100%; display: none;">
+                <div class="story-box">
+                    <p class="quote" style="font-size: 1.1rem; text-align: left;">"당장 저하의 뼈를 튼튼하게 하고(칼슘 흡수 촉진), 두뇌를 맑게(필수 지방산) 할 올바른 식재료와 습관을 처방하거라! 해로운 것(칼슘 흡수 방해)이 조금이라도 섞이면 회복이 더욱 더뎌질 것이다!"</p>
+                    <p class="mt-10 text-center" style="color: var(--color-accent-gold);">아래 6가지 처방 중, <strong>저하를 회복시킬 이로운 처방 딱 3가지</strong>를 선택하여 어명(처방전)을 내리시오.</p>
+                </div>
+                
+                <div class="question-box">
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <label class="recipe-label" style="display: flex; gap: 6px; align-items: flex-start; text-align: left; word-break: keep-all;"><input type="checkbox" name="g5-recipe" value="1" style="margin-top: 3px;"> <span style="font-size: 0.95rem;">① 햇볕을 쬐며 후원을 거니는 산책 (비타민 D 합성)</span></label>
+                    <label class="recipe-label" style="display: flex; gap: 6px; align-items: flex-start; text-align: left; word-break: keep-all;"><input type="checkbox" name="g5-recipe" value="2" style="margin-top: 3px;"> <span style="font-size: 0.95rem;">② 짠맛이 강하게 밴 어란과 소금 절임 (나트륨)</span></label>
+                    <label class="recipe-label" style="display: flex; gap: 6px; align-items: flex-start; text-align: left; word-break: keep-all;"><input type="checkbox" name="g5-recipe" value="3" style="margin-top: 3px;"> <span style="font-size: 0.95rem;">③ 잣, 호두, 등푸른 생선 (오메가-3)</span></label>
+                    <label class="recipe-label" style="display: flex; gap: 6px; align-items: flex-start; text-align: left; word-break: keep-all;"><input type="checkbox" name="g5-recipe" value="4" style="margin-top: 3px;"> <span style="font-size: 0.95rem;">④ 진하게 달인 가배(커피)와 엽차 (카페인)</span></label>
+                    <label class="recipe-label" style="display: flex; gap: 6px; align-items: flex-start; text-align: left; word-break: keep-all;"><input type="checkbox" name="g5-recipe" value="5" style="margin-top: 3px;"> <span style="font-size: 0.95rem;">⑤ 표고버섯 타락죽(우유) (칼슘과 비타민 D 시너지)</span></label>
+                    <label class="recipe-label" style="display: flex; gap: 6px; align-items: flex-start; text-align: left; word-break: keep-all;"><input type="checkbox" name="g5-recipe" value="6" style="margin-top: 3px;"> <span style="font-size: 0.95rem;">⑥ 방 안에서 꼼짝 않고 누워만 있기 (운동 부족)</span></label>
+                </div>
+            </div>
+            
+            <button id="btn-g5-submit" class="btn-primary mt-10" onclick="checkGate5()">처방전 완성하기</button>
+            
+            <div id="g5-result-area" class="hidden result-area mt-20" style="background:rgba(0,0,0,0.5); padding:15px; border-left:3px solid var(--color-accent-gold);">
+                <p id="g5-result-msg"></p>
+                <div id="btn-to-gate5_5" class="hidden btn-group mt-20">
+                    <button class="btn-version" onclick="nextGate('5_5')" style="border-color:var(--color-accent-gold); color:var(--color-accent-gold);">단서 획득소로 이동</button>
+                </div>
+            </div>
+            </div> <!-- // g5-puzzle-area -->
+        </section>
+
+        <!-- 관문 5.5: 단서 획득소 (온라인 퀴즈) -->
+        <section id="sec-gate5_5" class="hidden">
+            <h2 class="title-gate">제 5.5관문. 의녀의 입을 열어라!</h2>
+            <div class="story-box">
+                <p style="color: var(--color-accent-red); font-weight: bold; font-size: 1.2rem;">"이 단서를 넘길 바엔 차라리 태워버리겠다!"</p>
+                <p class="mt-10">세자의 증세가 나아지자, 수라간 구석에서 범인의 하수인(의녀)이 도망치려다 붙잡혔다. 그녀는 단서를 불태우려 하며 발악한다.</p>
+                <p class="mt-10">"너희가 진정 영양을 아느냐? 내가 내는 <strong style="color: var(--color-accent-gold);">5가지 질문</strong>에 모두 답한다면, 맞힌 개수만큼 단서를 넘겨주마!"</p>
+            </div>
+            
+            <div class="question-box" id="online-quiz-area" style="text-align: left;">
+                <!-- 퀴즈 1 -->
+                <div class="q-item mb-20" style="border-bottom:1px dashed #555; padding-bottom:15px;">
+                    <p class="q-hint" style="font-size:1.1rem; color:var(--color-accent-gold);">[질문 1] 전하께서 궐내 체육대회에서 큰 힘을 쓰셔야 하오. 힘을 내는 '탄수화물'과 근육을 지키는 '필수 아미노산(단백질)'을 함께 올리려면?</p>
+                    <label style="display:flex; gap:8px; align-items:flex-start; margin-top:5px; cursor:pointer; word-break:keep-all;"><input type="radio" name="q1" value="A" style="margin-top:5px;"> <span>삼겹살 구이와 버터</span></label>
+                    <label style="display:flex; gap:8px; align-items:flex-start; margin-top:5px; cursor:pointer; word-break:keep-all;"><input type="radio" name="q1" value="B" style="margin-top:5px;"> <span>흰 쌀밥과 두부 된장국</span></label>
+                    <label style="display:flex; gap:8px; align-items:flex-start; margin-top:5px; cursor:pointer; word-break:keep-all;"><input type="radio" name="q1" value="C" style="margin-top:5px;"> <span>설탕 뿌린 꽈배기와 식혜</span></label>
+                </div>
+                <!-- 퀴즈 2 -->
+                <div class="q-item mb-20" style="border-bottom:1px dashed #555; padding-bottom:15px;">
+                    <p class="q-hint" style="font-size:1.1rem; color:var(--color-accent-gold);">[질문 2] 세자 저하께서 우유를 드시고 계시지만, 매일 '이것'을 드시는 바람에 칼슘이 다 빠져나가고 있소. 뼈를 약하게 만드는 '이것'은?</p>
+                    <label style="display:flex; gap:8px; align-items:flex-start; margin-top:5px; cursor:pointer; word-break:keep-all;"><input type="radio" name="q2" value="A" style="margin-top:5px;"> <span>따뜻한 차</span></label>
+                    <label style="display:flex; gap:8px; align-items:flex-start; margin-top:5px; cursor:pointer; word-break:keep-all;"><input type="radio" name="q2" value="B" style="margin-top:5px;"> <span>콜라 같은 탄산음료</span></label>
+                    <label style="display:flex; gap:8px; align-items:flex-start; margin-top:5px; cursor:pointer; word-break:keep-all;"><input type="radio" name="q2" value="C" style="margin-top:5px;"> <span>신선한 과일 즙</span></label>
+                </div>
+                <!-- 퀴즈 3 -->
+                <div class="q-item mb-20" style="border-bottom:1px dashed #555; padding-bottom:15px;">
+                    <p class="q-hint" style="font-size:1.1rem; color:var(--color-accent-gold);">[질문 3] 겨울철에 저하의 잇몸에서 자꾸 피가 나는 '괴혈병' 증세가 있소. 매일 보충해야 하는 비타민 C가 많은 식재료는?</p>
+                    <label style="display:flex; gap:8px; align-items:flex-start; margin-top:5px; cursor:pointer; word-break:keep-all;"><input type="radio" name="q3" value="A" style="margin-top:5px;"> <span>귤, 딸기 등 신선한 과일</span></label>
+                    <label style="display:flex; gap:8px; align-items:flex-start; margin-top:5px; cursor:pointer; word-break:keep-all;"><input type="radio" name="q3" value="B" style="margin-top:5px;"> <span>짭짤하게 절인 염장 고기</span></label>
+                    <label style="display:flex; gap:8px; align-items:flex-start; margin-top:5px; cursor:pointer; word-break:keep-all;"><input type="radio" name="q3" value="C" style="margin-top:5px;"> <span>푹 삶아 우려낸 사골 국물</span></label>
+                </div>
+                <!-- 퀴즈 4 -->
+                <div class="q-item mb-20" style="border-bottom:1px dashed #555; padding-bottom:15px;">
+                    <p class="q-hint" style="font-size:1.1rem; color:var(--color-accent-gold);">[질문 4] 저하의 두뇌 발달과 혈행 개선을 위해, 몸에서 스스로 만들지 못하는 '필수 지방산'을 채우려면 어떤 식재료가 좋소?</p>
+                    <label style="display:block; margin-top:5px; cursor:pointer;"><input type="radio" name="q4" value="A"> 돼지비계와 소기름</label>
+                    <label style="display:block; margin-top:5px; cursor:pointer;"><input type="radio" name="q4" value="B"> 고등어 같은 등푸른생선과 호두</label>
+                    <label style="display:block; margin-top:5px; cursor:pointer;"><input type="radio" name="q4" value="C"> 하얀 밀가루 떡</label>
+                </div>
+                <!-- 퀴즈 5 -->
+                <div class="q-item mb-20">
+                    <p class="q-hint" style="font-size:1.1rem; color:var(--color-accent-gold);">[질문 5] 밤눈이 어두워지신 전하(야맹증)를 위해 '비타민 A'가 절실하오. 수라간에서 당장 많이 써야 할 식재료는 무엇이겠소?</p>
+                    <label style="display:block; margin-top:5px; cursor:pointer;"><input type="radio" name="q5" value="A"> 당근, 시금치 같은 녹황색 채소</label>
+                    <label style="display:block; margin-top:5px; cursor:pointer;"><input type="radio" name="q5" value="B"> 소금에 절인 젓갈</label>
+                    <label style="display:block; margin-top:5px; cursor:pointer;"><input type="radio" name="q5" value="C"> 껍질을 벗긴 백미</label>
+                </div>
+                
+                <button id="btn-submit-quiz" class="btn-primary mt-10" onclick="submitOnlineQuiz()">정답을 외치고 단서 빼앗기</button>
+            </div>
+            
+            <div id="clue-cards-area" class="mt-20" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+                <!-- 단서 카드가 여기에 렌더링됨 -->
+            </div>
+            
+            <div id="btn-to-gate6-wrap" class="hidden mt-20 text-center">
+                <button class="btn-primary" onclick="nextGate(6)">진범 지목하러 가기</button>
+            </div>
+        </section>
+
+        <!-- 관문 6: 호패 소거표 -->
+        <section id="sec-gate6" class="hidden">
+            <h2 class="title-gate">제 6관문. 진실을 가르다</h2>
+            <div class="story-box">
+                <p>단서는 저하가 '왜' 병을 얻으셨는지 말해준다. 그러나 '누가' 그리하였는지는 이 소거표 위에서 가려진다.</p>
+                <p>아래 조건에 해당하는 자만 남기고 지워나가라.</p>
+            </div>
+            
+            <div class="question-box">
+                <p class="mb-10 text-center" style="font-size: 1.2rem; color: var(--color-accent-gold);"><strong>용의자 식단 분석 (획득한 단서를 바탕으로 범인 조건 선택)</strong></p>
+                
+                <div class="text-center mb-20">
+                    <button class="btn-primary" onclick="openInterrogationModal()" style="background: linear-gradient(135deg, #2a1608, #4a2a18); border-color: var(--color-accent-gold);">📜 용의자 심문 기록부 보기 (단서)</button>
+                </div>
+
+                <p id="chk-warning-msg" class="text-center" style="color:var(--color-accent-red); font-weight:bold; margin-bottom:15px;">※ 용의자 심문 기록부를 먼저 읽어야 소거표를 작성할 수 있습니다.</p>
+
+                <div id="checklist-area" style="display: flex; flex-direction: column; gap: 15px; opacity: 0.5; pointer-events: none;">
+                    <label class="suspect-label">
+                        <input type="checkbox" id="chk-c" onchange="updateSuspects()">
+                        <span class="custom-checkbox"></span>
+                        <span class="label-text">범인이 올린 음식은 <strong>매운 음식</strong>인가? (단서 C, E 참조)</span>
+                    </label>
+                    <label class="suspect-label">
+                        <input type="checkbox" id="chk-d" onchange="updateSuspects()">
+                        <span class="custom-checkbox"></span>
+                        <span class="label-text">범인이 올린 음식은 <strong>다당류(식혜, 쌀밥 등) 위주</strong>인가? (단서 D 참조)</span>
+                    </label>
+                    <label class="suspect-label">
+                        <input type="checkbox" id="chk-e" onchange="updateSuspects()">
+                        <span class="custom-checkbox"></span>
+                        <span class="label-text">범인이 올린 음식은 <strong>돼지고기 기름과 붉은 고추 양념</strong>이 있는가? (단서 E 참조)</span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="suspects-area" class="result-area text-center" style="transition: all 0.5s ease; border-radius: 8px;">
+                <p style="font-size: 1.2rem;">남은 용의자 수: <strong id="suspect-count" style="color:red; font-size: 1.5rem;">4</strong>명</p>
+                <p id="suspect-names" class="mt-10" style="color:var(--color-accent-gold); font-size: 0.9rem; font-weight: bold; letter-spacing: 0; line-height: 1.4; word-break: keep-all;">최상궁, 장내시, 세자빈, 의녀 장덕</p>
+                <p id="suspect-selected-msg" class="mt-20" style="font-size: 1.3rem; font-weight: bold; color: var(--color-accent-gold);"></p>
+            </div>
+            
+            <div class="question-box mt-20" style="text-align: center; border: none; background: transparent;">
+                <p class="mb-20" style="font-size: 0.95rem; color: var(--color-accent-gold); word-break: keep-all;"><strong>[ 진범 지목 ] 범인의 호패를 선택하시오</strong></p>
+                <div class="suspect-grid" id="suspect-grid-area" style="opacity: 0.5; pointer-events: none; transition: all 0.3s;">
+                    <label class="suspect-card">
+                        <input type="radio" name="culprit" value="최상궁" onchange="selectCulprit(this.value)">
+                        <div class="suspect-img" style="background-position: 0% 0%;"></div>
+                        <div class="suspect-name">최상궁</div>
+                    </label>
+                    <label class="suspect-card">
+                        <input type="radio" name="culprit" value="장내시" onchange="selectCulprit(this.value)">
+                        <div class="suspect-img" style="background-position: 33.333% 0%;"></div>
+                        <div class="suspect-name">장내시</div>
+                    </label>
+                    <label class="suspect-card">
+                        <input type="radio" name="culprit" value="세자빈" onchange="selectCulprit(this.value)">
+                        <div class="suspect-img" style="background-position: 66.666% 0%;"></div>
+                        <div class="suspect-name">세자빈</div>
+                    </label>
+                    <label class="suspect-card">
+                        <input type="radio" name="culprit" value="의녀 장덕" onchange="selectCulprit(this.value)">
+                        <div class="suspect-img" style="background-position: 100% 0%;"></div>
+                        <div class="suspect-name">의녀 장덕</div>
+                    </label>
+                </div>
+            </div>
+            
+            <div id="suspects-area" class="result-area text-center hidden" style="transition: all 0.5s ease; border-radius: 8px;">
+                <p id="suspect-selected-msg" style="font-size: 1.3rem; font-weight: bold; color: var(--color-accent-gold);"></p>
+            </div>
+            
+            <button id="btn-g6-compare" class="btn-suspect-action mt-20" onclick="showDigitalCompare()" style="display:none; margin-bottom: 10px;">용의자 알리바이 확인하기</button>
+            <button id="btn-g6-arrest" class="btn-suspect-action mt-20" onclick="arrestSuspect()" style="display:none; background: linear-gradient(135deg, #8a1c1c, #4a0d0d);">진범 검거 (종막으로)</button>
+
+            <!-- 디지털 알리바이 대조 모달 (100% 온라인) -->
+            <div id="compare-modal" class="modal-overlay hidden">
+                <div class="modal-content" style="background-color: #1a1a1a; border: 2px solid var(--color-accent-gold); border-radius: 10px; padding: 20px; width: 90%; max-width: 400px; max-height: 90vh; overflow-y: auto;">
+                    <h3 style="color: var(--color-accent-gold); margin-bottom: 10px;">최종 검거 확인</h3>
+                    
+                    <!-- 추가된 서사: 출입 기록부 증거 제시 -->
+                    <p style="margin-bottom: 10px; font-size: 1rem; color: #ccc;">승정원일기에서 발췌한 <strong>'궁궐 출입 기록부'</strong>를 확인하라.</p>
+                    <div class="alibi-logbook" style="background: #e8dcc4; color: #2a1608; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: left; font-family: var(--font-heading); box-shadow: inset 0 0 10px rgba(0,0,0,0.5);">
+                        <h4 style="text-align: center; border-bottom: 2px solid #2a1608; padding-bottom: 5px; margin-bottom: 10px; font-size: 1.2rem;">[ 궁궐 출입 기록부 ]</h4>
+                        <ul style="list-style: none; padding: 0; line-height: 1.6; font-size: 0.95rem; word-break: keep-all;">
+                            <li>- <strong>장내시</strong> : 신시(申時, 15~17시)</li>
+                            <li>- <strong>세자빈</strong> : 미시(未時, 13~15시)</li>
+                            <li>- <strong>의녀 장덕</strong> : 술시(戌時, 19~21시)</li>
+                            <li id="suspect-choi-log">- <strong>최상궁</strong> : 유시(酉時, 17~19시)</li>
+                        </ul>
+                    </div>
+
+                    <p style="margin-bottom: 15px; font-size: 1rem; word-break: keep-all;">지목된 용의자 <strong>'최상궁'</strong>의 알리바이를 대조합니다.</p>
+                    
+                    <div style="display: flex; justify-content: space-around; align-items: center; gap: 5px;">
+                        <div style="border: 1px solid #666; padding: 10px 5px; border-radius: 5px; flex: 1; text-align: center; background: rgba(0,0,0,0.5);">
+                            <p style="color: var(--color-accent-blue); font-size: 0.8rem; margin-bottom: 5px; white-space: nowrap;">지목된 용의자</p>
+                            <h4 style="font-size: 1.2rem; letter-spacing: 1px; white-space: nowrap;">최상궁</h4>
+                        </div>
+                        <div style="font-size: 1.5rem; color: #666; margin: 0 5px;">➡</div>
+                        <div id="final-time-box" style="border: 1px solid #666; padding: 10px 5px; border-radius: 5px; flex: 1; text-align: center; background: rgba(0,0,0,0.5); transition: all 0.3s;">
+                            <p style="color: var(--color-accent-gold); font-size: 0.8rem; margin-bottom: 5px; white-space: nowrap;">출입 시각</p>
+                            <input type="text" id="final-time-input" placeholder="시각 입력(예: 유시)" style="width: 90%; padding: 5px; text-align: center; background: #222; color: white; border: 1px solid #888; border-radius: 4px;" oninput="window.checkFinalTime(this.value)">
+                            <h4 id="final-time-text" style="display: none; font-size: 1.2rem; color: var(--color-accent-red); letter-spacing: 0; white-space: nowrap;">유시(酉時)</h4>
+                        </div>
+                    </div>
+                    <p id="arrest-msg" class="mt-20" style="line-height: 1.6; display: none;">입궁 시각이 <strong style="color: var(--color-accent-gold);">제 4관문에서 밝힌 사건 시각(유시)</strong>과 정확히 일치합니다.<br><strong style="color: var(--color-accent-red); font-size: 1.1rem; display: block; margin-top: 10px;">이 자를 최종 진범으로 확정하시겠습니까?</strong></p>
+                    <button id="btn-confirm-arrest" class="btn-primary mt-20" onclick="confirmArrest()" style="display: none; background: linear-gradient(135deg, #8a1c1c, #4a0d0d); font-size: 1.2rem; padding: 15px; width: 100%;">이 자가 진범이다! (검거 확정)</button>
+                    <button class="btn-version mt-10" onclick="closeCompareModal()" style="width: 100%;">다시 살펴보기</button>
+                </div>
+            </div>
+
+            <!-- 용의자 심문 기록부 모달 -->
+            <div id="interrogation-modal" class="modal-overlay hidden" style="z-index: 2000;">
+                <div class="modal-content" style="background-color: #1a1a1a; border: 2px solid var(--color-accent-gold); border-radius: 10px; padding: 20px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; text-align:left;">
+                    <h3 style="color: var(--color-accent-gold); margin-bottom: 20px; text-align:center; font-size: 1.5rem;">[ 용의자 심문 기록부 ]</h3>
+                    
+                    <div style="display:flex; flex-direction:column; gap:15px;">
+                        <!-- 최상궁 -->
+                        <div style="background: rgba(255,255,255,0.05); padding: 15px; border: 1px solid #555; border-radius: 8px;">
+                            <h4 style="color:var(--color-accent-gold); margin-bottom: 5px; font-size:1.2rem;">1. 수라간 최 상궁</h4>
+                            <p style="font-style:italic; margin-bottom:10px; color:#ddd;">"억울합니다, 전하! 저는 저하의 기력을 보충해 드리기 위해 <strong>기름진 돼지고기</strong>를 매콤하게 구운 <strong style="color:var(--color-accent-gold);">제육구이</strong>와 따뜻한 <strong style="color:var(--color-accent-gold);">식혜(감주)</strong>를 올렸습니다."</p>
+                            <img src="../최상궁 식단.png" alt="최상궁 식단" style="width: 100%; max-width: 400px; border-radius: 5px; margin-bottom: 10px; display: block;">
+                            <div style="background:#000; padding:10px; border-radius:5px;">
+                                <span style="color:#aaa; font-size:0.9rem;">[ 11월 10일 올린 식단 ]</span><br>
+                                <strong>흰 쌀밥, 매운 제육구이, 식혜(감주)</strong>
+                            </div>
+                        </div>
+                        
+                        <!-- 장내시 -->
+                        <div style="background: rgba(255,255,255,0.05); padding: 15px; border: 1px solid #555; border-radius: 8px;">
+                            <h4 style="color:var(--color-accent-gold); margin-bottom: 5px; font-size:1.2rem;">2. 장 내시</h4>
+                            <p style="font-style:italic; margin-bottom:10px; color:#ddd;">"소인은 그저 저하께서 좋아하시는 별식을 챙겼을 뿐입니다. 치통 때문에 딱딱한 음식을 씹기 힘들어하셔서 부드러운 <strong style="color:var(--color-accent-gold);">골동면(밀국수)</strong>과 <strong style="color:var(--color-accent-gold);">소고기 육전</strong>, 상큼한 <strong style="color:var(--color-accent-gold);">오미자차</strong>를 바쳤사옵니다."</p>
+                            <img src="../장내시 식단.png" alt="장내시 식단" style="width: 100%; max-width: 400px; border-radius: 5px; margin-bottom: 10px; display: block;">
+                            <div style="background:#000; padding:10px; border-radius:5px;">
+                                <span style="color:#aaa; font-size:0.9rem;">[ 11월 10일 올린 식단 ]</span><br>
+                                <strong>골동면(밀국수), 소고기 육전, 오미자차</strong>
+                            </div>
+                        </div>
+
+                        <!-- 세자빈 -->
+                        <div style="background: rgba(255,255,255,0.05); padding: 15px; border: 1px solid #555; border-radius: 8px;">
+                            <h4 style="color:var(--color-accent-gold); margin-bottom: 5px; font-size:1.2rem;">3. 세자빈 심씨</h4>
+                            <p style="font-style:italic; margin-bottom:10px; color:#ddd;">"저하의 안색이 파리하시어 건강한 식단을 준비 조화하였습니다. 기름기를 쭉 뺀 <strong style="color:var(--color-accent-gold);">연계 백숙(닭고기)</strong>과 소화가 잘되도록 <strong style="color:var(--color-accent-gold);">감자 청포묵 범벅</strong>을 만들어 올렸사옵니다."</p>
+                            <img src="../세자빈 식단.png" alt="세자빈 식단" style="width: 100%; max-width: 400px; border-radius: 5px; margin-bottom: 10px; display: block;">
+                            <div style="background:#000; padding:10px; border-radius:5px;">
+                                <span style="color:#aaa; font-size:0.9rem;">[ 11월 10일 올린 식단 ]</span><br>
+                                <strong>연계 백숙(닭고기), 감자 청포묵 범벅</strong>
+                            </div>
+                        </div>
+
+                        <!-- 의녀 장덕 -->
+                        <div style="background: rgba(255,255,255,0.05); padding: 15px; border: 1px solid #555; border-radius: 8px;">
+                            <h4 style="color:var(--color-accent-gold); margin-bottom: 5px; font-size:1.2rem;">4. 의녀 장덕</h4>
+                            <p style="font-style:italic; margin-bottom:10px; color:#ddd;">"특별히 처방한 보양 수라를 올렸습니다. 비계와 살코기가 알맞은 <strong style="color:var(--color-accent-gold);">돼지 수육 보쌈</strong>을 찌고, 귀한 <strong style="color:var(--color-accent-gold);">유자청에 고사리와 채소</strong>를 새콤하게 버무려 함께 바쳤나이다."</p>
+                            <img src="../의녀 장덕 식단.png" alt="의녀 장덕 식단" style="width: 100%; max-width: 400px; border-radius: 5px; margin-bottom: 10px; display: block;">
+                            <div style="background:#000; padding:10px; border-radius:5px;">
+                                <span style="color:#aaa; font-size:0.9rem;">[ 11월 10일 올린 식단 ]</span><br>
+                                <strong>돼지 수육 보쌈, 유자청 고사리 채소 버무림</strong>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-version mt-20" onclick="document.getElementById('interrogation-modal').classList.add('hidden')" style="width: 100%;">닫기</button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- 종막: 어명 선포 -->
+        <section id="sec-ending" class="hidden">
+            <h2 class="title-gate">제 7관문. 어명 선포 (종막)</h2>
+            <div class="story-box text-center">
+                <p>모든 증거가 모였다! 전하 앞에서 진범을 지목하라.</p>
+                <p class="mt-10">하지만 범인은 결정적 증거가 담긴 상자에 기묘한 글자판을 남겨두었다.</p>
+                <p class="quote mt-10" style="color:var(--color-accent-red);">"글자판 속에 숨겨진 자음과 모음을 이어 진정한 처방(어명)을 찾아라!"</p>
+            </div>
+
+            <div id="ending-report-area" class="question-box text-center">
+                
+                <div style="display: flex; gap: 30px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap;">
+                    <!-- 빙고 격자 -->
+                    <div style="background: rgba(30,40,70,0.9); border: 2px solid #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(255,255,255,0.2);">
+                        <p class="text-center" style="color:var(--color-accent-gold); margin-bottom: 20px; font-weight:bold; font-size:1.4rem; text-shadow: 0 0 5px #000;">[ 진실의 글자판 ]</p>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); width: 180px; margin: 0 auto; background: transparent;">
+                            <!-- Row 1 -->
+                            <div style="width:60px; height:60px; display:flex; align-items:center; justify-content:center; font-size:1.8rem; color:#fff; border-right:2px solid #fff; border-bottom:2px solid #fff; font-weight:bold;">ㄱ</div>
+                            <div style="width:60px; height:60px; display:flex; align-items:center; justify-content:center; font-size:1.8rem; color:#fff; border-right:2px solid #fff; border-bottom:2px solid #fff; font-weight:bold;">ㅗ</div>
+                            <div style="width:60px; height:60px; display:flex; align-items:center; justify-content:center; font-size:1.8rem; color:#fff; border-bottom:2px solid #fff; font-weight:bold;">ㄹ</div>
+                            
+                            <!-- Row 2 -->
+                            <div style="width:60px; height:60px; display:flex; align-items:center; justify-content:center; font-size:1.8rem; color:#fff; border-right:2px solid #fff; border-bottom:2px solid #fff; font-weight:bold;">ㅋ</div>
+                            <div style="width:60px; height:60px; display:flex; align-items:center; justify-content:center; font-size:1.8rem; color:#fff; border-right:2px solid #fff; border-bottom:2px solid #fff; font-weight:bold;">ㄱ</div>
+                            <div style="width:60px; height:60px; display:flex; align-items:center; justify-content:center; font-size:1.8rem; color:#fff; border-bottom:2px solid #fff; font-weight:bold;">ㅗ</div>
+                            
+                            <!-- Row 3 -->
+                            <div style="width:60px; height:60px; display:flex; align-items:center; justify-content:center; font-size:1.8rem; color:#fff; border-right:2px solid #fff; font-weight:bold;">ㅌ</div>
+                            <div style="width:60px; height:60px; display:flex; align-items:center; justify-content:center; font-size:1.8rem; color:#fff; border-right:2px solid #fff; font-weight:bold;">ㄹ</div>
+                            <div style="width:60px; height:60px; display:flex; align-items:center; justify-content:center; font-size:1.8rem; color:#fff; font-weight:bold;">ㅜ</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <p class="mb-10 text-center" style="color:var(--color-accent-gold);">글자판에서 찾은 교훈이 담긴 <strong>진정한 처방 3글자</strong>를 외쳐라!</p>
+                
+                <div style="display: flex; gap: 10px; justify-content: center; margin: 15px 0;">
+                    <input type="text" id="final-ans1" maxlength="1" autocomplete="off" style="width:50px; height:60px; line-height:56px; padding:0; font-size:1.5rem; text-align:center; border:2px solid var(--color-accent-gold); border-radius:8px; background:#222; color:#fff; font-weight:bold; box-sizing: border-box;">
+                    <input type="text" id="final-ans2" maxlength="1" autocomplete="off" style="width:50px; height:60px; line-height:56px; padding:0; font-size:1.5rem; text-align:center; border:2px solid var(--color-accent-gold); border-radius:8px; background:#222; color:#fff; font-weight:bold; box-sizing: border-box;">
+                    <input type="text" id="final-ans3" maxlength="1" autocomplete="off" style="width:50px; height:60px; line-height:56px; padding:0; font-size:1.5rem; text-align:center; border:2px solid var(--color-accent-gold); border-radius:8px; background:#222; color:#fff; font-weight:bold; box-sizing: border-box;">
+                </div>
+                
+                <p class="mb-10 mt-20">어전 회의에 올릴 범행 근거를 서술하라.</p>
+                <textarea id="final-reason" rows="3" style="width:100%;" placeholder="예: 단백질 및 무기질 결핍 유발 등"></textarea>
+                <button class="btn-primary mt-10" onclick="declareEnding()" style="background-color: maroon;">어명 선포 (범인 체포)</button>
+            </div>
+        </section>
+        
+        <section id="sec-final-result" class="hidden text-center" style="padding-bottom: 50px; background-image: url('../final_background.jpg'); background-size: cover; background-position: center; background-attachment: fixed;">
+            <h1 style="color: var(--color-accent-gold); font-size:3rem; margin-bottom:20px; text-shadow: 2px 2px 4px #000, 0 0 10px rgba(0,0,0,0.8);">사건 해결!</h1>
+            
+            <!-- 마지막 엔딩 영상 (작게) -->
+            <div class="video-container" style="max-width: 400px; width: 100%; margin: 0 auto 20px auto; border-radius: 10px; overflow: hidden; border: 2px solid var(--color-accent-gold); box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
+                <video id="ending-video" controls autoplay playsinline width="100%" style="display: block;">
+                    <source src="../final_ending_video.mp4?v=2" type="video/mp4">
+                    브라우저가 영상을 지원하지 않습니다.
+                </video>
+            </div>
+
+            <div class="story-box" style="text-align: center; background: rgba(0, 0, 0, 0.85); padding: 25px 20px; border-radius: 10px; border: 1px solid var(--color-accent-gold); box-shadow: 0 5px 15px rgba(0,0,0,0.5); max-width: 650px; margin: 0 auto 20px auto;">
+                <p style="color: var(--color-accent-gold); font-weight: bold; font-size: 1.2rem; margin-bottom: 15px;">[ 에필로그 - 최 상궁의 고백 ]</p>
+                <p style="text-shadow: 1px 1px 2px #000; word-break: keep-all; line-height: 1.6;">최 상궁은 무릎을 꿇고 고했다.</p>
+                <p class="mt-10" style="text-shadow: 1px 1px 2px #000; word-break: keep-all; line-height: 1.6;">"소인, 그저 저하께서 기운을 차리시길 바라는 마음뿐이었사옵니다. 어릴 적부터 기름진 고기와 매운 음식을 배불리 드시면 없던 기운도 솟는다고 들어, 일주일 내내 매운 제육과 흰 쌀밥, 단 식혜만을 올렸사옵니다. 그것이 오히려 저하를 병들게 할 줄은... 진정 몰랐사옵니다."</p>
+                
+                <p class="mt-20" style="color: var(--color-accent-gold); font-weight: bold; margin-bottom: 15px;">[ 어의의 일침 ]</p>
+                <p class="mt-10" style="text-shadow: 1px 1px 2px #000; word-break: keep-all; line-height: 1.6;">"기름진 고기와 매운맛은 잠시 입맛을 돋울 뿐이다. 허나 저하의 눈을 밝히고, 잇몸을 지키고, 뼈를 곧게 세우는 힘은 채소와 과일, 우유와 같은 다른 음식에서 나온다. 그대가 일주일 내내 올린 수라에는 그 힘이 단 하나도 없었느니라."</p>
+
+                <p class="mt-20" style="color: var(--color-accent-red); font-weight: bold; font-size: 1.2rem; margin-bottom: 15px;">[ 어명 선포 ]</p>
+                <p class="mt-10" style="text-shadow: 1px 1px 2px #000; word-break: keep-all; line-height: 1.6;">전하께서는 최 상궁을 벌하지 않으시고 이르시길,<br><strong style="color: #fff;">"한 가지 음식에 치우치면, 아무리 정성이 지극해도 몸을 상하게 할 수 있다. 백성들도 이를 알아야 할 것이다."</strong> 라며 온 궁궐에 균형 잡힌 수라의 법도를 세우라 명하셨다.</p>
+            </div>
+
+            <div class="question-box" style="background: rgba(0, 0, 0, 0.85); border: 2px solid var(--color-accent-gold); padding: 25px 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); text-align: center; max-width: 650px; margin: 0 auto;">
+                <p style="font-size: 1.2rem; color: var(--color-accent-gold); font-weight: bold; margin-bottom: 15px;">오늘의 교훈</p>
+                <p class="mt-10" style="line-height: 1.8; text-shadow: 1px 1px 2px #000; word-break: keep-all;">아무리 좋은 의도와 정성(좋아하는 음식)이라도, <strong style="color: #fff;">영양 지식 없이 한쪽으로 치우쳐 먹으면</strong> 병을 키울 수 있습니다.<br>오늘 배운 6대 영양소 지식으로 <strong style="color: #fff;">스스로 균형 잡힌 식단을 챙기는 것</strong>이 진정한 건강의 비결입니다!</p>
+            </div>
+            
+            <button class="btn-primary mt-20" onclick="goToDietApp()">특별 어명 수행하러 가기 (수라상 차리기)</button>
+        </section>
+
+        <!-- 식단짜기 화면 (독립된 섹션) -->
+        <section id="sec-diet-app" class="hidden text-center" style="padding-bottom: 50px; background-image: url('../수라간 차리기 뒷 배경.png'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+            <div id="diet-app-area" class="question-box mt-20" style="text-align: left; background: rgba(0,0,0,0.7); border: 2px solid var(--color-accent-gold); box-shadow: 0 0 20px rgba(0,0,0,0.8);">
+                <h3 class="text-center mb-10" style="color: var(--color-accent-gold);">[ 특별 어명: 6대 영양소를 갖춘 12첩 수라상을 차려라! ]</h3>
+                <p class="mb-20 text-center" style="font-size:0.9rem;">아래 음식들을 클릭하여 수라상에 담고, 6가지 영양소 게이지를 모두 <strong>초록색(70% 이상)</strong>으로 채우시오.<br>(단, 칼로리가 너무 높아도 안 되옵니다! 최대 12개)</p>
+                
+                <!-- 성별 선택 (영양섭취기준 적용) -->
+                <div id="gender-selection" style="margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: center;">
+                    <span style="color: var(--color-accent-gold); font-weight: bold; width: 100%; text-align: center; grid-column: span 2; margin-bottom: 5px;">나의 성별(기준) 선택</span>
+                    <button id="btn-gender-m" class="btn-category active" onclick="setGender('M')" style="padding: 10px 5px; font-size: 0.95rem;">👦 남학생(약 830kcal)</button>
+                    <button id="btn-gender-f" class="btn-category" onclick="setGender('F')" style="padding: 10px 5px; font-size: 0.95rem;">👧 여학생(약 670kcal)</button>
+                </div>
+
+                <!-- 카테고리 탭 -->
+                <div id="food-category-tabs" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 15px;">
+                    <button class="btn-category active" onclick="filterFood('전체')">전체</button>
+                    <button class="btn-category" onclick="filterFood('밥/면')">밥/면</button>
+                    <button class="btn-category" onclick="filterFood('국/탕')">국/탕</button>
+                    <button class="btn-category" onclick="filterFood('반찬(육류/생선)')">육류/생선</button>
+                    <button class="btn-category" onclick="filterFood('반찬(채소)')">채소류</button>
+                    <button class="btn-category" onclick="filterFood('간식/후식')">간식/후식</button>
+                </div>
+
+                <!-- 음식 선택 그리드 -->
+                <div id="food-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-bottom: 20px; max-height: 250px; overflow-y: auto; padding-right: 10px;">
+                    <!-- JS에서 동적 생성됨 -->
+                </div>
+
+                <!-- 수라상 (식판) 영역 -->
+                <div id="surasang-container">
+                    <h4 style="color: var(--color-accent-gold); margin-bottom: 15px; text-shadow: 1px 1px 2px #000;">🍽 나의 수라상 (최대 12개)</h4>
+                    <div id="my-tray-list">
+                        <div style="color:#f5deb3; font-style:italic; padding:10px; width: 100%; text-align: center;">음식을 클릭해 수라상에 올리시옵소서.</div>
+                    </div>
+                </div>
+
+                <!-- 게이지 바 (분석 차트) 영역 -->
+                <div id="nutrition-bars" style="margin-bottom: 20px;">
+                    <h4 style="color: var(--color-accent-gold); margin-bottom: 15px;">📊 영양소 분석결과</h4>
+                    
+                    <div class="nutrition-row"><span class="n-label">칼로리</span><div class="n-bar-bg"><div id="bar-cal" class="n-bar-fill"></div></div><span id="text-cal" class="n-text">0%</span></div>
+                    <div class="nutrition-row"><span class="n-label">탄수화물</span><div class="n-bar-bg"><div id="bar-carbs" class="n-bar-fill"></div></div><span id="text-carbs" class="n-text">0%</span></div>
+                    <div class="nutrition-row"><span class="n-label">단백질</span><div class="n-bar-bg"><div id="bar-protein" class="n-bar-fill"></div></div><span id="text-protein" class="n-text">0%</span></div>
+                    <div class="nutrition-row"><span class="n-label">지방</span><div class="n-bar-bg"><div id="bar-fat" class="n-bar-fill"></div></div><span id="text-fat" class="n-text">0%</span></div>
+                    <div class="nutrition-row"><span class="n-label">비타민</span><div class="n-bar-bg"><div id="bar-vit" class="n-bar-fill"></div></div><span id="text-vit" class="n-text">0%</span></div>
+                    <div class="nutrition-row"><span class="n-label">무기질</span><div class="n-bar-bg"><div id="bar-min" class="n-bar-fill"></div></div><span id="text-min" class="n-text">0%</span></div>
+                    <div class="nutrition-row"><span class="n-label">수분(물)</span><div class="n-bar-bg"><div id="bar-water" class="n-bar-fill"></div></div><span id="text-water" class="n-text">0%</span></div>
+                </div>
+
+                <!-- 어의 피드백 텍스트 -->
+                <div style="background: rgba(255, 152, 0, 0.1); border-left: 4px solid var(--color-warning); padding: 15px; margin-bottom: 20px;">
+                    <strong style="color:var(--color-warning);">[어의의 호통]</strong>
+                    <p id="diet-feedback-text" style="margin-top:5px; font-weight:bold; font-size:1.1rem; color:#fff;">수라상에 올릴 음식을 골라주시옵소서.</p>
+                </div>
+
+                <div class="text-center">
+                    <button id="btn-submit-diet" class="btn-primary disabled-btn" onclick="submitDietApp()" disabled>완벽한 수라상 올리기 (제출)</button>
+                </div>
+            </div>
+            
+            <div id="final-farewell" class="hidden" style="background: rgba(0, 0, 0, 0.85); padding: 20px 30px; border-radius: 10px; border: 2px solid var(--color-accent-gold); margin: 30px auto 0 auto; box-shadow: 0 5px 15px rgba(0,0,0,0.8); text-align: center; max-width: fit-content;">
+                <p style="color: #fff; font-size: 1.2rem; font-weight: bold; text-shadow: 2px 2px 4px #000, 0 0 10px rgba(0,0,0,0.8); line-height: 1.8; word-break: keep-all; margin: 0;">그대들의 훌륭한 추리와 굳은 다짐이<br>어전(선생님 대시보드)에 무사히 전달되었소.<br><br>참으로 수고 많았소!</p>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- 최종 임명장 모달 -->
+    <div id="appointment-modal" class="modal-overlay hidden" style="z-index: 10000; display: flex; justify-content: center; align-items: center; background: rgba(0, 0, 0, 0.8);">
+        <div class="appointment-plaque" style="background: linear-gradient(135deg, #1e1106, #3a2211); border: 4px solid var(--color-accent-gold); border-radius: 10px; padding: 40px 20px; width: 90%; max-width: 450px; text-align: center; box-shadow: 0 0 30px rgba(212, 175, 55, 0.5), inset 0 0 20px rgba(0,0,0,0.8); position: relative; overflow: hidden; animation: stampPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;">
+            <h2 style="color: var(--color-accent-gold); font-size: 2rem; margin-bottom: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); letter-spacing: 5px;">[ 임 명 장 ]</h2>
+            <h3 style="color: #fff; font-size: 1.4rem; margin-bottom: 15px; font-weight: normal;">특별 암행어사 <strong style="color: var(--color-accent-blue); font-size: 1.6rem;" id="plaque-team-name"></strong></h3>
+            <p style="color: #ccc; line-height: 1.6; margin-bottom: 30px; font-size: 1.1rem; word-break: keep-all;">위 사람을 궁중의 음식과 의학을 꿰뚫어보는<br><strong style="color: var(--color-accent-red); font-size: 1.3rem;">'궁중 영양 수사관'</strong>으로 최종 임명하노라.</p>
+            
+            <!-- 어명 도장 (크기 확대 및 텍스트 변경) -->
+            <div style="width: 120px; height: 120px; border: 4px solid var(--color-accent-red); border-radius: 50%; margin: 0 auto; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--color-accent-red); font-size: 1.8rem; font-weight: 900; line-height: 1.2; transform: rotate(-15deg) scale(3); opacity: 0; animation: stampFadeIn 0.5s 0.8s forwards; box-shadow: inset 0 0 10px rgba(255,0,0,0.2);">축<br>어명</div>
+            
+            <button class="btn-primary mt-20" onclick="closeAppointmentModal()" style="margin-top: 30px; border-color: var(--color-accent-gold); box-shadow: 0 4px 0 #111;">영광이옵니다 (수락)</button>
+        </div>
+    </div>
+
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="app.js?v=12"></script>
+</body>
+</html>
