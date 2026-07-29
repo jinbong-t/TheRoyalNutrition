@@ -1,4 +1,4 @@
-import { db, collection, onSnapshot, doc, updateDoc, setDoc } from '../app/firebase-config.js';
+import { db, collection, onSnapshot, doc, updateDoc, setDoc, deleteDoc } from '../app/firebase-config.js';
 
 const teamsRef = collection(db, 'teams');
 const settingsRef = doc(db, 'settings', 'global');
@@ -176,10 +176,33 @@ window.filterTeams = function() {
     }
 };
 
-window.resetData = function() {
+window.resetData = async function() {
     if(confirm('모든 수사관의 진척도를 파기하시겠사옵니까? (어명을 거둘 수 없사옵니다)')) {
-        alert('아직 신통력이 온전히 연결되지 아니하였사옵니다. 차후 구현될 예정이옵니다.');
-        // TODO: 일괄 삭제 로직
+        const teamIds = Object.keys(window.teamsData);
+        if (teamIds.length === 0) {
+            alert('파기할 기록이 없사옵니다.');
+            return;
+        }
+        
+        try {
+            // 모든 문서를 순회하며 삭제
+            const deletePromises = teamIds.map(id => deleteDoc(doc(db, 'teams', id)));
+            await Promise.all(deletePromises);
+            
+            alert('어명에 따라 모든 수사 기록이 불태워졌사옵니다. (초기화 완료)');
+            
+            // 전역 변수 초기화 및 화면 갱신
+            window.teamsData = {};
+            window.availableGrades.clear();
+            window.availableClasses.clear();
+            updateFilterDropdowns();
+            document.getElementById('team-list-body').innerHTML = '<tr><td colspan="4" style="color: #888; padding: 40px;">입궐한 수사관이 아직 없사옵니다.</td></tr>';
+            document.getElementById('total-teams').innerText = 0;
+            
+        } catch (error) {
+            alert('기록 파기 중 문제가 발생하였사옵니다: ' + error.message);
+            console.error("삭제 오류:", error);
+        }
     }
 };
 
