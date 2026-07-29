@@ -150,12 +150,21 @@ window.closeAlert = function() {
 
 // 게임 시작 (입궐하기)
 window.startGame = async function() {
-    teamName = document.getElementById('team-name').value.trim();
+    const grade = document.getElementById('team-grade').value.trim();
+    const classNum = document.getElementById('team-class').value.trim();
+    const nameRaw = document.getElementById('team-name').value.trim();
     
-    if (!teamName) {
-        showAlert('모둠 이름을 입력해주시오.');
+    if (!nameRaw) {
+        showAlert('모둠 이름(또는 본인 이름)을 입력해주시오.');
         return;
     }
+    
+    let combinedName = '';
+    if (grade) combinedName += `${grade}학년 `;
+    if (classNum) combinedName += `${classNum}반 `;
+    combinedName += nameRaw;
+    
+    teamName = combinedName;
     
     try {
         // 1. Firebase 익명 로그인

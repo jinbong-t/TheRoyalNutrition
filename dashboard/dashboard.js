@@ -3,83 +3,93 @@ import { db, collection, onSnapshot, doc, updateDoc, setDoc } from '../app/fireb
 const teamsRef = collection(db, 'teams');
 const settingsRef = doc(db, 'settings', 'global');
 
-// 전역 설정 불러오기
+window.teamsData = {};
+
+// 전역 설정 리스너 (API Key 및 게임 버전 로드)
 onSnapshot(settingsRef, (docSnap) => {
     if (docSnap.exists()) {
         const data = docSnap.data();
-        if(data.version === 'A') {
-            document.querySelector('input[name="globalVersion"][value="A"]').checked = true;
-        } else if(data.version === 'B') {
-            document.querySelector('input[name="globalVersion"][value="B"]').checked = true;
+        if (data.aiConfig && data.aiConfig.apiKey) {
+            document.getElementById('ai-api-key').value = data.aiConfig.apiKey;
         }
-        
-        if(data.aiConfig) {
-            document.getElementById('ai-provider').value = data.aiConfig.provider || 'gemini';
-            document.getElementById('ai-api-key').value = data.aiConfig.apiKey || '';
-            document.getElementById('ai-config-status').innerText = '저장됨 (API 키 적용중)';
-            document.getElementById('ai-config-status').style.color = '#4CAF50';
+        if (data.version) {
+            document.getElementById('game-version-select').value = data.version;
         }
     }
 });
 
-window.saveAiConfig = async function() {
-    const provider = document.getElementById('ai-provider').value;
-    const apiKey = document.getElementById('ai-api-key').value.trim();
-    
-    if(!apiKey) {
-        alert('API 키를 입력해주세요.');
-        return;
-    }
-    
+window.saveApiKey = async function() {
+    const apiKey = document.getElementById('ai-api-key').value;
     try {
-        await setDoc(settingsRef, { 
-            aiConfig: { provider: provider, apiKey: apiKey } 
-        }, { merge: true });
-        alert('AI 설정이 저장되었습니다.');
-    } catch(e) {
-        console.error("AI 설정 저장 실패", e);
-        alert('저장 실패!');
+        await setDoc(settingsRef, { aiConfig: { apiKey: apiKey, model: 'gemini-1.5-flash' } }, { merge: true });
+        const statusEl = document.getElementById('api-save-status');
+        statusEl.style.display = 'inline';
+        setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
+    } catch (e) {
+        alert("신통력(API 키) 부여 중 기운이 엇갈렸사옵니다: " + e.message);
     }
-}
+};
 
-window.changeGlobalVersion = async function(ver) {
+window.saveGameVersion = async function() {
+    const version = document.getElementById('game-version-select').value;
     try {
-        await setDoc(settingsRef, { version: ver }, { merge: true });
-        // alert(`모든 학생용 앱이 버전 ${ver}(으)로 고정되었습니다.`); // 알림 생략
-    } catch(e) {
-        console.error("전역 버전 설정 실패", e);
+        await setDoc(settingsRef, { version: version }, { merge: true });
+    } catch (e) {
+        alert("진행 방식 설정 중 오류가 발생했사옵니다: " + e.message);
     }
-}
+};
 
 onSnapshot(teamsRef, (snapshot) => {
     const tbody = document.getElementById('team-list-body');
     let html = '';
     let count = 0;
 
+    window.teamsData = {};
+
     snapshot.forEach((doc) => {
         const data = doc.data();
+        window.teamsData[doc.id] = data;
         count++;
         
-        let statusText = data.currentGate;
-        if(typeof statusText === 'number') statusText = `관문 ${statusText} 진행중`;
-        if(statusText === '종막') statusText = '최종 판결 중';
-        if(statusText === '완료') statusText = '탈출 성공! 🎉';
+        // 1. 관문 통과 현황 (불빛 - 호롱불 테마 적용)
+        const gateOrder = [1, 2, 3, 4, 5, 5.5, 6, '종막', '완료'];
+        let currentIndex = gateOrder.indexOf(data.currentGate);
+        if (currentIndex === -1) currentIndex = 0; // fallback
 
-        let resolutionContent = '-';
-        if (data.originalDiet && data.finalDiet) {
-            resolutionContent = `<button onclick="openCounselingModal('${doc.id}')" class="btn-primary" style="padding:5px 10px; font-size:0.8rem; border-radius:4px;">상담 결과 보기</button>`;
-        } else if (data.dietResolution) {
-            resolutionContent = data.dietResolution; // 기존 로직 대비
+        let gateHtml = '<div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: center;">';
+        gateOrder.forEach((gate, idx) => {
+            let gateClass = 'gate-indicator gate-pending';
+            if (idx < currentIndex) {
+                gateClass = 'gate-indicator gate-passed';
+            } else if (idx === currentIndex) {
+                gateClass = 'gate-indicator gate-current';
+            }
+            
+            let label = gate === '종막' ? '종막' : (gate === '완료' ? '수라' : `${gate}`);
+            gateHtml += `
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                    <div class="${gateClass}"></div>
+                    <span style="font-size: 0.75rem; color: #a89f91; font-family: 'Gowun Dodum', sans-serif;">${label}</span>
+                </div>
+            `;
+        });
+        gateHtml += '</div>';
+
+        // 2. 범행 근거 (주관식)
+        const reason = data.finalReason ? data.finalReason : '<span style="color:#666;">아직 기록되지 않았사옵니다.</span>';
+
+        // 3. 어의 문진표 (상담 결과 보기 버튼)
+        let dietContent = `<span style="color:#666;">-</span>`;
+        if (data.originalDiet || data.finalDiet) {
+            dietContent = `<button onclick="openCounselingModal('${doc.id}')" class="btn-primary" style="padding: 6px 12px; font-size: 0.9rem;">[문진표 확인]</button>`;
         }
 
         html += `
             <tr id="team-row-${doc.id}">
-                <td><strong>${data.name || '알 수 없음'}</strong></td>
-                <td>${data.version === 'A' ? '물리 조작(A)' : '디지털 전용(B)'}</td>
-                <td style="color:var(--color-accent); font-weight:bold;">${statusText}</td>
-                <td>${data.startTime ? new Date(data.startTime).toLocaleTimeString() : '-'}</td>
-                <td>${data.endTime ? new Date(data.endTime).toLocaleTimeString() : '진행 중'}</td>
-                <td style="font-size: 0.9em; max-width: 200px; white-space: normal; word-break: keep-all;">${resolutionContent}</td>
+                <td><strong>${data.name || '무명 수사관'}</strong></td>
+                <td>${gateHtml}</td>
+                <td style="font-size: 0.95em; max-width: 250px; white-space: normal; word-break: keep-all; color: var(--color-text);">${reason}</td>
+                <td style="text-align: center;">${dietContent}</td>
             </tr>
         `;
     });
@@ -88,45 +98,71 @@ onSnapshot(teamsRef, (snapshot) => {
     
     if (count > 0) {
         tbody.innerHTML = html;
+        if (typeof window.filterTeams === 'function') window.filterTeams(); // 필터 유지
     } else {
-        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">아직 접속한 모둠이 없습니다.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="color: #888; padding: 40px;">입궐한 수사관이 아직 없사옵니다.</td></tr>';
     }
 });
 
+window.filterTeams = function() {
+    const searchText = document.getElementById('search-input').value.toLowerCase();
+    const rows = document.querySelectorAll('#team-list-body tr');
+    let visibleCount = 0;
+    
+    rows.forEach(row => {
+        // 데이터가 없는 행은 무시
+        if(row.cells.length === 1) return;
+        
+        const teamName = row.cells[0].innerText.toLowerCase();
+        if (teamName.includes(searchText)) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+    
+    // 검색 결과 수 표시 (옵션)
+    if (searchText) {
+        document.getElementById('total-teams').innerText = visibleCount + ' (검색됨)';
+    } else {
+        document.getElementById('total-teams').innerText = Object.keys(window.teamsData).length;
+    }
+};
+
 window.resetData = function() {
-    if(confirm('모든 모둠의 진행 기록을 초기화하시겠습니까? (이 작업은 되돌릴 수 없습니다)')) {
-        alert('아직 Firebase 연동 전입니다. 차후 구현 예정입니다.');
+    if(confirm('모든 수사관의 진척도를 파기하시겠사옵니까? (어명을 거둘 수 없사옵니다)')) {
+        alert('아직 신통력이 온전히 연결되지 아니하였사옵니다. 차후 구현될 예정이옵니다.');
         // TODO: 일괄 삭제 로직
     }
 };
 
-window.openCounselingModal = async function(teamId) {
-    const docSnap = await import('../app/firebase-config.js').then(module => {
-        return module.getDoc(doc(db, 'teams', teamId));
-    });
+window.openCounselingModal = function(teamId) {
+    const data = window.teamsData[teamId];
     
-    if (docSnap.exists()) {
-        const data = docSnap.data();
-        document.getElementById('modal-team-name').innerText = `${data.name} 식단 상담 결과`;
-        document.getElementById('modal-original-diet').innerText = data.originalDiet || '기록 없음';
+    if (data) {
+        document.getElementById('modal-team-name').innerText = `[${data.name}] 수사관 어의 문진 기록`;
+        document.getElementById('modal-original-diet').innerText = data.originalDiet || '입력된 수라상이 없사옵니다.';
         
         let chatHtml = '';
         if (data.chatHistory && data.chatHistory.length > 0) {
             data.chatHistory.forEach(msg => {
                 if (msg.role === 'user') {
-                    chatHtml += `<div style="text-align:right; margin-bottom:10px;"><span style="background:#4CAF50; color:white; padding:5px 10px; border-radius:10px; display:inline-block; max-width:80%; text-align:left;">${msg.content}</span></div>`;
+                    chatHtml += `<div class="chat-msg-user"><span>${msg.content}</span></div>`;
                 } else if (msg.role === 'assistant') {
-                    chatHtml += `<div style="text-align:left; margin-bottom:10px;"><span style="background:#555; color:white; padding:5px 10px; border-radius:10px; display:inline-block; max-width:80%;">${msg.content}</span></div>`;
+                    chatHtml += `<div class="chat-msg-ai"><span>${msg.content}</span></div>`;
                 }
             });
         } else {
-            chatHtml = '<p style="color:#888;">대화 기록이 없습니다.</p>';
+            chatHtml = '<div style="text-align:center; color:#888; margin-top: 30px;">어의(AI)와의 문진 내역이 없사옵니다.</div>';
         }
         document.getElementById('modal-chat-log').innerHTML = chatHtml;
         
-        document.getElementById('modal-final-diet').innerText = data.finalDiet || '기록 없음';
+        document.getElementById('modal-final-diet').innerText = data.finalDiet || '어명(최종 식단)이 아직 내려지지 않았사옵니다.';
         
         document.getElementById('counseling-modal').style.display = 'flex';
+    } else {
+        alert('해당 수사관의 기록을 찾을 수 없사옵니다.');
     }
 }
 
@@ -134,4 +170,4 @@ window.closeCounselingModal = function() {
     document.getElementById('counseling-modal').style.display = 'none';
 }
 
-console.log("대시보드 로드 완료");
+console.log("교사용 관제실(대시보드) 로드 완료");

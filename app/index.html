@@ -63,8 +63,12 @@
             <p class="subtitle">세자 저하의 괴질을 고쳐라</p>
             
             <div class="login-box">
-             <p class="mt-20">입궐하기 전, 모둠 이름을 밝히시오.</p>
-            <input type="text" id="team-name" class="input-team" placeholder="예: 1모둠" />
+             <p class="mt-20" style="margin-bottom: 15px;">입궐하기 전, 소속을 밝히시오.</p>
+             <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+                 <input type="number" id="team-grade" class="input-team" placeholder="학년(예: 1)" style="width: 25%; padding: 10px; font-size: 1rem;" min="1" max="6" />
+                 <input type="number" id="team-class" class="input-team" placeholder="반(예: 3)" style="width: 25%; padding: 10px; font-size: 1rem;" min="1" max="20" />
+                 <input type="text" id="team-name" class="input-team" placeholder="모둠/이름(예: 1모둠)" style="width: 50%; padding: 10px; font-size: 1rem;" />
+             </div>
             
             <button class="btn-primary mt-20" onclick="startGame()">입궐하기</button>
             </div>

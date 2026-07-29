@@ -3,33 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>수라간의 비밀 - 교사 대시보드</title>
+    <title>수라간의 비밀 - 교사용 관제실</title>
     <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
     <header>
-        <h1>수라간의 비밀 실시간 현황판</h1>
-        <div class="header-stats">
-            <div style="background: rgba(0,0,0,0.5); padding: 5px 15px; border-radius: 5px; margin-right: 15px;">
-                <strong style="color:var(--color-accent-gold);">전역 게임 버전:</strong>
-                <label style="margin-left:10px;"><input type="radio" name="globalVersion" value="A" onchange="changeGlobalVersion('A')"> 물리(A)</label>
-                <label style="margin-left:10px;"><input type="radio" name="globalVersion" value="B" onchange="changeGlobalVersion('B')"> 디지털(B)</label>
+        <div class="header-top">
+            <h1>수라간의 비밀 : 교사용 관제실</h1>
+            <div class="header-stats" style="display: flex; align-items: center; gap: 20px;">
+                <div class="version-selector" style="display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 8px; border: 1px solid var(--color-border);">
+                    <label style="font-weight: bold; color: var(--color-accent-light);">진행 방식 :</label>
+                    <select id="game-version-select" onchange="saveGameVersion()" style="padding: 5px 10px; background: #333; color: #fff; border: 1px solid var(--color-accent); border-radius: 4px; font-family: inherit; font-size: 1rem; cursor: pointer;">
+                        <option value="online">온라인 단독 버전</option>
+                        <option value="combined">온오프라인 결합 버전</option>
+                    </select>
+                </div>
+                <span>입궐 모둠 : <strong id="total-teams" style="color: var(--color-accent-light); font-size:1.4rem;">0</strong> 팀</span>
+                <button onclick="resetData()" class="btn-danger">기록 파기 (초기화)</button>
             </div>
-            <span>참여 모둠: <strong id="total-teams">0</strong>팀</span>
-            <button onclick="resetData()" class="btn-danger">초기화</button>
         </div>
         
-        <div class="ai-config-panel mt-10" style="background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; border: 1px solid var(--color-border); display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-            <strong style="color:var(--color-accent-gold);">어의 챗봇(AI) 설정:</strong>
-            <select id="ai-provider" style="padding: 5px; border-radius: 4px; background: #333; color: white; border: 1px solid var(--color-border);">
-                <option value="gemini">Google Gemini</option>
-                <option value="openai">OpenAI (ChatGPT)</option>
-            </select>
-            <input type="password" id="ai-api-key" placeholder="API 키를 입력하세요" style="padding: 5px; border-radius: 4px; background: #333; color: white; border: 1px solid var(--color-border); width: 250px;">
-            <button onclick="saveAiConfig()" class="btn-primary" style="padding: 5px 15px; font-size: 0.9rem; width: auto; letter-spacing: 0;">저장</button>
-            <span id="ai-config-status" style="font-size: 0.85rem; color: #aaa;">저장 안 됨</span>
-            <p style="width: 100%; font-size: 0.85rem; color: #888; margin-top: 5px;">⚠️ 키는 학생 앱의 챗봇 통신에 사용됩니다. 브라우저/DB에 저장되므로 수업 후에는 키를 삭제하거나 폐기하세요.</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+            <div class="api-setting-panel">
+                <label for="ai-api-key" style="font-weight: bold; color: var(--color-accent-light);">어의(AI) 신통력 부여 (API 키) :</label>
+                <input type="password" id="ai-api-key" class="api-input" placeholder="신비로운 문자열을 입력하시옵소서 (Gemini/OpenAI)">
+                <button onclick="saveApiKey()" class="btn-primary">하사하기 (저장)</button>
+                <span id="api-save-status" style="color: var(--color-success); display: none; font-weight: bold;">✔ 성은이 망극하옵니다!</span>
+            </div>
+            
+            <div class="search-panel">
+                <input type="text" id="search-input" onkeyup="filterTeams()" placeholder="🔎 수사관 검색 (예: 3반, 1모둠)" style="padding: 8px 15px; border-radius: 4px; border: 1px solid var(--color-accent); background: rgba(0,0,0,0.5); color: #fff; width: 280px; font-family: inherit; font-size: 1rem;">
+            </div>
         </div>
     </header>
 
@@ -37,39 +42,42 @@
         <table class="dashboard-table">
             <thead>
                 <tr>
-                    <th>모둠 이름</th>
-                    <th>진행 방식</th>
-                    <th>현재 상태</th>
-                    <th>시작 시간</th>
-                    <th>종료(소요 시간)</th>
-                    <th>식단 다짐</th>
+                    <th style="width: 12%;">수사관 (모둠)</th>
+                    <th style="width: 33%;">수사 진척도 (관문)</th>
+                    <th style="width: 40%;">범행 추리 근거</th>
+                    <th style="width: 15%;">어의 문진표</th>
                 </tr>
             </thead>
             <tbody id="team-list-body">
-                <!-- 동적으로 데이터 추가됨 -->
                 <tr>
-                    <td colspan="6" class="text-center">데이터를 불러오는 중입니다...</td>
+                    <td colspan="4" style="color: #888; padding: 40px;">입궐한 수사관을 기다리는 중이옵니다...</td>
                 </tr>
             </tbody>
         </table>
     </main>
 
-    <!-- 식단 상담 결과 모달 -->
-    <div id="counseling-modal" class="modal-overlay hidden" style="position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; display: none; align-items:center; justify-content:center;">
-        <div class="modal-content" style="background:#1e1e1e; border: 2px solid var(--color-accent-gold); border-radius:10px; width:90%; max-width:800px; max-height:90vh; display:flex; flex-direction:column; padding:0;">
-            <div style="padding:15px 20px; border-bottom:1px solid #444; display:flex; justify-content:space-between; align-items:center;">
-                <h2 style="color:var(--color-accent-gold); margin:0;" id="modal-team-name">모둠명</h2>
-                <button onclick="closeCounselingModal()" style="background:transparent; border:none; color:white; font-size:1.5rem; cursor:pointer;">&times;</button>
+    <!-- 모달: 어의 문진표 -->
+    <div id="counseling-modal">
+        <div class="modal-content">
+            <button onclick="closeCounselingModal()" class="btn-close">&times;</button>
+            
+            <h2 id="modal-team-name" class="modal-title">수사관 문진 기록</h2>
+            
+            <div class="modal-section">
+                <h3 class="section-title-1">📜 초기 수라상 (기존 식단)</h3>
+                <div id="modal-original-diet" class="modal-box"></div>
             </div>
-            <div style="padding:20px; overflow-y:auto; flex:1;">
-                <h3 style="color:#d4af37; border-bottom:1px dashed #666; padding-bottom:5px; margin-bottom:10px;">🍎 기존 식단 (전 식단)</h3>
-                <div id="modal-original-diet" style="background:#222; padding:15px; border-radius:5px; margin-bottom:20px; white-space:pre-wrap;"></div>
 
-                <h3 style="color:#d4af37; border-bottom:1px dashed #666; padding-bottom:5px; margin-bottom:10px;">💬 상담 기록 (티키타카)</h3>
-                <div id="modal-chat-log" style="background:#222; padding:15px; border-radius:5px; margin-bottom:20px; max-height:300px; overflow-y:auto;"></div>
+            <div class="modal-section" style="flex-grow: 1;">
+                <h3 class="section-title-2">🩺 어의(AI) 문진 내역</h3>
+                <div id="modal-chat-log" class="chat-box">
+                    <!-- 채팅 내역 -->
+                </div>
+            </div>
 
-                <h3 style="color:#d4af37; border-bottom:1px dashed #666; padding-bottom:5px; margin-bottom:10px;">🥗 최종 추천 식단</h3>
-                <div id="modal-final-diet" style="background:rgba(212, 175, 55, 0.1); padding:15px; border-radius:5px; border:1px solid #d4af37; white-space:pre-wrap; font-weight:bold;"></div>
+            <div class="modal-section" style="margin-bottom: 0;">
+                <h3 class="section-title-3">🍲 최종 수라상 처방</h3>
+                <div id="modal-final-diet" class="modal-box final-diet-box"></div>
             </div>
         </div>
     </div>
