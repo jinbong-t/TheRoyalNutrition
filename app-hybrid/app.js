@@ -253,8 +253,8 @@ window.checkGate1 = async function() {
             document.getElementById('g1-result').innerHTML = `
                 <div class="success-box">
                     <p>정답이오! 반절표에 따른 1차 봉인 번호 <strong>[ ${code} ]</strong>을 정확히 추리하였소.</p>
-                    <p class="guide-text">${currentVersion === 'A' ? '이 번호로 3자리 자물쇠 상자를 열어 인장 조각을 맞추시오.' : '다음 관문으로 넘어가시오.'}</p>
-                    <button class="btn-primary mt-10" onclick="nextGate(2)">다음 관문으로</button>
+                    <p class="guide-text" style="color:var(--color-accent-gold); font-size:1.1rem; font-weight:bold; margin-top:15px; text-decoration: underline; text-underline-offset: 4px;">이 번호로 1차 금고 자물쇠를 열고 그 안에 있는 '밀지 1'과 '물증 조각 ①'을 획득하시오!</p>
+                    <button class="btn-primary mt-10" onclick="nextGate(2)">단서 챙기고 다음 관문으로</button>
                 </div>
             `;
             document.getElementById('btn-g1-submit').style.display = 'none';
@@ -308,7 +308,8 @@ window.checkGate2 = async function() {
                 <div class="success-box">
                     <p>암호를 해독하였소!</p>
                     <p>밀지를 거꾸로 읽어 2차 봉인 번호 <strong style="white-space: nowrap;">[ ${code} ]</strong>를 정확히 추리했소.</p>
-                    <button class="btn-primary mt-10" onclick="nextGate(3)">다음 관문으로</button>
+                    <p class="guide-text" style="color:var(--color-accent-gold); font-size:1.1rem; font-weight:bold; margin-top:15px; text-decoration: underline; text-underline-offset: 4px;">이 번호로 2차 금고 자물쇠를 열고 그 안에 있는 '밀지 2'와 '물증 조각 ②'를 획득하시오!</p>
+                    <button class="btn-primary mt-10" onclick="nextGate(3)">단서 챙기고 다음 관문으로</button>
                 </div>
             `;
             document.getElementById('btn-g2-submit').style.display = 'none';
