@@ -1,5 +1,9 @@
 import { db, collection, onSnapshot, doc, updateDoc, setDoc, deleteDoc } from '../app/firebase-config.js';
 
+window.onerror = function(msg, url, line, col, error) {
+    alert("관제실 스크립트 오류: " + msg + " (줄: " + line + ")");
+};
+
 const teamsRef = collection(db, 'teams');
 const settingsRef = doc(db, 'settings', 'global');
 
