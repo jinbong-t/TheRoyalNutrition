@@ -4,6 +4,8 @@ const teamsRef = collection(db, 'teams');
 const settingsRef = doc(db, 'settings', 'global');
 
 window.teamsData = {};
+window.availableGrades = new Set();
+window.availableClasses = new Set();
 
 // 전역 설정 리스너 (API Key 및 게임 버전 로드)
 onSnapshot(settingsRef, (docSnap) => {
@@ -45,11 +47,20 @@ onSnapshot(teamsRef, (snapshot) => {
     let count = 0;
 
     window.teamsData = {};
+    window.availableGrades.clear();
+    window.availableClasses.clear();
 
     snapshot.forEach((doc) => {
         const data = doc.data();
         window.teamsData[doc.id] = data;
         count++;
+        
+        // 학년/반 정보 추출 (예: '1학년 3반 1모둠')
+        const nameStr = data.name || '';
+        const gradeMatch = nameStr.match(/(\d+)학년/);
+        if (gradeMatch) window.availableGrades.add(gradeMatch[1]);
+        const classMatch = nameStr.match(/(\d+)반/);
+        if (classMatch) window.availableClasses.add(classMatch[1]);
         
         // 1. 관문 통과 현황 (불빛 - 호롱불 테마 적용)
         const gateOrder = [1, 2, 3, 4, 5, 5.5, 6, '종막', '완료'];
@@ -96,6 +107,8 @@ onSnapshot(teamsRef, (snapshot) => {
 
     document.getElementById('total-teams').innerText = count;
     
+    updateFilterDropdowns(); // 필터 드롭다운 업데이트
+    
     if (count > 0) {
         tbody.innerHTML = html;
         if (typeof window.filterTeams === 'function') window.filterTeams(); // 필터 유지
@@ -104,8 +117,36 @@ onSnapshot(teamsRef, (snapshot) => {
     }
 });
 
+function updateFilterDropdowns() {
+    const gradeSelect = document.getElementById('filter-grade');
+    const classSelect = document.getElementById('filter-class');
+    if (!gradeSelect || !classSelect) return;
+    
+    const currentGrade = gradeSelect.value;
+    const currentClass = classSelect.value;
+    
+    let gradeOptions = '<option value="">전체 학년</option>';
+    Array.from(window.availableGrades).sort((a,b)=>a-b).forEach(g => {
+        gradeOptions += `<option value="${g}학년">${g}학년</option>`;
+    });
+    gradeSelect.innerHTML = gradeOptions;
+    gradeSelect.value = currentGrade; 
+    if(gradeSelect.selectedIndex === -1) gradeSelect.selectedIndex = 0;
+    
+    let classOptions = '<option value="">전체 반</option>';
+    Array.from(window.availableClasses).sort((a,b)=>a-b).forEach(c => {
+        classOptions += `<option value="${c}반">${c}반</option>`;
+    });
+    classSelect.innerHTML = classOptions;
+    classSelect.value = currentClass;
+    if(classSelect.selectedIndex === -1) classSelect.selectedIndex = 0;
+}
+
 window.filterTeams = function() {
     const searchText = document.getElementById('search-input').value.toLowerCase();
+    const filterGrade = document.getElementById('filter-grade') ? document.getElementById('filter-grade').value : '';
+    const filterClass = document.getElementById('filter-class') ? document.getElementById('filter-class').value : '';
+    
     const rows = document.querySelectorAll('#team-list-body tr');
     let visibleCount = 0;
     
@@ -114,7 +155,12 @@ window.filterTeams = function() {
         if(row.cells.length === 1) return;
         
         const teamName = row.cells[0].innerText.toLowerCase();
-        if (teamName.includes(searchText)) {
+        
+        const matchGrade = filterGrade === "" || teamName.includes(filterGrade);
+        const matchClass = filterClass === "" || teamName.includes(filterClass);
+        const matchSearch = searchText === "" || teamName.includes(searchText);
+        
+        if (matchGrade && matchClass && matchSearch) {
             row.style.display = '';
             visibleCount++;
         } else {
@@ -123,8 +169,8 @@ window.filterTeams = function() {
     });
     
     // 검색 결과 수 표시 (옵션)
-    if (searchText) {
-        document.getElementById('total-teams').innerText = visibleCount + ' (검색됨)';
+    if (searchText || filterGrade || filterClass) {
+        document.getElementById('total-teams').innerText = visibleCount + ' (필터링됨)';
     } else {
         document.getElementById('total-teams').innerText = Object.keys(window.teamsData).length;
     }
