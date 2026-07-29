@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Crop 2</title>
+    <style>
+        .outer {
+            width: 200px;
+            height: 200px;
+            margin: 20px;
+            border: 2px solid gold;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.8);
+            overflow: hidden;
+            display: inline-block;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .inner-base {
+            width: 100%;
+            height: 100%;
+            background-image: url("온오프라인 버전 최상궁 단서 조각.png");
+            background-size: 200% 200%;
+            background-position: left bottom;
+            background-repeat: no-repeat;
+        }
+    </style>
+</head>
+<body style="background: #222; color: white;">
+    <p>1. Base (Current)</p>
+    <div class="outer"><div class="inner-base"></div></div>
+    
+    <p>2. Clue 3 (Bottom Left): scale(2.2) origin 35% 75%</p>
+    <div class="outer"><div class="inner-base" style="transform: scale(2.2); transform-origin: 35% 75%;"></div></div>
+
+    <p>3. Clue 4 (Bottom Right): scale(2.2) origin 65% 75%</p>
+    <div class="outer"><div class="inner-base" style="transform: scale(2.2); transform-origin: 65% 75%;"></div></div>
+    
+    <p>4. Clue 3 Alt: scale(2.5) origin 30% 80%</p>
+    <div class="outer"><div class="inner-base" style="transform: scale(2.5); transform-origin: 30% 80%;"></div></div>
+</body>
+</html>

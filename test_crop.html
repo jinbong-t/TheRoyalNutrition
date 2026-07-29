@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Crop</title>
+    <style>
+        .box {
+            width: 200px;
+            height: 200px;
+            border: 2px solid gold;
+            background-image: url("온오프라인 버전 최상궁 단서 조각.png");
+            background-repeat: no-repeat;
+            display: inline-block;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body style="background: #222; color: white;">
+    <p>1. 200% left bottom (Current)</p>
+    <div class="box" style="background-size: 200% 200%; background-position: left bottom;"></div>
+    
+    <p>2. 400% 10% 90% (Bottom Left)</p>
+    <div class="box" style="background-size: 400% 400%; background-position: 10% 90%;"></div>
+
+    <p>3. 400% 30% 90% (Bottom Right)</p>
+    <div class="box" style="background-size: 400% 400%; background-position: 30% 90%;"></div>
+
+    <p>4. 500% 12% 92% (Bottom Left Zoomed)</p>
+    <div class="box" style="background-size: 500% 500%; background-position: 12% 92%;"></div>
+
+    <p>5. 500% 28% 92% (Bottom Right Zoomed)</p>
+    <div class="box" style="background-size: 500% 500%; background-position: 28% 92%;"></div>
+
+    <p>6. 600% 13% 93% (Bottom Left 600%)</p>
+    <div class="box" style="background-size: 600% 600%; background-position: 13% 93%;"></div>
+
+    <p>7. 600% 27% 93% (Bottom Right 600%)</p>
+    <div class="box" style="background-size: 600% 600%; background-position: 27% 93%;"></div>
+</body>
+</html>
