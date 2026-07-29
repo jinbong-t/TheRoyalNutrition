@@ -786,6 +786,61 @@ window.nextGate = function(gateNum) {
             }
         }
     }
+    
+    // 관문 이동 시 인벤토리 상태 업데이트
+    window.updateInventory();
+}
+
+// 인벤토리 상태 업데이트 로직
+window.updateInventory = function() {
+    let unlockedCount = 0;
+    
+    let numGate = parseFloat(String(currentGate).replace('_', '.'));
+    if (currentGate === 'ending') numGate = 7;
+    if (isNaN(numGate)) numGate = 0;
+
+    // 조각 1 (관문 2 완료 시, 즉 currentGate >= 3)
+    if (numGate >= 3) { 
+        document.getElementById('inv-p1').classList.remove('hidden'); 
+        document.getElementById('inv-q1').style.display = 'none';
+        unlockedCount++; 
+    }
+    // 조각 2 (관문 4 완료 시, 즉 currentGate >= 5)
+    if (numGate >= 5) { 
+        document.getElementById('inv-p2').classList.remove('hidden'); 
+        document.getElementById('inv-q2').style.display = 'none';
+        unlockedCount++; 
+    }
+    // 조각 3 (관문 5 완료 시, 즉 currentGate >= 6)
+    if (numGate >= 6) { 
+        document.getElementById('inv-p3').classList.remove('hidden'); 
+        document.getElementById('inv-q3').style.display = 'none';
+        unlockedCount++; 
+    }
+    // 조각 4 (관문 6 완료 시, 즉 currentGate >= 6.5)
+    if (numGate >= 6.5) { 
+        document.getElementById('inv-p4').classList.remove('hidden'); 
+        document.getElementById('inv-q4').style.display = 'none';
+        unlockedCount++; 
+    }
+    
+    const btnInv = document.getElementById('btn-inventory');
+    if (btnInv) {
+        btnInv.innerText = `🎒 단서 가방 (${unlockedCount}/4)`;
+        if (numGate >= 2 && numGate !== 7) {
+            btnInv.style.display = 'block';
+        } else {
+            btnInv.style.display = 'none';
+        }
+    }
+}
+
+window.openInventory = function() {
+    document.getElementById('inventory-modal').classList.remove('hidden');
+}
+
+window.closeInventory = function() {
+    document.getElementById('inventory-modal').classList.add('hidden');
 }
 
 // 초기화
