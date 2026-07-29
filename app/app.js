@@ -114,7 +114,7 @@ window.typewriterEffect = function(elementId, text, speed = 50, callback = null)
     }, speed);
 };
 
-let currentVersion = 'A'; // 기본값
+let currentVersion = 'online'; // 고정 (온라인 버전)
 let teamName = '';
 let teamDocId = ''; 
 let currentGate = 0;
@@ -125,10 +125,6 @@ const settingsRef = doc(db, 'settings', 'global');
 onSnapshot(settingsRef, (docSnap) => {
     if (docSnap.exists()) {
         const data = docSnap.data();
-        if(data.version) {
-            currentVersion = data.version;
-            console.log("전역 버전 업데이트됨:", currentVersion);
-        }
         if(data.aiConfig) {
             globalAiConfig = data.aiConfig;
             console.log("AI 설정 업데이트됨");

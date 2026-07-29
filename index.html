@@ -22,7 +22,7 @@
 
         async function routeApp() {
             try {
-                const docRef = doc(db, 'settings', 'game-config');
+                const docRef = doc(db, 'settings', 'global');
                 const docSnap = await getDoc(docRef);
                 let targetUrl = 'app/?v=13'; // 기본값 (온라인 단독)
                 
