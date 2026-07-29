@@ -1,4 +1,4 @@
-import { db, auth, collection, addDoc, doc, updateDoc, signInAnonymously, onSnapshot } from './firebase-config.js';
+import { db, auth, collection, doc, setDoc, updateDoc, signInAnonymously, onSnapshot } from './firebase-config.js';
 
 // --- 사운드 이펙트 (Web Audio API) ---
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -171,8 +171,9 @@ window.startGame = async function() {
         const userCredential = await signInAnonymously(auth);
         const user = userCredential.user;
         
-        // 2. Firestore에 모둠 데이터 생성
-        const docRef = await addDoc(collection(db, "teams"), {
+        // 2. Firestore에 모둠 데이터 생성 (팀명을 기반으로 한 고정 ID 사용으로 중복 누적 방지)
+        teamDocId = 'team_' + teamName.replace(/\s+/g, '_');
+        await setDoc(doc(db, "teams", teamDocId), {
             name: teamName,
             version: currentVersion,
             uid: user.uid,
@@ -182,7 +183,6 @@ window.startGame = async function() {
             answers: {}
         });
         
-        teamDocId = docRef.id;
         currentGate = 1;
         
         console.log(`[게임 시작] 팀명: ${teamName}, 버전: ${currentVersion}, DocID: ${teamDocId}`);
