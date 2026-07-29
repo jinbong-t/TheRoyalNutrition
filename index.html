@@ -2,7 +2,6 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=app/?v=3">
     <title>수라간의 비밀 - 로딩 중...</title>
     <style>
         body {
@@ -16,6 +15,31 @@
 </head>
 <body>
     <p>궁궐 문을 여는 중이오...</p>
-    <script>window.location.href = 'app/?v=3';</script>
+    
+    <script type="module">
+        import { db, doc } from './app/firebase-config.js';
+        import { getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        async function routeApp() {
+            try {
+                const docRef = doc(db, 'settings', 'game-config');
+                const docSnap = await getDoc(docRef);
+                let targetUrl = 'app/?v=13'; // 기본값 (온라인 단독)
+                
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.version === 'combined') {
+                        targetUrl = 'app-hybrid/?v=14';
+                    }
+                }
+                window.location.href = targetUrl;
+            } catch (error) {
+                console.error("라우팅 오류:", error);
+                window.location.href = 'app/?v=13'; // 오류 시 기본값으로 강제 이동
+            }
+        }
+        
+        routeApp();
+    </script>
 </body>
 </html>
