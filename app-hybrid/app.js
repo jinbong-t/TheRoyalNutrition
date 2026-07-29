@@ -605,6 +605,14 @@ window.previewPhoto = function(event) {
     }
 }
 
+window.showManualFallback = function() {
+    document.getElementById('manual-fallback-area').classList.remove('hidden');
+    // 진행 상황 스크롤
+    setTimeout(() => {
+        document.getElementById('manual-fallback-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+}
+
 window.analyzePhoto = async function() {
     const imgEl = document.getElementById('photo-preview');
     if (!imgEl.src) return;
