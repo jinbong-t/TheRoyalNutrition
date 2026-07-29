@@ -67,7 +67,11 @@ onSnapshot(teamsRef, (snapshot) => {
         if (classMatch) window.availableClasses.add(classMatch[1]);
         
         // 1. 관문 통과 현황 (불빛 - 호롱불 테마 적용)
-        const gateOrder = [1, 2, 3, 4, 5, 5.5, 6, '종막', '완료'];
+        // 팀의 진행 버전에 따라 관문 순서를 동적으로 설정
+        let gateOrder = [1, 2, 3, 4, 5, 5.5, 6, '종막', '완료']; // 기본(온라인)
+        if (data.version === 'combined') {
+            gateOrder = [1, 2, 3, 4, 5, 5.5, 6, 6.5, '종막', '완료'];
+        }
         let currentIndex = gateOrder.indexOf(data.currentGate);
         if (currentIndex === -1) currentIndex = 0; // fallback
 
@@ -99,9 +103,13 @@ onSnapshot(teamsRef, (snapshot) => {
             dietContent = `<button onclick="openCounselingModal('${doc.id}')" class="btn-primary" style="padding: 6px 12px; font-size: 0.9rem;">[문진표 확인]</button>`;
         }
 
+        const versionBadge = data.version === 'combined' 
+            ? `<span style="font-size:0.7em; background-color:#8e44ad; color:white; padding:2px 6px; border-radius:4px; margin-left:8px; vertical-align:middle;">결합</span>`
+            : `<span style="font-size:0.7em; background-color:#2980b9; color:white; padding:2px 6px; border-radius:4px; margin-left:8px; vertical-align:middle;">온라인</span>`;
+
         html += `
             <tr id="team-row-${doc.id}">
-                <td><strong>${data.name || '무명 수사관'}</strong></td>
+                <td><strong>${data.name || '무명 수사관'}</strong>${versionBadge}</td>
                 <td>${gateHtml}</td>
                 <td style="font-size: 0.95em; max-width: 250px; white-space: normal; word-break: keep-all; color: var(--color-text);">${reason}</td>
                 <td style="text-align: center;">${dietContent}</td>
