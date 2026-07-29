@@ -40,6 +40,7 @@ window.saveGameVersion = async function() {
     const version = document.getElementById('game-version-select').value;
     try {
         await setDoc(settingsRef, { version: version }, { merge: true });
+        window.filterTeams(); // 버전을 바꾸면 즉시 리스트 필터링
     } catch (e) {
         alert("진행 방식 설정 중 오류가 발생했사옵니다: " + e.message);
     }
@@ -158,6 +159,7 @@ window.filterTeams = function() {
     const searchText = document.getElementById('search-input').value.toLowerCase();
     const filterGrade = document.getElementById('filter-grade') ? document.getElementById('filter-grade').value : '';
     const filterClass = document.getElementById('filter-class') ? document.getElementById('filter-class').value : '';
+    const selectedVersion = document.getElementById('game-version-select') ? document.getElementById('game-version-select').value : 'online';
     
     const rows = document.querySelectorAll('#team-list-body tr');
     let visibleCount = 0;
@@ -166,13 +168,18 @@ window.filterTeams = function() {
         // 데이터가 없는 행은 무시
         if(row.cells.length === 1) return;
         
+        const docId = row.id.replace('team-row-', '');
+        const teamData = window.teamsData[docId];
+        const teamVersion = teamData ? teamData.version : 'online'; // 기본 온라인
+        
         const teamName = row.cells[0].innerText.toLowerCase();
         
+        const matchVersion = teamVersion === selectedVersion;
         const matchGrade = filterGrade === "" || teamName.includes(filterGrade);
         const matchClass = filterClass === "" || teamName.includes(filterClass);
         const matchSearch = searchText === "" || teamName.includes(searchText);
         
-        if (matchGrade && matchClass && matchSearch) {
+        if (matchVersion && matchGrade && matchClass && matchSearch) {
             row.style.display = '';
             visibleCount++;
         } else {
@@ -180,12 +187,7 @@ window.filterTeams = function() {
         }
     });
     
-    // 검색 결과 수 표시 (옵션)
-    if (searchText || filterGrade || filterClass) {
-        document.getElementById('total-teams').innerText = visibleCount + ' (필터링됨)';
-    } else {
-        document.getElementById('total-teams').innerText = Object.keys(window.teamsData).length;
-    }
+    document.getElementById('total-teams').innerText = visibleCount;
 };
 
 window.resetData = async function() {

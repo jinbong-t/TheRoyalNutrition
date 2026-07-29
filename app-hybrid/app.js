@@ -319,6 +319,13 @@ window.checkGate2 = async function() {
                 await updateDoc(doc(db, "teams", teamDocId), { currentGate: 3 });
             }
         } else {
+            window.g2FailCount = (window.g2FailCount || 0) + 1;
+            if(window.g2FailCount >= 1) {
+                const hintEl = document.getElementById('g2-padlock-hint');
+                const introEl = document.getElementById('g2-padlock-intro');
+                if(hintEl) hintEl.style.display = 'block';
+                if(introEl) introEl.style.display = 'none';
+            }
             showAlert('원소기호는 맞았으나, 암호가 틀렸소. 거꾸로 된 밀지가 가리키는 순서를 다시 조합해 보시오.');
         }
     } else {
