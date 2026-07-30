@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>단서 조각 분리 도구 (Clue Editor)</title>
+    <style>
+        body { font-family: sans-serif; background: #222; color: white; padding: 20px; }
+        .container { display: flex; gap: 40px; margin-top: 20px;}
+        .viewer {
+            width: 200px;
+            height: 200px;
+            border: 2px solid gold;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.8);
+            overflow: hidden;
+            background-color: rgba(0,0,0,0.5);
+            /* 원본 이미지 이름에 맞게 수정 */
+            background-image: url('온오프라인 버전 최상궁 단서 조각.png');
+            background-repeat: no-repeat;
+        }
+        .controls { display: flex; flex-direction: column; gap: 15px; width: 400px; }
+        label { display: flex; flex-direction: column; }
+        input[type=range] { width: 100%; margin-top: 5px; }
+        .val { color: gold; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2>🔍 단서 조각 맞춤 도구</h2>
+    <p>슬라이더를 움직여 단서가 네모 칸 안에 쏙 들어오게 맞춰보세요!<br>마음에 들면 초록색 코드를 복사해서 앱에 붙여넣으면 됩니다.</p>
+    
+    <div class="container">
+        <div>
+            <div id="preview" class="viewer"></div>
+        </div>
+        <div class="controls">
+            <label>
+                배경 크기 (Zoom): <span id="val-bg-size" class="val">200%</span>
+                <input type="range" id="bg-size" min="100" max="600" value="200" step="1">
+            </label>
+            <label>
+                가로 위치 (X): <span id="val-bg-x" class="val">0%</span>
+                <input type="range" id="bg-x" min="0" max="100" value="0" step="1">
+            </label>
+            <label>
+                세로 위치 (Y): <span id="val-bg-y" class="val">100%</span>
+                <input type="range" id="bg-y" min="0" max="100" value="100" step="1">
+            </label>
+            
+            <div style="background: #111; padding: 15px; border-radius: 8px; font-family: monospace; color: #0f0; margin-top: 10px;">
+                <p style="margin:0 0 10px 0; color: #888;">이 코드를 복사해서 HTML style 안에 넣으세요:</p>
+                <div id="code-output">background-size: 200%; background-position: 0% 100%;</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const preview = document.getElementById('preview');
+        const bgSize = document.getElementById('bg-size');
+        const bgX = document.getElementById('bg-x');
+        const bgY = document.getElementById('bg-y');
+        
+        const valBgSize = document.getElementById('val-bg-size');
+        const valBgX = document.getElementById('val-bg-x');
+        const valBgY = document.getElementById('val-bg-y');
+        
+        const codeOutput = document.getElementById('code-output');
+
+        function update() {
+            const size = bgSize.value + '%';
+            const x = bgX.value + '%';
+            const y = bgY.value + '%';
+            
+            valBgSize.innerText = size;
+            valBgX.innerText = x;
+            valBgY.innerText = y;
+            
+            preview.style.backgroundSize = size;
+            preview.style.backgroundPosition = `${x} ${y}`;
+            
+            codeOutput.innerText = `background-size: ${size}; background-position: ${x} ${y};`;
+        }
+
+        bgSize.addEventListener('input', update);
+        bgX.addEventListener('input', update);
+        bgY.addEventListener('input', update);
+        
+        update();
+    </script>
+</body>
+</html>
