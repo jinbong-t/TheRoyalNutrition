@@ -763,6 +763,7 @@ window.updateBackground = function(sectionId) {
 
 // 다음 관문 이동 유틸리티
 window.nextGate = function(gateNum) {
+    if (gateNum === 7) gateNum = 'ending';
     currentGate = gateNum;
     document.querySelectorAll('section').forEach(sec => {
         sec.classList.remove('active');
