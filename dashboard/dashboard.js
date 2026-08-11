@@ -98,13 +98,13 @@ onSnapshot(teamsRef, (snapshot) => {
         // 2. 범행 근거 (주관식)
         const reason = data.finalReason ? data.finalReason : '<span style="color:#666;">아직 기록되지 않았사옵니다.</span>';
 
-        // 3. 어의 문진표 (상담 결과 보기 버튼 + 최종 식단 미리보기)
+        // 3. 최종 식단 표시 및 상세 기록 버튼
         let dietContent = `<span style="color:#666;">-</span>`;
         if (data.originalDiet || data.finalDiet) {
             let shortDiet = data.finalDiet ? data.finalDiet : '제출된 식단 없음';
             dietContent = `
-                <div style="font-size: 0.85rem; color: var(--color-accent-light); margin-bottom: 5px; word-break: keep-all;" title="${shortDiet}">${shortDiet}</div>
-                <button onclick="openCounselingModal('${doc.id}')" class="btn-primary" style="padding: 6px 12px; font-size: 0.9rem;">[문진표 전체 확인]</button>
+                <div style="font-size: 0.95rem; color: #fff; margin-bottom: 8px; word-break: keep-all; font-weight: bold; line-height: 1.3;" title="${shortDiet}">${shortDiet}</div>
+                <button onclick="openCounselingModal('${doc.id}')" class="btn-primary" style="padding: 4px 8px; font-size: 0.8rem; background-color: #444; border: 1px solid #666;">[상세 기록 확인]</button>
             `;
         }
 
