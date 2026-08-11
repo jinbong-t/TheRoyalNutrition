@@ -61,7 +61,7 @@ onSnapshot(teamsRef, (snapshot) => {
         count++;
         
         // 학년/반 정보 추출 (예: '1학년 3반 1모둠')
-        const nameStr = data.name || '';
+        const nameStr = String(data.name || '');
         const gradeMatch = nameStr.match(/(\d+)학년/);
         if (gradeMatch) window.availableGrades.add(gradeMatch[1]);
         const classMatch = nameStr.match(/(\d+)반/);

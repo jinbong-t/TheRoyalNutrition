@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 선생님 모니터링 대시보드 - 영양 분석관 공주</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <!-- html2canvas (이미지 저장용) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;900&family=Gamja+Flower&family=Gowun+Dodum&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            font-family: 'Noto Sans KR', sans-serif;
+            color: #e2e8f0;
+        }
+
+        /* ---- 헤더 ---- */
+        .dashboard-header {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 14px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 100;
+            gap: 12px; flex-wrap: wrap;
+        }
+        .header-title { font-family:'Gamja Flower',cursive; font-size:1.4rem; color:#ffd700; }
+        .header-subtitle { font-size:0.78rem; color:rgba(255,255,255,0.5); margin-top:2px; }
+        .header-right { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+
+        .live-badge {
+            display:flex; align-items:center; gap:6px;
+            background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.4);
+            border-radius:20px; padding:6px 14px;
+            font-size:0.82rem; color:#4ade80; font-weight:600;
+        }
+        .live-dot { width:8px; height:8px; background:#4ade80; border-radius:50%; animation:livePulse 1.5s infinite; }
+        @keyframes livePulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+
+        /* 저장 버튼 */
+        .save-btn {
+            display:flex; align-items:center; gap:6px;
+            background:linear-gradient(135deg,#f59e0b,#d97706);
+            border:none; border-radius:20px; padding:8px 16px;
+            color:#1a0533; font-size:0.82rem; font-weight:700;
+            cursor:pointer; transition:transform 0.2s, box-shadow 0.2s;
+        }
+        .save-btn:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(245,158,11,0.4); }
+        .save-btn:disabled { opacity:0.6; cursor:not-allowed; }
+
+        /* ---- 탭 ---- */
+        .tab-bar {
+            display:flex; gap:4px;
+            padding:14px 20px 0;
+            border-bottom:1px solid rgba(255,255,255,0.08);
+        }
+        .tab-btn {
+            padding:10px 20px; border:none; border-radius:10px 10px 0 0;
+            font-size:0.9rem; font-weight:600; cursor:pointer;
+            transition:all 0.2s; font-family:'Noto Sans KR',sans-serif;
+        }
+        .tab-btn.active {
+            background:rgba(255,255,255,0.1); color:#ffd700;
+            border-bottom:2px solid #ffd700;
+        }
+        .tab-btn:not(.active) { background:transparent; color:rgba(255,255,255,0.4); }
+        .tab-btn:not(.active):hover { color:rgba(255,255,255,0.7); }
+
+        .tab-content { display:none; }
+        .tab-content.active { display:block; }
+
+        /* ---- 통계 카드 ---- */
+        .stats-row {
+            display:grid; grid-template-columns:repeat(4,1fr);
+            gap:12px; padding:16px 20px;
+        }
+        .stat-card {
+            background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12);
+            border-radius:16px; padding:14px; text-align:center; transition:transform 0.2s;
+        }
+        .stat-card:hover { transform:translateY(-2px); }
+        .stat-icon { font-size:1.6rem; margin-bottom:4px; }
+        .stat-num { font-size:1.8rem; font-weight:900;
+            background:linear-gradient(135deg,#ffd700,#ff9500);
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .stat-label { font-size:0.75rem; color:rgba(255,255,255,0.5); margin-top:3px; }
+
+        /* ---- 필터/검색 ---- */
+        .toolbar { padding:0 20px 12px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+        .toolbar input {
+            flex:1; min-width:180px;
+            background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15);
+            border-radius:10px; padding:9px 14px; color:white; font-size:0.88rem; outline:none;
+        }
+        .toolbar input::placeholder { color:rgba(255,255,255,0.35); }
+        .filter-btn { padding:9px 14px; border-radius:10px; border:none; font-size:0.82rem; cursor:pointer; font-weight:600; }
+        .filter-btn.active { background:linear-gradient(135deg,#6366f1,#8b5cf6); color:white; }
+        .filter-btn:not(.active) { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.6); }
+
+        /* ---- 학생 테이블 ---- */
+        .table-wrapper { padding:0 20px 30px; }
+        .student-table { width:100%; border-collapse:separate; border-spacing:0 8px; }
+        .student-table thead th {
+            background:rgba(255,255,255,0.05); padding:10px 14px;
+            font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;
+            color:rgba(255,255,255,0.4); text-align:left;
+            border-bottom:1px solid rgba(255,255,255,0.08);
+        }
+        .student-row { background:rgba(255,255,255,0.05); border-radius:12px; transition:background 0.2s; cursor:pointer; }
+        .student-row:hover { background:rgba(255,255,255,0.1); }
+        .student-row td { padding:11px 14px; vertical-align:middle; }
+        .student-row td:first-child { border-radius:12px 0 0 12px; }
+        .student-row td:last-child { border-radius:0 12px 12px 0; }
+        .student-name { font-weight:700; font-size:0.95rem; color:#f1f5f9; }
+        .student-time { font-size:0.72rem; color:rgba(255,255,255,0.4); margin-top:2px; }
+        .progress-wrap { display:flex; align-items:center; gap:8px; }
+        .progress-bar-bg { flex:1; height:7px; background:rgba(255,255,255,0.1); border-radius:99px; overflow:hidden; }
+        .progress-bar-fill { height:100%; border-radius:99px; background:linear-gradient(90deg,#6366f1,#a855f7,#ec4899); transition:width 0.5s ease; }
+        .progress-text { font-size:0.75rem; color:rgba(255,255,255,0.5); width:32px; }
+        .status-badge { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:20px; font-size:0.75rem; font-weight:600; }
+        .status-not-started { background:rgba(100,116,139,0.2); color:#94a3b8; }
+        .status-in-progress { background:rgba(251,191,36,0.15); color:#fbbf24; }
+        .status-completed { background:rgba(34,197,94,0.15); color:#4ade80; }
+        .rooms-dots { display:flex; gap:3px; }
+        .room-dot { width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.6rem; font-weight:700; }
+        .room-dot.cleared { background:#4ade80; color:#052e16; }
+        .room-dot.not-cleared { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.3); }
+        .feedback-preview { max-width:180px; font-size:0.8rem; color:rgba(255,255,255,0.6); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .no-feedback { color:rgba(255,255,255,0.25); font-style:italic; }
+        .star-display { color:#fbbf24; font-size:0.82rem; }
+        .empty-state { text-align:center; padding:60px 20px; color:rgba(255,255,255,0.3); }
+        .empty-state .empty-icon { font-size:3.5rem; margin-bottom:14px; }
+        .loading { text-align:center; padding:60px; color:rgba(255,255,255,0.5); font-family:'Gamja Flower',cursive; }
+        .spinner { width:40px; height:40px; border:3px solid rgba(255,215,0,0.2); border-top-color:#ffd700; border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 16px; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+
+        /* ---- 🏆 순위표 ---- */
+        .ranking-section { padding:16px 20px 30px; }
+        .ranking-title { font-family:'Gamja Flower',cursive; color:#ffd700; font-size:1.2rem; margin-bottom:16px; }
+
+        /* 시상대 TOP 3 */
+        .podium-wrap {
+            display:flex; align-items:flex-end; justify-content:center;
+            gap:12px; margin-bottom:28px;
+        }
+        .podium-card {
+            text-align:center; border-radius:16px;
+            background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12);
+            padding:16px 20px; flex:1; max-width:160px; position:relative;
+            transition:transform 0.2s;
+        }
+        .podium-card:hover { transform:translateY(-4px); }
+        .podium-card.rank-1 { background:linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,165,0,0.1)); border-color:rgba(255,215,0,0.4); transform:scale(1.05); }
+        .podium-card.rank-2 { background:linear-gradient(135deg,rgba(192,192,192,0.12),rgba(150,150,150,0.08)); border-color:rgba(192,192,192,0.3); }
+        .podium-card.rank-3 { background:linear-gradient(135deg,rgba(205,127,50,0.12),rgba(165,100,30,0.08)); border-color:rgba(205,127,50,0.3); }
+        .podium-medal { font-size:2rem; margin-bottom:6px; }
+        .podium-name { font-weight:700; font-size:0.95rem; color:#f1f5f9; margin-bottom:4px; word-break:break-all; }
+        .podium-score { font-size:1.3rem; font-weight:900;
+            background:linear-gradient(135deg,#ffd700,#ff9500);
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .podium-detail { font-size:0.72rem; color:rgba(255,255,255,0.45); margin-top:4px; }
+        .podium-empty { color:rgba(255,255,255,0.2); font-style:italic; font-size:0.85rem; }
+
+        /* 전체 순위 테이블 */
+        .rank-table { width:100%; border-collapse:separate; border-spacing:0 6px; }
+        .rank-table thead th {
+            padding:8px 12px; font-size:0.72rem; text-transform:uppercase;
+            color:rgba(255,255,255,0.4); text-align:left;
+            border-bottom:1px solid rgba(255,255,255,0.08);
+        }
+        .rank-row { background:rgba(255,255,255,0.05); border-radius:10px; cursor:pointer; transition:background 0.2s; }
+        .rank-row:hover { background:rgba(255,255,255,0.1); }
+        .rank-row td { padding:10px 12px; vertical-align:middle; }
+        .rank-row td:first-child { border-radius:10px 0 0 10px; }
+        .rank-row td:last-child { border-radius:0 10px 10px 0; }
+        .rank-num { font-size:1.1rem; font-weight:900; color:#ffd700; width:36px; }
+        .rank-num.top3 { font-size:1.3rem; }
+
+        /* 소감 모달 */
+        .feedback-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center; }
+        .feedback-modal-overlay.active { display:flex; }
+        .feedback-modal { background:linear-gradient(135deg,#1e1b4b,#312e81); border:1px solid rgba(255,255,255,0.15); border-radius:20px; padding:28px; max-width:480px; width:90%; position:relative; }
+        .feedback-modal h3 { color:#ffd700; font-family:'Gamja Flower',cursive; font-size:1.2rem; margin-bottom:14px; }
+        .feedback-modal .feedback-full-text { background:rgba(255,255,255,0.07); border-radius:12px; padding:14px; font-family:'Gowun Dodum',sans-serif; line-height:1.7; color:#e2e8f0; font-size:0.92rem; white-space:pre-wrap; }
+        .modal-close { position:absolute; top:14px; right:16px; background:none; border:none; color:rgba(255,255,255,0.5); font-size:1.3rem; cursor:pointer; }
+
+        /* 저장 중 오버레이 */
+        .saving-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:99999; align-items:center; justify-content:center; flex-direction:column; gap:16px; font-family:'Gamja Flower',cursive; font-size:1.3rem; color:#ffd700; }
+        .saving-overlay.active { display:flex; }
+
+        @media (max-width:768px) {
+            .stats-row { grid-template-columns:repeat(2,1fr); }
+            .podium-wrap { gap:8px; }
+            .podium-card { padding:12px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 저장 중 오버레이 -->
+<div class="saving-overlay" id="saving-overlay">
+    <div class="spinner" style="border-top-color:#ffd700;"></div>
+    <div>📸 이미지 저장 중...</div>
+</div>
+
+<!-- 헤더 -->
+<header class="dashboard-header" id="dashboard-header">
+    <div>
+        <div class="header-title">📊 선생님 실시간 모니터링</div>
+        <div class="header-subtitle">영양 분석관 공주 · <span id="header-date"></span></div>
+    </div>
+    <div class="header-right">
+        <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+        <button class="save-btn" id="save-progress-btn" onclick="saveAsImage('tab-progress')">
+            📷 현황 이미지
+        </button>
+        <button class="save-btn" onclick="saveAsImage('tab-ranking')" style="background:linear-gradient(135deg,#8b5cf6,#6366f1);">
+            🏆 순위 이미지
+        </button>
+        <select id="global-class-filter" onchange="filterStudents()" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:20px; padding:8px 14px; color:white; font-size:0.85rem; font-weight:bold; outline:none; font-family:'Noto Sans KR',sans-serif; cursor:pointer; margin-right:5px;">
+            <option value="all" style="color:black">🏫 모든 반</option>
+        </select>
+        <button class="save-btn" onclick="exportToCSV()" style="background:linear-gradient(135deg,#10b981,#059669); color:white;">
+            📊 다운로드
+        </button>
+        <button class="save-btn" onclick="resetAllData()" style="background:linear-gradient(135deg,#ef4444,#dc2626); color:white;">
+            🗑️ 초기화
+        </button>
+    </div>
+</header>
+
+<!-- 탭 메뉴 -->
+<div class="tab-bar">
+    <button class="tab-btn active" id="tab-btn-progress" onclick="switchTab('progress')">📋 진행 현황</button>
+    <button class="tab-btn" id="tab-btn-ranking" onclick="switchTab('ranking')">🏆 순위표</button>
+</div>
+
+<!-- ======================== 탭1: 진행 현황 ======================== -->
+<div class="tab-content active" id="tab-progress">
+
+    <!-- 통계 카드 -->
+    <div class="stats-row">
+        <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-num" id="stat-total">0</div><div class="stat-label">전체 학생</div></div>
+        <div class="stat-card"><div class="stat-icon">🔥</div><div class="stat-num" id="stat-active">0</div><div class="stat-label">진행 중</div></div>
+        <div class="stat-card"><div class="stat-icon">🎉</div><div class="stat-num" id="stat-completed">0</div><div class="stat-label">완료</div></div>
+        <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-num" id="stat-avg-rating">-</div><div class="stat-label">평균 별점</div></div>
+    </div>
+
+    <!-- 필터 -->
+    <div class="toolbar">
+        <input type="text" id="search-input" placeholder="🔍 학생 이름 검색..." oninput="filterStudents()">
+        <button class="filter-btn active" id="filter-all" onclick="setFilter('all')">전체</button>
+        <button class="filter-btn" id="filter-active" onclick="setFilter('active')">진행 중 🔥</button>
+        <button class="filter-btn" id="filter-completed" onclick="setFilter('completed')">완료 ✅</button>
+        <button class="filter-btn" id="filter-feedback" onclick="setFilter('feedback')">소감 있음 💬</button>
+    </div>
+
+    <!-- 테이블 -->
+    <div class="table-wrapper">
+        <div id="loading" class="loading"><div class="spinner"></div><p>학생 데이터 불러오는 중...</p></div>
+        <table class="student-table" id="student-table" style="display:none;">
+            <thead>
+                <tr>
+                    <th>학생</th><th>방 진행</th><th>진행률</th><th>상태</th>
+                    <th>현재 단계</th><th>별점</th><th>활동 소감</th>
+                </tr>
+            </thead>
+            <tbody id="student-tbody"></tbody>
+        </table>
+        <div id="empty-state" class="empty-state" style="display:none;">
+            <div class="empty-icon">🏫</div>
+            <p>아직 접속한 학생이 없어요!<br>학생들이 게임을 시작하면 여기에 나타납니다.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ======================== 탭2: 순위표 ======================== -->
+<div class="tab-content" id="tab-ranking">
+    <div class="ranking-section">
+        <div class="ranking-title">🏆 학생 순위표 (점수 기준)</div>
+
+        <!-- TOP 3 시상대 -->
+        <div class="podium-wrap" id="podium-wrap">
+            <!-- JS로 채워짐 -->
+        </div>
+
+        <!-- 전체 순위 테이블 -->
+        <table class="rank-table" id="rank-table">
+            <thead>
+                <tr><th>순위</th><th>학생</th><th>점수</th><th>완료 방</th><th>완료 여부</th><th>별점</th><th>소감</th></tr>
+            </thead>
+            <tbody id="rank-tbody"></tbody>
+        </table>
+        <div id="rank-empty" class="empty-state" style="display:none;">
+            <div class="empty-icon">🏆</div>
+            <p>아직 참여한 학생이 없어요!</p>
+        </div>
+    </div>
+</div>
+
+<!-- 소감 상세 모달 -->
+<div class="feedback-modal-overlay" id="feedback-modal">
+    <div class="feedback-modal">
+        <button class="modal-close" onclick="closeFeedbackModal()">✕</button>
+        <h3 id="modal-student-name">학생 소감</h3>
+        <div class="star-display" id="modal-rating" style="margin-bottom:12px;font-size:1.1rem;"></div>
+        <div class="feedback-full-text" id="modal-feedback-text"></div>
+    </div>
+</div>
+
+<script>
+// ===========================
+// 상태 및 유틸
+// ===========================
+let allStudents = [];
+let currentFilter = 'all';
+let currentClassFilter = 'all';
+let searchQuery = '';
+const roomNames = ['탄수화물','단백질','지방','비타민','무기질','물','씩씩이'];
+
+// 헤더 날짜
+document.getElementById('header-date').textContent = new Date().toLocaleDateString('ko-KR', {year:'numeric',month:'long',day:'numeric'});
+
+function timeAgo(ts) {
+    if (!ts) return '-';
+    const date = ts.toDate ? ts.toDate() : new Date(ts);
+    const diff = Math.floor((Date.now() - date.getTime()) / 1000);
+    if (diff < 60) return `${diff}초 전`;
+    if (diff < 3600) return `${Math.floor(diff/60)}분 전`;
+    return `${Math.floor(diff/3600)}시간 전`;
+}
+
+function starsToEmoji(rating) {
+    if (!rating || rating === 0) return '<span style="color:rgba(255,255,255,0.25)">-</span>';
+    return '⭐'.repeat(rating) + `<span style="font-size:0.7rem;color:rgba(255,255,255,0.4);"> (${rating}/5)</span>`;
+}
+
+function getStatusBadge(s) {
+    if (s.completed) return '<span class="status-badge status-completed">🎉 완료</span>';
+    if (s.clearedRooms && s.clearedRooms.length > 0) return '<span class="status-badge status-in-progress">🔥 진행 중</span>';
+    return '<span class="status-badge status-not-started">💤 시작 전</span>';
+}
+
+function getRoomDots(s) {
+    const cleared = s.clearedRooms || [];
+    return Array.from({length:7},(_,i) => {
+        const ok = cleared.includes(i+1) || (i === 6 && s.completed);
+        return `<div class="room-dot ${ok?'cleared':'not-cleared'}" title="${roomNames[i]}">${i+1}</div>`;
+    }).join('');
+}
+
+function getProgress(s) {
+    let count = (s.clearedRooms||[]).length;
+    if (s.completed && !(s.clearedRooms||[]).includes(7)) count++;
+    return Math.min(100, Math.round((count / 7) * 100));
+}
+
+// ===========================
+// 탭 전환
+// ===========================
+function switchTab(tab) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(`tab-${tab}`).classList.add('active');
+    document.getElementById(`tab-btn-${tab}`).classList.add('active');
+    if (tab === 'ranking') renderRanking();
+}
+
+// ===========================
+// 진행 현황 렌더링
+// ===========================
+function renderStudents() {
+    const tbody = document.getElementById('student-tbody');
+    let filtered = allStudents.filter(s => {
+        const matchSearch = !searchQuery || s.name.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchClass = currentClassFilter === 'all' || s.classNum === currentClassFilter;
+        let matchFilter = true;
+        if (currentFilter === 'active') matchFilter = !s.completed && (s.clearedRooms||[]).length > 0;
+        if (currentFilter === 'completed') matchFilter = s.completed;
+        if (currentFilter === 'feedback') matchFilter = !!s.feedback;
+        return matchSearch && matchClass && matchFilter;
+    });
+    filtered.sort((a,b) => {
+        const score = s => s.completed ? 2 : (s.clearedRooms||[]).length > 0 ? 1 : 0;
+        return score(b) - score(a) || (b.score||0) - (a.score||0);
+    });
+
+    if (filtered.length === 0) {
+        document.getElementById('student-table').style.display = 'none';
+        document.getElementById('empty-state').style.display = 'block';
+        return;
+    }
+    document.getElementById('student-table').style.display = 'table';
+    document.getElementById('empty-state').style.display = 'none';
+
+    tbody.innerHTML = filtered.map(s => {
+        const progress = getProgress(s);
+        const feedbackPreview = s.feedback
+            ? `<span class="feedback-preview">${s.feedback}</span>`
+            : '<span class="no-feedback">-</span>';
+        return `
+        <tr class="student-row" onclick="showFeedbackModal('${s.id}')">
+            <td><div class="student-name">${s.name}</div><div class="student-time">⏰ ${timeAgo(s.startedAt)}</div></td>
+            <td><div class="rooms-dots">${getRoomDots(s)}</div></td>
+            <td><div class="progress-wrap">
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${progress}%"></div></div>
+                <span class="progress-text">${progress}%</span>
+            </div></td>
+            <td>${getStatusBadge(s)}</td>
+            <td style="font-size:0.8rem;color:rgba(255,255,255,0.6);">${s.currentStage||'-'}</td>
+            <td class="star-display">${starsToEmoji(s.rating)}</td>
+            <td>${feedbackPreview}</td>
+        </tr>`;
+    }).join('');
+
+    updateStats();
+}
+
+function updateStats() {
+    const total = allStudents.length;
+    const completed = allStudents.filter(s => s.completed).length;
+    const active = allStudents.filter(s => !s.completed && (s.clearedRooms||[]).length > 0).length;
+    const rated = allStudents.filter(s => s.rating && s.rating > 0);
+    const avgRating = rated.length > 0 ? (rated.reduce((sum,s) => sum+s.rating,0)/rated.length).toFixed(1) : '-';
+    document.getElementById('stat-total').textContent = total;
+    document.getElementById('stat-active').textContent = active;
+    document.getElementById('stat-completed').textContent = completed;
+    document.getElementById('stat-avg-rating').textContent = avgRating;
+}
+
+// ===========================
+// 순위표 렌더링
+// ===========================
+function renderRanking() {
+    // 반 필터 적용
+    let rankStudents = allStudents.filter(s => currentClassFilter === 'all' || s.classNum === currentClassFilter);
+
+    // 점수 기준 정렬 (같은 점수면 완료 시간 빠른 순)
+    const sorted = rankStudents.sort((a,b) => {
+        if ((b.score||0) !== (a.score||0)) return (b.score||0) - (a.score||0);
+        // 완료 시간 비교
+        const aT = a.completedAt ? (a.completedAt.toDate ? a.completedAt.toDate() : new Date(a.completedAt)) : new Date(9999,0);
+        const bT = b.completedAt ? (b.completedAt.toDate ? b.completedAt.toDate() : new Date(b.completedAt)) : new Date(9999,0);
+        return aT - bT;
+    });
+
+    if (sorted.length === 0) {
+        document.getElementById('rank-table').style.display = 'none';
+        document.getElementById('rank-empty').style.display = 'block';
+        return;
+    }
+    document.getElementById('rank-table').style.display = 'table';
+    document.getElementById('rank-empty').style.display = 'none';
+
+    // TOP 3 시상대
+    const medals = ['🥇','🥈','🥉'];
+    const rankClasses = ['rank-1','rank-2','rank-3'];
+    const podiumOrder = [1, 0, 2]; // 2등, 1등, 3등 순서로 배치
+    const podiumWrap = document.getElementById('podium-wrap');
+    podiumWrap.innerHTML = podiumOrder.map(idx => {
+        const s = sorted[idx];
+        if (!s) return `<div class="podium-card" style="opacity:0.3"><div class="podium-medal">${medals[idx]}</div><div class="podium-empty">-</div></div>`;
+        return `
+        <div class="podium-card ${rankClasses[idx]}" onclick="showFeedbackModal('${s.id}')">
+            <div class="podium-medal">${medals[idx]}</div>
+            <div class="podium-name">${s.name}</div>
+            <div class="podium-score">${s.score||0}점</div>
+            <div class="podium-detail">${(s.clearedRooms||[]).length}/7방 ${s.completed?'✅':''}</div>
+            ${s.rating ? `<div style="color:#fbbf24;font-size:0.85rem;margin-top:4px;">${'⭐'.repeat(s.rating)}</div>` : ''}
+        </div>`;
+    }).join('');
+
+    // 전체 순위 테이블
+    const tbody = document.getElementById('rank-tbody');
+    tbody.innerHTML = sorted.map((s, i) => {
+        const rank = i + 1;
+        const isTop3 = rank <= 3;
+        const rankEmoji = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}`;
+        const feedbackPreview = s.feedback
+            ? `<span class="feedback-preview">${s.feedback}</span>`
+            : '<span class="no-feedback">-</span>';
+        return `
+        <tr class="rank-row" onclick="showFeedbackModal('${s.id}')">
+            <td><span class="rank-num ${isTop3?'top3':''}">${rankEmoji}</span></td>
+            <td><div class="student-name">${s.name}</div></td>
+            <td style="font-weight:900;font-size:1.1rem;color:#ffd700;">${s.score||0}점</td>
+            <td><div class="rooms-dots">${getRoomDots(s)}</div></td>
+            <td>${getStatusBadge(s)}</td>
+            <td class="star-display">${starsToEmoji(s.rating)}</td>
+            <td>${feedbackPreview}</td>
+        </tr>`;
+    }).join('');
+}
+
+// ===========================
+// 필터 / 검색
+// ===========================
+function setFilter(filter) {
+    currentFilter = filter;
+    ['all','active','completed','feedback'].forEach(f => {
+        document.getElementById(`filter-${f}`)?.classList.toggle('active', f === filter);
+    });
+    renderStudents();
+}
+
+function filterStudents() {
+    searchQuery = document.getElementById('search-input').value;
+    const classFilterEl = document.getElementById('global-class-filter');
+    if (classFilterEl) currentClassFilter = classFilterEl.value;
+    renderStudents();
+    renderRanking();
+}
+
+// ===========================
+// 소감 모달
+// ===========================
+function showFeedbackModal(studentId) {
+    const s = allStudents.find(s => s.id === studentId);
+    if (!s || !s.feedback) return;
+    document.getElementById('modal-student-name').textContent = `✍️ ${s.name}의 소감`;
+    document.getElementById('modal-rating').innerHTML = starsToEmoji(s.rating);
+    document.getElementById('modal-feedback-text').textContent = s.feedback;
+    document.getElementById('feedback-modal').classList.add('active');
+}
+
+function closeFeedbackModal() {
+    document.getElementById('feedback-modal').classList.remove('active');
+}
+
+// ===========================
+// 📷 이미지 저장
+// ===========================
+async function saveAsImage(tabId) {
+    // 저장할 탭으로 전환
+    const tab = tabId === 'tab-progress' ? 'progress' : 'ranking';
+    switchTab(tab);
+
+    // 저장 중 표시
+    const overlay = document.getElementById('saving-overlay');
+    overlay.classList.add('active');
+
+    try {
+        await new Promise(r => setTimeout(r, 500)); // 렌더링 대기
+
+        const target = document.getElementById(tabId);
+        const header = document.getElementById('dashboard-header');
+
+        // 임시 캡처용 래퍼 만들기
+        const wrapper = document.createElement('div');
+        wrapper.style.cssText = 'background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);padding:0;width:' + (target.scrollWidth) + 'px;';
+        wrapper.appendChild(header.cloneNode(true));
+        wrapper.appendChild(target.cloneNode(true));
+        document.body.appendChild(wrapper);
+
+        const canvas = await html2canvas(wrapper, {
+            backgroundColor: '#0f0c29',
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            scrollX: 0, scrollY: 0,
+            width: wrapper.scrollWidth,
+            height: wrapper.scrollHeight,
+        });
+
+        document.body.removeChild(wrapper);
+
+        // 다운로드
+        const link = document.createElement('a');
+        const dateStr = new Date().toLocaleDateString('ko-KR').replace(/\./g,'').replace(/ /g,'_');
+        const tabName = tab === 'progress' ? '진행현황' : '순위표';
+        link.download = `영양분석관_${tabName}_${dateStr}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    } catch(e) {
+        console.error('이미지 저장 실패:', e);
+        alert('이미지 저장에 실패했어요. 다시 시도해주세요.');
+    } finally {
+        overlay.classList.remove('active');
+    }
+}
+
+// ===========================
+// 📊 엑셀(CSV) 저장
+// ===========================
+function exportToCSV() {
+    if (allStudents.length === 0) {
+        alert("아직 학생 데이터가 없습니다.");
+        return;
+    }
+
+    // CSV 헤더 (한글 깨짐 방지를 위해 BOM 포함)
+    const BOM = "\uFEFF";
+    let csvContent = BOM + "학반,학생 이름,점수,클리어한 방 개수,완료 여부,별점,소감,접속시간,완료시간\n";
+
+    // 데이터 행 생성
+    allStudents.forEach(s => {
+        const _name = s.name || ''; 
+        const _score = s.score || 0;
+        const _rooms = (s.clearedRooms || []).length;
+        const _done = s.completed ? '완료' : '진행중';
+        const _rating = s.rating || '';
+        
+        // 소감에 콤마나 줄바꿈이 있으면 따옴표로 감싸기
+        let _feedback = s.feedback || '';
+        _feedback = _feedback.replace(/"/g, '""');
+        _feedback = `"${_feedback}"`;
+        
+        const _start = s.startedAt && s.startedAt.toDate ? s.startedAt.toDate().toLocaleString('ko-KR') : '';
+        const _end = s.completedAt && s.completedAt.toDate ? s.completedAt.toDate().toLocaleString('ko-KR') : '';
+        const _class = s.classNum || '미지정';
+
+        const row = `${_class},${_name},${_score},${_rooms},${_done},${_rating},${_feedback},"${_start}","${_end}"`;
+        csvContent += row + "\n";
+    });
+
+    // 다운로드 트리거
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const dateStr = new Date().toLocaleDateString('ko-KR').replace(/\./g, '').replace(/ /g, '_');
+    link.href = url;
+    link.download = `영양분석관_학생데이터_${dateStr}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+}
+
+// ===========================
+// Firebase 실시간 리스너
+// ===========================
+function startRealtimeListener() {
+    if (!db) {
+        document.getElementById('loading').innerHTML = `<div style="font-size:2.5rem;">⚠️</div><p style="margin-top:10px;">Firebase가 연결되지 않았어요!<br>firebase-config.js를 설정해주세요.</p>`;
+        return;
+    }
+    db.collection('sessions').orderBy('startedAt', 'desc').onSnapshot(snapshot => {
+        document.getElementById('loading').style.display = 'none';
+        allStudents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        // 반 목록 추출 및 드롭다운 업데이트
+        const classes = new Set();
+        allStudents.forEach(s => { if(s.classNum) classes.add(s.classNum); });
+        const classFilterEl = document.getElementById('global-class-filter');
+        if (classFilterEl) {
+            const currentVal = classFilterEl.value;
+            let optionsHtml = '<option value="all" style="color:black">🏫 모든 반</option>';
+            Array.from(classes).sort().forEach(c => {
+                optionsHtml += `<option value="${c}" style="color:black">${c}</option>`;
+            });
+            classFilterEl.innerHTML = optionsHtml;
+            classFilterEl.value = currentVal; // 기존 선택값 유지
+            if (classFilterEl.selectedIndex === -1) classFilterEl.value = 'all';
+            currentClassFilter = classFilterEl.value;
+        }
+
+        renderStudents();
+        if (document.getElementById('tab-ranking').classList.contains('active')) renderRanking();
+    }, err => {
+        document.getElementById('loading').innerHTML = `<div style="font-size:1.8rem;color:#f87171;">❌ 오류</div><p style="font-size:0.85rem;margin-top:8px;color:rgba(255,255,255,0.4);">${err.message}</p>`;
+    });
+}
+
+// ===========================
+// 초기화
+// ===========================
+async function resetAllData() {
+    if (!db) return;
+    const confirm1 = confirm("⚠️ 파이어베이스에 저장된 모든 학생 데이터를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다!");
+    if (!confirm1) return;
+    const confirm2 = prompt("정말로 전체 데이터를 초기화하려면 '초기화' 라고 입력해주세요.");
+    if (confirm2 !== '초기화') {
+        alert("초기화가 취소되었습니다.");
+        return;
+    }
+
+    try {
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('loading').innerHTML = `<div class="spinner"></div><p>데이터 삭제 중...</p>`;
+        
+        const snapshot = await db.collection('sessions').get();
+        const batchSize = 500;
+        let count = 0;
+        
+        // Firestore는 클라이언트에서 컬렉션 전체 삭제가 어려워 문서 단위로 삭제
+        for (const doc of snapshot.docs) {
+            await db.collection('sessions').doc(doc.id).delete();
+            count++;
+        }
+        alert(`✅ 총 ${count}명의 학생 데이터가 성공적으로 삭제되었습니다.`);
+    } catch(e) {
+        console.error("데이터 초기화 오류:", e);
+        alert("데이터 초기화 중 오류가 발생했습니다: " + e.message);
+    } finally {
+        if(allStudents.length === 0) {
+            document.getElementById('loading').style.display = 'none';
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initFirebase();
+    startRealtimeListener();
+});
+</script>
+<!-- 푸터 -->
+<div style="text-align: center; font-size: 0.85rem; color: rgba(255,255,255,0.4); font-family: 'Gowun Dodum', sans-serif; padding: 30px 0 20px;">
+    <a href="./이용약관.md" target="_blank" style="color: rgba(255,255,255,0.4); text-decoration: none; margin: 0 10px; border-bottom: 1px solid rgba(255,255,255,0.2);">이용약관</a>
+    <a href="./개인정보처리방침.md" target="_blank" style="color: rgba(255,255,255,0.4); text-decoration: none; margin: 0 10px; border-bottom: 1px solid rgba(255,255,255,0.2);">개인정보처리방침</a>
+    <a href="./학교용_체크리스트.md" target="_blank" style="color: rgba(255,255,255,0.4); text-decoration: none; margin: 0 10px; border-bottom: 1px solid rgba(255,255,255,0.2);">체크리스트</a>
+    <span style="margin: 0 10px;">BY. LEE JIN YOUNG</span>
+</div>
+</body>
+</html>

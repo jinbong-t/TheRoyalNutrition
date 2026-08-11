@@ -1,0 +1,340 @@
+/* =========================================
+   MOBILE SCROLL FIX 📱
+   iOS/Android 터치 스크롤 수정
+========================================= */
+html, body {
+    height: 100%;
+}
+
+/* 모든 스크린 - 터치 스크롤 강제 활성화 */
+.screen {
+    -webkit-overflow-scrolling: touch !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    touch-action: pan-y !important;
+}
+
+/* 스크린 내부 요소들도 터치 허용 */
+.screen * {
+    touch-action: pan-y;
+}
+
+/* 버튼/클릭 요소는 모든 방향 터치 허용 */
+.screen button,
+.screen input,
+.screen select,
+.screen textarea,
+.screen [onclick],
+.screen .btn,
+.screen .stage-card {
+    touch-action: manipulation !important;
+}
+
+/* =========================================
+   엔딩 헤더 (THE END) 크기 축소
+   한 줄에 맞게
+========================================= */
+#ending .fairytale-header,
+.ending-book .fairytale-header {
+    font-size: 1.4rem !important;
+    margin-bottom: 10px !important;
+    white-space: nowrap;
+    letter-spacing: 0.1em;
+}
+
+/* =========================================
+   영양전도사 캡슐(알약) 크기 축소
+========================================= */
+.final-letter {
+    font-size: 2rem !important; /* 원래 3.5rem에서 대폭 축소 */
+}
+.final-code-desc {
+    font-size: 1.1rem !important; /* 안내 문구도 함께 축소 */
+    line-height: 1.4 !important;
+}
+
+/* =========================================
+   MOBILE COMPACT OPTIMIZATION 
+   (Forced to fit on one screen)
+========================================= */
+@media (max-width: 768px) {
+    /* Global Spacing Reduction */
+    body, p, h1, h2, h3, h4, h5, div, span, button {
+        line-height: 1.3 !important;
+        letter-spacing: -0.3px !important;
+    }
+    p, h1, h2, h3 { 
+        margin-top: 3px !important; 
+        margin-bottom: 3px !important; 
+    }
+
+    /* Reduce top HUD */
+    .hub-hud {
+        padding: 6px 10px !important;
+    }
+    .hud-char {
+        width: 38px !important; height: 38px !important;
+    }
+    .hud-title-area h2 {
+        font-size: 1.0rem !important; margin-bottom: 0px !important;
+    }
+    .hud-subtitle {
+        font-size: 0.7rem !important; margin-bottom: 0px !important;
+    }
+
+    /* Reduce Mission Banner */
+    .hub-mission-banner {
+        padding: 6px 8px !important; margin: 6px !important; gap: 6px !important;
+        flex-direction: row !important;
+        align-items: center !important;
+    }
+    .mission-banner-img {
+        width: 48px !important; height: 48px !important;
+    }
+    .mission-banner-text h3 {
+        font-size: 0.9rem !important; margin-bottom: 2px !important;
+    }
+    .mission-banner-text p {
+        font-size: 0.7rem !important;
+    }
+
+    /* Stages Grid & Cards - Slightly larger to fill space */
+    .hub-stages-wrap {
+        flex: none !important;
+        padding-bottom: 10px !important;
+    }
+    .stages-section-title {
+        font-size: 1.0rem !important;
+        margin: 6px 10px 4px !important;
+    }
+    .stages-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 8px !important;
+        padding: 0 8px 10px !important;
+    }
+    .stage-card {
+        padding: 6px 4px 4px !important;
+        border-radius: 8px !important;
+    }
+    .stage-num-badge {
+        width: 18px !important; height: 18px !important;
+        font-size: 0.65rem !important;
+        top: -6px !important; left: -6px !important;
+    }
+    .stage-img-wrap {
+        width: 45px !important; height: 45px !important;
+        margin: 0 auto 4px !important;
+        border-width: 2px !important;
+    }
+    .stage-name {
+        font-size: 0.8rem !important;
+        margin-bottom: 2px !important;
+    }
+    .stage-nutrient-badge {
+        padding: 2px 4px !important;
+        font-size: 0.6rem !important;
+        margin-bottom: 3px !important;
+        border-width: 1px !important;
+    }
+    .stage-enter-btn {
+        padding: 4px !important;
+        font-size: 0.7rem !important;
+        border-radius: 4px !important;
+        margin-top: 2px !important;
+    }
+
+    /* Room 7 Final Room Specific Size */
+    #room-7 {
+        grid-column: span 3 !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 8px 12px !important;
+        margin-top: 6px !important;
+        margin-bottom: 0px !important;
+    }
+    #room-7 > div:nth-child(2) {
+        width: 55px !important; 
+        height: 55px !important; 
+        margin-left: 8px !important;
+        border-width: 2px !important;
+    }
+    #room-7 > div:first-child .stage-name { 
+        font-size: 0.85rem !important; 
+        margin-bottom: 4px !important; 
+    }
+    #room-7 > div:first-child > div:nth-child(2) { 
+        font-size: 0.65rem !important; 
+        margin: 4px 0 !important; 
+        line-height: 1.2 !important; 
+    }
+    #room-7 .stage-enter-btn { 
+        width: auto !important; 
+        padding: 5px 12px !important; 
+        font-size: 0.75rem !important;
+        margin: 0 !important; 
+    }
+
+    /* Speech Bubble (Dwarf Dialog) - Shrink box and text */
+    .speech-bubble {
+        padding: 10px 14px !important;
+        font-size: 0.95rem !important;
+        margin: 5px auto 10px !important;
+        line-height: 1.4 !important;
+        border-width: 2px !important;
+        border-radius: 12px !important;
+        width: 92% !important;
+    }
+    .speech-bubble::before {
+        top: -12px !important;
+        font-size: 1.2rem !important;
+    }
+
+    /* Quiz Layout Balancing */
+    .quiz-question { 
+        padding: 8px 12px !important; 
+        font-size: 1.0rem !important;
+        font-weight: bold !important;
+        margin-bottom: 15px !important; 
+        min-height: unset !important; 
+    }
+    .quiz-options {
+        gap: 8px !important;
+    }
+    .option-btn {
+        padding: 10px 12px !important;
+        font-size: 0.85rem !important;
+        border-width: 1.5px !important;
+        border-radius: 10px !important;
+        line-height: 1.3 !important;
+    }
+    .word-cards {
+        gap: 6px !important;
+    }
+    .word-card {
+        padding: 6px 10px !important;
+        font-size: 0.8rem !important;
+        border-radius: 8px !important;
+    }
+
+    /* Room Header Layout Fix */
+    .room-header { gap: 10px !important; flex-wrap: nowrap !important; justify-content: flex-start !important; padding: 5px !important; padding-right: 50px !important; }
+    .room-header h2 { font-size: 0.85rem !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; margin: 0 !important; }
+    .back-btn { font-size: 0.75rem !important; padding: 6px 10px !important; white-space: nowrap !important; flex-shrink: 0 !important; }
+
+    /* Aggressive Gap Reduction */
+    [id^="room-screen-"] { gap: 5px !important; padding: 10px !important; }
+    .quiz-stage { padding: 10px 12px !important; border-width: 3px !important; border-radius: 15px !important; margin-top: 0 !important; }
+    .quiz-label { margin-bottom: 5px !important; padding: 4px 8px !important; font-size: 0.85rem !important; }
+    .dwarf-intro { margin-bottom: 0 !important; }
+    .speech-bubble { margin-bottom: 5px !important; }
+
+    /* Note Box (Diary) Layout Shrink */
+    .note-box, .secret-diary { margin-top: 5px !important; padding: 10px 12px !important; margin-bottom: 5px !important; border-width: 2px !important; }
+    .note-title { font-size: 0.95rem !important; margin-bottom: 5px !important; padding-bottom: 4px !important; }
+    .note-statements { gap: 3px !important; }
+    .note-stmt { font-size: 0.8rem !important; padding: 5px 8px !important; line-height: 1.25 !important; }
+
+    /* =========================================
+       COMPREHENSIVE MINI-GAME MOBILE FIXES
+       ========================================= */
+    /* Room 4: Dark Room & Carrot */
+    .dark-room-container { height: 220px !important; margin: 0 auto !important; border-radius: 12px !important; overflow: hidden !important; }
+    .dark-room-content > div { width: 95% !important; height: 150px !important; }
+    .dark-room-content > div > div:not(#hidden-carrot) { font-size: 2.5rem !important; }
+    #hidden-carrot { right: 10px !important; font-size: 2rem !important; bottom: 10px !important; z-index: 1 !important; }
+    
+    /* Room 1 & 4: Diary Boxes */
+    .diary-container { gap: 5px !important; padding: 10px !important; margin-top: 5px !important; }
+    .diary-page { font-size: 0.95rem !important; padding: 10px !important; line-height: 1.4 !important; margin-bottom: 8px !important; }
+
+    /* Room 5 & 6: Vending Machine & Market */
+    .vending-machine { width: 100% !important; max-width: 250px !important; padding: 10px !important; margin: 0 auto !important; }
+    .vending-glass { height: auto !important; min-height: 120px !important; padding: 10px !important; gap: 10px !important; }
+    .vending-btn-real { font-size: 0.75rem !important; padding: 6px !important; }
+    .vending-price { font-size: 0.7rem !important; padding: 4px !important; margin-top: 5px !important; }
+    .market-items { gap: 6px !important; }
+    .market-item { padding: 6px 8px !important; font-size: 0.75rem !important; }
+    
+    /* Room 5: Error Table - 열 간격 넓힐! */
+    .error-table th, .error-table td { padding: 8px 10px !important; font-size: 0.8rem !important; }
+    .error-table-wrap { overflow-x: visible !important; }
+    
+    /* Drag & Drop Blanks */
+    .slots { gap: 4px !important; padding: 5px !important; }
+    .drop-zone, .blank { padding: 5px 8px !important; font-size: 0.8rem !important; min-width: 40px !important; }
+    
+    /* Drag & Drop Classify Cards (Room 1) */
+    .classify-area { gap: 8px !important; }
+    .classify-source { gap: 6px !important; padding: 8px !important; margin-bottom: 5px !important; }
+    .drag-card { padding: 6px 10px !important; font-size: 0.8rem !important; border-width: 2px !important; border-radius: 10px !important; box-shadow: 0 2px 0 #d97706 !important; margin: 0 !important; }
+    .classify-bins { gap: 8px !important; }
+    .bin-label { font-size: 0.85rem !important; padding: 4px !important; }
+    .bin-content { min-height: 80px !important; padding: 5px !important; gap: 4px !important; }
+    
+    /* Order Matching Game (Room 2) */
+    .order-area { gap: 8px !important; }
+    .order-source { gap: 6px !important; }
+    .order-card { padding: 8px 10px !important; font-size: 0.8rem !important; border-radius: 8px !important; border-width: 2px !important; }
+    .order-result { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 6px !important; }
+    .order-slot { padding: 6px 10px !important; min-width: 0 !important; font-size: 0.8rem !important; border-width: 2px !important; border-radius: 8px !important; }
+    .slot-num { font-size: 1.1rem !important; min-width: 18px !important; }
+    
+    /* Room 6: OX Quiz */
+    #r6-ox-container { padding: 10px !important; margin-top: 5px !important; }
+    #r6-ox-question { font-size: 0.9rem !important; min-height: unset !important; margin-bottom: 10px !important; }
+    #r6-ox-container button { width: 60px !important; height: 60px !important; font-size: 2.5rem !important; border-radius: 10px !important; border-width: 3px !important; }
+
+    /* Boss Room & Witch Modal */
+    .witch-boss { font-size: 4.5rem !important; margin: 5px 0 !important; }
+    .modal-content { padding: 20px !important; }
+    .modal.witch .modal-content b { font-size: 1.4rem !important; word-break: keep-all !important; margin-bottom: 8px !important; }
+    .modal.witch .modal-content span { font-size: 0.95rem !important; word-break: keep-all !important; }
+    
+    /* Lock Dials (Safe) */
+    .safe-dial { transform: scale(0.8) !important; margin: -10px -5px !important; }
+    
+    /* Witch Intro Text (Room 4) */
+    .spooky-witch-emoji img { width: 90px !important; }
+    .quiz-label.spooky-text { margin-left: 70px !important; font-size: 0.75rem !important; padding: 4px !important; }
+    .quiz-question.spooky-text { font-size: 0.8rem !important; line-height: 1.4 !important; }
+    
+    /* Bone Game */
+    /* Bone Game */
+    #bone-game-container { height: 450px !important; width: 100% !important; max-width: 500px !important; margin: 0 auto !important; }
+    #bone-player { font-size: 8rem !important; transform: translateX(-50%) scale(0.75, 0.35) !important; transform-origin: bottom center !important; }
+    .bone-item { font-size: 2.5rem !important; }
+    #room-screen-5 { text-align: center; }
+    #room-screen-5 .btn { margin: 15px auto !important; display: block !important; width: 200px !important; }
+    
+    /* Matching Game (Room 3) */
+    .matching-game { gap: 10px !important; }
+    .match-col { gap: 5px !important; }
+    .match-item { padding: 6px 8px !important; font-size: 0.8rem !important; line-height: 1.2 !important; border-width: 1px !important; min-height: 40px !important; display: flex; align-items: center; justify-content: center; }
+    
+    /* Witch Boss Image */
+    .witch-boss { width: 130px !important; height: 160px !important; object-fit: cover !important; border-radius: 50% !important; box-shadow: 0 0 15px rgba(147,51,234,0.5); }
+    
+    /* Blender Animation */
+    @keyframes blender-spin {
+        0% { transform: scale(1) rotate(0deg); }
+        25% { transform: scale(0.9) rotate(5deg); }
+        50% { transform: scale(1.1) rotate(-5deg); }
+        75% { transform: scale(0.9) rotate(5deg); }
+        100% { transform: scale(1) rotate(0deg); }
+    }
+    
+    /* Ending Screen */
+    .ending-dwarfs { display: none !important; }
+    .fairytale-header { font-size: 1.2rem !important; margin-bottom: 10px !important; }
+    .final-code-desc { font-size: 0.95rem !important; }
+    #ending-text { font-size: 0.85rem !important; line-height: 1.4 !important; }
+}
+#ending-text { font-size: 0.85rem !important; letter-spacing: -0.5px !important; }
+
+
+@keyframes blenderSwirl { 0% { transform: scale(1) rotate(0deg); opacity: 1; } 50% { transform: scale(0.8) rotate(720deg); opacity: 0.8; } 100% { transform: scale(0.5) rotate(1440deg); opacity: 0; } }
+.swirl-anim { animation: blenderSwirl 1.5s ease-in-out forwards; }
+.blender-shaking { animation: shakeVending 0.1s infinite; }
+
