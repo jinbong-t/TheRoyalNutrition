@@ -257,4 +257,97 @@ window.closeCounselingModal = function() {
     document.getElementById('counseling-modal').style.display = 'none';
 }
 
+window.downloadCSV = function() {
+    if (Object.keys(window.teamsData).length === 0) {
+        alert('다운로드할 기록이 없사옵니다.');
+        return;
+    }
+
+    let csvContent = "\uFEFF수사관(모둠),진행방식,현재 관문,범행 추리 근거,최종 제출 식단\n";
+
+    // 화면에 보이는 리스트 순서나 필터링된 결과만 다운받게 하려면 rows를 순회하는게 좋지만,
+    // 전체 데이터를 다운로드하는 것이 일반적이므로 teamsData를 순회합니다.
+    // 만약 필터링된 결과만 받고 싶다면, 화면에 보이는(display: none이 아닌) tr을 찾아 ID로 추출할 수 있습니다.
+    const rows = document.querySelectorAll('#team-list-body tr');
+    let count = 0;
+
+    rows.forEach(row => {
+        if (row.cells.length === 1 || row.style.display === 'none') return; // 데이터 없음 또는 숨김 처리됨
+        const docId = row.id.replace('team-row-', '');
+        const data = window.teamsData[docId];
+        if (data) {
+            let name = data.name || '무명 수사관';
+            let version = data.version === 'combined' ? '온오프라인 결합' : '온라인 단독';
+            let currentGate = data.currentGate || '1';
+            let finalReason = (data.finalReason || '').replace(/"/g, '""');
+            let finalDiet = (data.finalDiet || '').replace(/"/g, '""');
+            
+            csvContent += `"${name}","${version}","${currentGate}","${finalReason}","${finalDiet}"\n`;
+            count++;
+        }
+    });
+
+    if (count === 0) {
+        alert('현재 화면에 표시된 (다운로드할) 기록이 없사옵니다.');
+        return;
+    }
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    const dateStr = new Date().toISOString().slice(0,10);
+    link.setAttribute("download", `수라간의_비밀_기록_${dateStr}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
+
+window.downloadImage = function() {
+    const mainElement = document.querySelector('main');
+    if (!mainElement) return;
+    
+    const btn = document.querySelector('button[onclick="downloadImage()"]');
+    if (btn) {
+        btn.innerText = "저장 중...";
+        btn.disabled = true;
+    }
+
+    // html2canvas가 로드되지 않은 경우 예외 처리
+    if (typeof html2canvas === 'undefined') {
+        alert('그림 그리는 장인을 불러오지 못했사옵니다. 새로고침 후 다시 시도해주시옵소서.');
+        if (btn) {
+            btn.innerText = "화면 이미지 저장";
+            btn.disabled = false;
+        }
+        return;
+    }
+
+    html2canvas(mainElement, {
+        backgroundColor: '#1f1a18', // dashboard.css의 배경색과 유사하게
+        scale: 2
+    }).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.href = imgData;
+        const dateStr = new Date().toISOString().slice(0,10);
+        link.download = `수라간의_비밀_대시보드_${dateStr}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        if (btn) {
+            btn.innerText = "화면 이미지 저장";
+            btn.disabled = false;
+        }
+    }).catch(err => {
+        console.error("이미지 저장 오류:", err);
+        alert("이미지 저장 중 기운이 엇갈렸사옵니다.");
+        if (btn) {
+            btn.innerText = "화면 이미지 저장";
+            btn.disabled = false;
+        }
+    });
+};
+
 console.log("교사용 관제실(대시보드) 로드 완료");

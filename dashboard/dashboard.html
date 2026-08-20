@@ -20,6 +20,8 @@
                     </select>
                 </div>
                 <span>입궐 모둠 : <strong id="total-teams" style="color: var(--color-accent-light); font-size:1.4rem;">0</strong> 팀</span>
+                <button onclick="downloadCSV()" class="btn-primary" style="background-color: #27ae60;">기록 다운로드 (CSV)</button>
+                <button onclick="downloadImage()" class="btn-primary" style="background-color: #2980b9;">화면 이미지 저장</button>
                 <button onclick="resetData()" class="btn-danger">기록 파기 (초기화)</button>
             </div>
         </div>
@@ -88,6 +90,7 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script type="module" src="../app/firebase-config.js"></script>
     <script type="module" src="dashboard.js?v=2"></script>
 </body>
