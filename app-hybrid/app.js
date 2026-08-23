@@ -210,7 +210,7 @@ window.startGame = async function() {
 
     } catch (error) {
         console.error("로그인 실패:", error);
-        showAlert('오류가 발생했소. 다시 시도하시오.');
+        showAlert('오류가 발생했소: ' + error.message);
     }
 }
 
