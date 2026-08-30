@@ -1243,8 +1243,8 @@ button {
     text-align: center;
     padding: 40px 20px;
     margin-top: 60px;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    border-top: none;
+    background: transparent;
     font-size: 0.85rem;
     color: rgba(255, 255, 255, 0.7);
     font-family: var(--font-heading, 'Noto Serif KR', serif);
