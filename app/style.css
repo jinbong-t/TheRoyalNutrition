@@ -1237,3 +1237,40 @@ button {
 
 @keyframes stampPop { 0% { transform: scale(0.5); opacity: 0; } 70% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
 @keyframes stampFadeIn { 0% { transform: rotate(-15deg) scale(3); opacity: 0; } 50% { opacity: 1; } 100% { transform: rotate(-15deg) scale(1); opacity: 1; } }
+
+/* 전문가 느낌의 푸터 */
+.site-footer {
+    text-align: center;
+    padding: 30px 20px;
+    margin-top: 50px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.3); /* 배경과 비슷하게, 눈에 잘 띄지 않게 */
+    font-family: var(--font-heading, 'Noto Serif KR', serif);
+    letter-spacing: 0.5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.site-footer .footer-links {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.site-footer a {
+    color: rgba(255, 255, 255, 0.4);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.site-footer a:hover {
+    color: rgba(212, 175, 55, 0.8); /* 호버 시 금색 */
+}
+
+.site-footer .footer-copy {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.2);
+}

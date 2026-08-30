@@ -313,3 +313,40 @@ h1 {
     50% { transform: scale(1.2); opacity: 0.8; box-shadow: 0 0 16px var(--color-accent-light); } 
     100% { transform: scale(1); opacity: 1; box-shadow: 0 0 8px var(--color-accent); } 
 }
+
+/* 전문가 느낌의 푸터 */
+.site-footer {
+    text-align: center;
+    padding: 30px 20px;
+    margin-top: 50px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.3);
+    font-family: 'Noto Serif KR', serif;
+    letter-spacing: 0.5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.site-footer .footer-links {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.site-footer a {
+    color: rgba(255, 255, 255, 0.4);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.site-footer a:hover {
+    color: rgba(203, 161, 53, 0.8); /* var(--color-accent) */
+}
+
+.site-footer .footer-copy {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.2);
+}
