@@ -317,36 +317,48 @@ h1 {
 /* 전문가 느낌의 푸터 */
 .site-footer {
     text-align: center;
-    padding: 30px 20px;
-    margin-top: 50px;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 40px 20px;
+    margin-top: 60px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
     font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.7);
     font-family: 'Noto Serif KR', serif;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
     align-items: center;
-    gap: 10px;
+    gap: 15px 30px;
 }
 
 .site-footer .footer-links {
     display: flex;
+    align-items: center;
     gap: 20px;
-    justify-content: center;
+}
+
+.site-footer .footer-links::after {
+    content: "|";
+    color: rgba(255, 255, 255, 0.4);
+    margin-left: 10px;
+    font-size: 0.9rem;
 }
 
 .site-footer a {
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.8);
     text-decoration: none;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .site-footer a:hover {
     color: rgba(203, 161, 53, 0.8); /* var(--color-accent) */
+    text-shadow: 0 0 10px rgba(203, 161, 53, 0.4);
 }
 
 .site-footer .footer-copy {
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.2);
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 300;
 }
