@@ -99,19 +99,16 @@ onSnapshot(teamsRef, (snapshot) => {
             ? `<span style="font-size:0.7em; background-color:#8e44ad; color:white; padding:2px 6px; border-radius:4px; margin-left:8px; vertical-align:middle;">결합</span>`
             : `<span style="font-size:0.7em; background-color:#2980b9; color:white; padding:2px 6px; border-radius:4px; margin-left:8px; vertical-align:middle;">온라인</span>`;
 
-        // 4. 과정중심평가 (드롭다운)
         const evalLevel = data.evaluationLevel || '';
         const evalHtml = `
             <div style="display: flex; flex-direction: column; gap: 8px; align-items: center;">
-                <div style="font-size: 0.75rem; color: #e6b8a2; font-family: 'Gowun Dodum', sans-serif; text-align: center; line-height: 1.3; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px;">
-                    🌱 <b>[성취기준]</b> 나의 수라상을 평가하고<br>건강한 식생활 실천하기!
-                </div>
                 <select onchange="updateEvaluation('${doc.id}', 'level', this.value)" style="padding: 6px; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--color-accent); border-radius: 4px; font-size: 0.85rem; cursor: pointer;">
-                    <option value="">⭐ 성취수준 선택</option>
-                    <option value="매우 우수 (A)" ${evalLevel === '매우 우수 (A)' ? 'selected' : ''}>매우 우수 (A)</option>
-                    <option value="우수 (B)" ${evalLevel === '우수 (B)' ? 'selected' : ''}>우수 (B)</option>
-                    <option value="보통 (C)" ${evalLevel === '보통 (C)' ? 'selected' : ''}>보통 (C)</option>
-                    <option value="노력 요함 (D)" ${evalLevel === '노력 요함 (D)' ? 'selected' : ''}>노력 요함 (D)</option>
+                    <option value="">⭐ 성취수준 (A~E)</option>
+                    <option value="A" ${evalLevel === 'A' ? 'selected' : ''}>A 등급</option>
+                    <option value="B" ${evalLevel === 'B' ? 'selected' : ''}>B 등급</option>
+                    <option value="C" ${evalLevel === 'C' ? 'selected' : ''}>C 등급</option>
+                    <option value="D" ${evalLevel === 'D' ? 'selected' : ''}>D 등급</option>
+                    <option value="E" ${evalLevel === 'E' ? 'selected' : ''}>E 등급</option>
                 </select>
             </div>
         `;
