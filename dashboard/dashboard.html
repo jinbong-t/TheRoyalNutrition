@@ -26,7 +26,18 @@
             </div>
         </div>
         
-        <div style="display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 15px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 15px; margin-bottom: 15px;">
+            <div style="background: rgba(0,0,0,0.3); padding: 8px 15px; border-radius: 6px; border: 1px solid rgba(230, 184, 162, 0.4); font-size: 0.75rem; color: #ddd; line-height: 1.4; font-family: 'Gowun Dodum', sans-serif; flex: 1; min-width: 300px;">
+                <strong style="color: #e6b8a2; font-size: 0.85rem;">🌱 [성취기준] 방탈출 과정 및 건강한 식단 제안 평가</strong>
+                <div style="display: flex; gap: 12px; margin-top: 4px; flex-wrap: wrap;">
+                    <span><b style="color: #f1c40f;">A</b>: 완벽 종합/구체적</span>
+                    <span><b style="color: #f1c40f;">B</b>: 단서 활용/제안</span>
+                    <span><b style="color: #f1c40f;">C</b>: 힌트 활용/이해</span>
+                    <span><b style="color: #f1c40f;">D</b>: 제한적/일부 이해</span>
+                    <span><b style="color: #f1c40f;">E</b>: 많은 도움 필요</span>
+                </div>
+            </div>
+            
             <div class="search-panel" style="display: flex; gap: 8px; align-items: center;">
                 <select id="filter-grade" onchange="filterTeams()" style="padding: 8px 10px; border-radius: 4px; border: 1px solid var(--color-accent); background: rgba(0,0,0,0.5); color: #fff; font-family: inherit; font-size: 0.95rem; cursor: pointer;">
                     <option value="">전체 학년</option>
@@ -94,6 +105,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script type="module" src="../app/firebase-config.js"></script>
-    <script type="module" src="dashboard.js?v=8"></script>
+    <script type="module" src="dashboard.js?v=9"></script>
 </body>
 </html>
