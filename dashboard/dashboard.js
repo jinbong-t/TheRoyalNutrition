@@ -104,11 +104,11 @@ onSnapshot(teamsRef, (snapshot) => {
             <div style="display: flex; flex-direction: column; gap: 8px; align-items: center;">
                 <select onchange="updateEvaluation('${doc.id}', 'level', this.value)" style="padding: 6px; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--color-accent); border-radius: 4px; font-size: 0.85rem; cursor: pointer;">
                     <option value="">⭐ 성취수준 선택</option>
-                    <option value="A" ${evalLevel === 'A' ? 'selected' : ''}>A (영향 정확히 이해, 구체적 실천)</option>
-                    <option value="B" ${evalLevel === 'B' ? 'selected' : ''}>B (영향 이해, 실천 방안 제안/실천)</option>
-                    <option value="C" ${evalLevel === 'C' ? 'selected' : ''}>C (영향 설명 가능, 실천 노력)</option>
-                    <option value="D" ${evalLevel === 'D' ? 'selected' : ''}>D (일부 이해, 제한적 실천)</option>
-                    <option value="E" ${evalLevel === 'E' ? 'selected' : ''}>E (이해 어려움, 많은 도움 필요)</option>
+                    <option value="A" ${evalLevel === 'A' ? 'selected' : ''}>A (단서 완벽 종합 문제해결, 구체적 식단 제안)</option>
+                    <option value="B" ${evalLevel === 'B' ? 'selected' : ''}>B (단서 활용 문제해결, 건강한 식단 제안)</option>
+                    <option value="C" ${evalLevel === 'C' ? 'selected' : ''}>C (힌트 활용 문제해결, 식생활 중요성 이해)</option>
+                    <option value="D" ${evalLevel === 'D' ? 'selected' : ''}>D (제한적 문제해결, 식생활 중요성 일부 이해)</option>
+                    <option value="E" ${evalLevel === 'E' ? 'selected' : ''}>E (문제해결 및 식단 제안에 많은 도움 필요)</option>
                 </select>
             </div>
         `;
