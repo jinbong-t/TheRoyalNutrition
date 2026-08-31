@@ -102,7 +102,10 @@ onSnapshot(teamsRef, (snapshot) => {
         // 4. 과정중심평가 (드롭다운)
         const evalLevel = data.evaluationLevel || '';
         const evalHtml = `
-            <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; flex-direction: column; gap: 8px; align-items: center;">
+                <div style="font-size: 0.75rem; color: #e6b8a2; font-family: 'Gowun Dodum', sans-serif; text-align: center; line-height: 1.3; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px;">
+                    🌱 <b>[성취기준]</b> 나의 수라상을 평가하고<br>건강한 식생활 실천하기!
+                </div>
                 <select onchange="updateEvaluation('${doc.id}', 'level', this.value)" style="padding: 6px; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--color-accent); border-radius: 4px; font-size: 0.85rem; cursor: pointer;">
                     <option value="">⭐ 성취수준 선택</option>
                     <option value="매우 우수 (A)" ${evalLevel === '매우 우수 (A)' ? 'selected' : ''}>매우 우수 (A)</option>
