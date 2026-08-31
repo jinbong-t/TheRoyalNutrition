@@ -112,12 +112,37 @@ onSnapshot(teamsRef, (snapshot) => {
             ? `<span style="font-size:0.7em; background-color:#8e44ad; color:white; padding:2px 6px; border-radius:4px; margin-left:8px; vertical-align:middle;">결합</span>`
             : `<span style="font-size:0.7em; background-color:#2980b9; color:white; padding:2px 6px; border-radius:4px; margin-left:8px; vertical-align:middle;">온라인</span>`;
 
+        // 4. 과정중심평가 (드롭다운)
+        const evalCompetency = data.evaluationCompetency || '';
+        const evalLevel = data.evaluationLevel || '';
+        const evalHtml = `
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <select onchange="updateEvaluation('${doc.id}', 'competency', this.value)" style="padding: 6px; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--color-accent); border-radius: 4px; font-size: 0.85rem; cursor: pointer;">
+                    <option value="">🎯 핵심역량 선택</option>
+                    <option value="건강한 생활 자립 역량" ${evalCompetency === '건강한 생활 자립 역량' ? 'selected' : ''}>건강한 생활 자립 역량</option>
+                    <option value="실천적 문제 해결 역량" ${evalCompetency === '실천적 문제 해결 역량' ? 'selected' : ''}>실천적 문제 해결 역량</option>
+                    <option value="관계 형성 역량" ${evalCompetency === '관계 형성 역량' ? 'selected' : ''}>관계 형성 역량</option>
+                    <option value="창의적 사고 역량" ${evalCompetency === '창의적 사고 역량' ? 'selected' : ''}>창의적 사고 역량</option>
+                    <option value="의사소통 역량" ${evalCompetency === '의사소통 역량' ? 'selected' : ''}>의사소통 역량</option>
+                    <option value="정보처리 역량" ${evalCompetency === '정보처리 역량' ? 'selected' : ''}>정보처리 역량</option>
+                </select>
+                <select onchange="updateEvaluation('${doc.id}', 'level', this.value)" style="padding: 6px; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--color-accent); border-radius: 4px; font-size: 0.85rem; cursor: pointer;">
+                    <option value="">⭐ 성취수준 선택</option>
+                    <option value="매우 우수 (A)" ${evalLevel === '매우 우수 (A)' ? 'selected' : ''}>매우 우수 (A)</option>
+                    <option value="우수 (B)" ${evalLevel === '우수 (B)' ? 'selected' : ''}>우수 (B)</option>
+                    <option value="보통 (C)" ${evalLevel === '보통 (C)' ? 'selected' : ''}>보통 (C)</option>
+                    <option value="노력 요함 (D)" ${evalLevel === '노력 요함 (D)' ? 'selected' : ''}>노력 요함 (D)</option>
+                </select>
+            </div>
+        `;
+
         html += `
             <tr id="team-row-${doc.id}">
                 <td><strong>${data.name || '무명 수사관'}</strong>${versionBadge}</td>
                 <td>${gateHtml}</td>
                 <td style="font-size: 0.95em; max-width: 250px; white-space: normal; word-break: keep-all; color: var(--color-text);">${reason}</td>
                 <td style="text-align: center;">${dietContent}</td>
+                <td style="text-align: center;">${evalHtml}</td>
             </tr>
         `;
     });
@@ -130,7 +155,7 @@ onSnapshot(teamsRef, (snapshot) => {
         tbody.innerHTML = html;
         if (typeof window.filterTeams === 'function') window.filterTeams(); // 필터 유지
     } else {
-        tbody.innerHTML = '<tr><td colspan="4" style="color: #888; padding: 40px;">입궐한 수사관이 아직 없사옵니다.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="color: #888; padding: 40px;">입궐한 수사관이 아직 없사옵니다.</td></tr>';
     }
 });
 
@@ -194,6 +219,20 @@ window.filterTeams = function() {
     document.getElementById('total-teams').innerText = visibleCount;
 };
 
+window.updateEvaluation = async function(teamId, type, value) {
+    try {
+        const teamRef = doc(db, 'teams', teamId);
+        if (type === 'competency') {
+            await updateDoc(teamRef, { evaluationCompetency: value });
+        } else if (type === 'level') {
+            await updateDoc(teamRef, { evaluationLevel: value });
+        }
+    } catch (e) {
+        console.error("평가 저장 오류:", e);
+        alert("평가 기록 중 오류가 발생했사옵니다.");
+    }
+};
+
 window.resetData = async function() {
     if(confirm('모든 수사관의 진척도를 파기하시겠사옵니까? (어명을 거둘 수 없사옵니다)')) {
         const teamIds = Object.keys(window.teamsData);
@@ -214,7 +253,7 @@ window.resetData = async function() {
             window.availableGrades.clear();
             window.availableClasses.clear();
             updateFilterDropdowns();
-            document.getElementById('team-list-body').innerHTML = '<tr><td colspan="4" style="color: #888; padding: 40px;">입궐한 수사관이 아직 없사옵니다.</td></tr>';
+            document.getElementById('team-list-body').innerHTML = '<tr><td colspan="5" style="color: #888; padding: 40px;">입궐한 수사관이 아직 없사옵니다.</td></tr>';
             document.getElementById('total-teams').innerText = 0;
             
         } catch (error) {
@@ -263,7 +302,7 @@ window.downloadCSV = function() {
         return;
     }
 
-    let csvContent = "\uFEFF수사관(모둠),진행방식,현재 관문,범행 추리 근거,최종 제출 식단\n";
+    let csvContent = "\uFEFF수사관(모둠),진행방식,현재 관문,범행 추리 근거,최종 제출 식단,핵심역량(평가),성취수준(평가)\n";
 
     // 화면에 보이는 리스트 순서나 필터링된 결과만 다운받게 하려면 rows를 순회하는게 좋지만,
     // 전체 데이터를 다운로드하는 것이 일반적이므로 teamsData를 순회합니다.
@@ -281,8 +320,10 @@ window.downloadCSV = function() {
             let currentGate = data.currentGate || '1';
             let finalReason = (data.finalReason || '').replace(/"/g, '""');
             let finalDiet = (data.finalDiet || '').replace(/"/g, '""');
+            let evalCompetency = data.evaluationCompetency || '';
+            let evalLevel = data.evaluationLevel || '';
             
-            csvContent += `"${name}","${version}","${currentGate}","${finalReason}","${finalDiet}"\n`;
+            csvContent += `"${name}","${version}","${currentGate}","${finalReason}","${finalDiet}","${evalCompetency}","${evalLevel}"\n`;
             count++;
         }
     });
