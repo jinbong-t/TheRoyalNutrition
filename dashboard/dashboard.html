@@ -26,19 +26,20 @@
             </div>
         </div>
         
-        <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 15px; margin-bottom: 15px;">
-            <div style="background: rgba(0,0,0,0.3); padding: 8px 15px; border-radius: 6px; border: 1px solid rgba(230, 184, 162, 0.4); font-size: 0.75rem; color: #ddd; line-height: 1.4; font-family: 'Gowun Dodum', sans-serif; flex: 1; min-width: 300px;">
-                <strong style="color: #e6b8a2; font-size: 0.85rem;">🌱 [성취기준] 방탈출 과정 및 건강한 식단 제안 평가</strong>
-                <div style="display: flex; gap: 12px; margin-top: 4px; flex-wrap: wrap;">
-                    <span><b style="color: #f1c40f;">A</b>: 완벽 종합/구체적</span>
-                    <span><b style="color: #f1c40f;">B</b>: 단서 활용/제안</span>
-                    <span><b style="color: #f1c40f;">C</b>: 힌트 활용/이해</span>
-                    <span><b style="color: #f1c40f;">D</b>: 제한적/일부 이해</span>
-                    <span><b style="color: #f1c40f;">E</b>: 많은 도움 필요</span>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px; margin-bottom: 15px;">
+            <div style="background: rgba(0,0,0,0.3); padding: 12px 15px; border-radius: 6px; border: 1px solid rgba(230, 184, 162, 0.4); font-size: 0.8rem; color: #ddd; line-height: 1.5; font-family: 'Gowun Dodum', sans-serif; flex: 1; min-width: 500px;">
+                <strong style="color: #e6b8a2; font-size: 0.9rem;">🌱 2022 개정 기술·가정 성취기준 [9기가01-02]</strong><br>
+                <span style="color: #bbb;">식생활이 청소년기 성장과 건강에 미치는 영향을 탐색하고 성장과 건강을 위해 바람직한 식생활 실천 방안을 탐색하여 실천한다.</span>
+                <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 8px;">
+                    <span><b style="color: #f1c40f;">A</b> : 식생활의 영향을 정확히 이해하고, 바람직한 실천 방안을 창의적이고 구체적으로 제안하며 실천할 수 있다.</span>
+                    <span><b style="color: #f1c40f;">B</b> : 식생활의 영향을 이해하고, 바람직한 실천 방안을 제안하며 실천할 수 있다.</span>
+                    <span><b style="color: #f1c40f;">C</b> : 식생활의 영향을 설명할 수 있으며, 기본적인 실천 방안을 알고 실천하려고 노력한다.</span>
+                    <span><b style="color: #f1c40f;">D</b> : 식생활의 영향 일부를 이해하며, 제한적인 실천을 할 수 있다.</span>
+                    <span><b style="color: #f1c40f;">E</b> : 식생활의 영향 이해에 어려움이 있으며, 실천 방안 제안이나 실천에 많은 도움이 필요하다.</span>
                 </div>
             </div>
             
-            <div class="search-panel" style="display: flex; gap: 8px; align-items: center;">
+            <div class="search-panel" style="display: flex; gap: 8px; align-items: center; margin-top: 10px;">
                 <select id="filter-grade" onchange="filterTeams()" style="padding: 8px 10px; border-radius: 4px; border: 1px solid var(--color-accent); background: rgba(0,0,0,0.5); color: #fff; font-family: inherit; font-size: 0.95rem; cursor: pointer;">
                     <option value="">전체 학년</option>
                 </select>
@@ -105,6 +106,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script type="module" src="../app/firebase-config.js"></script>
-    <script type="module" src="dashboard.js?v=9"></script>
+    <script type="module" src="dashboard.js?v=10"></script>
 </body>
 </html>
