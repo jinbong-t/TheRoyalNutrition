@@ -15,26 +15,13 @@ window.availableClasses = new Set();
 onSnapshot(settingsRef, (docSnap) => {
     if (docSnap.exists()) {
         const data = docSnap.data();
-        if (data.aiConfig && data.aiConfig.apiKey) {
-            document.getElementById('ai-api-key').value = data.aiConfig.apiKey;
-        }
         if (data.version) {
             document.getElementById('game-version-select').value = data.version;
         }
     }
 });
 
-window.saveApiKey = async function() {
-    const apiKey = document.getElementById('ai-api-key').value;
-    try {
-        await setDoc(settingsRef, { aiConfig: { apiKey: apiKey, model: 'gemini-1.5-flash' } }, { merge: true });
-        const statusEl = document.getElementById('api-save-status');
-        statusEl.style.display = 'inline';
-        setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
-    } catch (e) {
-        alert("신통력(API 키) 부여 중 기운이 엇갈렸사옵니다: " + e.message);
-    }
-};
+
 
 window.saveGameVersion = async function() {
     const version = document.getElementById('game-version-select').value;
@@ -113,19 +100,9 @@ onSnapshot(teamsRef, (snapshot) => {
             : `<span style="font-size:0.7em; background-color:#2980b9; color:white; padding:2px 6px; border-radius:4px; margin-left:8px; vertical-align:middle;">온라인</span>`;
 
         // 4. 과정중심평가 (드롭다운)
-        const evalCompetency = data.evaluationCompetency || '';
         const evalLevel = data.evaluationLevel || '';
         const evalHtml = `
             <div style="display: flex; flex-direction: column; gap: 8px;">
-                <select onchange="updateEvaluation('${doc.id}', 'competency', this.value)" style="padding: 6px; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--color-accent); border-radius: 4px; font-size: 0.85rem; cursor: pointer;">
-                    <option value="">🎯 핵심역량 선택</option>
-                    <option value="건강한 생활 자립 역량" ${evalCompetency === '건강한 생활 자립 역량' ? 'selected' : ''}>건강한 생활 자립 역량</option>
-                    <option value="실천적 문제 해결 역량" ${evalCompetency === '실천적 문제 해결 역량' ? 'selected' : ''}>실천적 문제 해결 역량</option>
-                    <option value="관계 형성 역량" ${evalCompetency === '관계 형성 역량' ? 'selected' : ''}>관계 형성 역량</option>
-                    <option value="창의적 사고 역량" ${evalCompetency === '창의적 사고 역량' ? 'selected' : ''}>창의적 사고 역량</option>
-                    <option value="의사소통 역량" ${evalCompetency === '의사소통 역량' ? 'selected' : ''}>의사소통 역량</option>
-                    <option value="정보처리 역량" ${evalCompetency === '정보처리 역량' ? 'selected' : ''}>정보처리 역량</option>
-                </select>
                 <select onchange="updateEvaluation('${doc.id}', 'level', this.value)" style="padding: 6px; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--color-accent); border-radius: 4px; font-size: 0.85rem; cursor: pointer;">
                     <option value="">⭐ 성취수준 선택</option>
                     <option value="매우 우수 (A)" ${evalLevel === '매우 우수 (A)' ? 'selected' : ''}>매우 우수 (A)</option>
@@ -302,7 +279,7 @@ window.downloadCSV = function() {
         return;
     }
 
-    let csvContent = "\uFEFF수사관(모둠),진행방식,현재 관문,범행 추리 근거,최종 제출 식단,핵심역량(평가),성취수준(평가)\n";
+    let csvContent = "\uFEFF수사관(모둠),진행방식,현재 관문,범행 추리 근거,최종 제출 식단,성취수준(평가)\n";
 
     // 화면에 보이는 리스트 순서나 필터링된 결과만 다운받게 하려면 rows를 순회하는게 좋지만,
     // 전체 데이터를 다운로드하는 것이 일반적이므로 teamsData를 순회합니다.
@@ -320,10 +297,9 @@ window.downloadCSV = function() {
             let currentGate = data.currentGate || '1';
             let finalReason = (data.finalReason || '').replace(/"/g, '""');
             let finalDiet = (data.finalDiet || '').replace(/"/g, '""');
-            let evalCompetency = data.evaluationCompetency || '';
             let evalLevel = data.evaluationLevel || '';
             
-            csvContent += `"${name}","${version}","${currentGate}","${finalReason}","${finalDiet}","${evalCompetency}","${evalLevel}"\n`;
+            csvContent += `"${name}","${version}","${currentGate}","${finalReason}","${finalDiet}","${evalLevel}"\n`;
             count++;
         }
     });
